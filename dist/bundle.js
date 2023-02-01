@@ -12,6 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "characterObject": () => (/* binding */ characterObject)
 /* harmony export */ });
+/* harmony import */ var _divisor_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./divisor.js */ "./src/utils/divisor.js");
 /* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -19,27 +20,42 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+
 var characterObject = /*#__PURE__*/function () {
-  function characterObject(startPt, endPt, frameDistance, gifs) {
+  function characterObject(startPt, endPt, frameDistance, gifs, w, h, name) {
     _classCallCheck(this, characterObject);
     this.adj;
     this.angle;
-    //this.browser = browser;
     this.count = 0;
     this.gif = gifs;
+    this.height = h;
+    this.currIndex;
     this.currQuad;
     this.endPt = endPt;
-    this.endAngle;
+    this.endAngle = undefined;
     this.frameDistance = frameDistance;
+    this.frameIndex;
+    this.inMotion = false;
+    this.name = name;
     this.opp;
+    this.pathCount = 0;
+    this.pathInterrupted = false;
     this.pivot = 0;
+    this.quadAdj;
+    this.quadOpp;
     this.startPt = startPt;
+    this.width = w;
     this.xDist;
     this.yDist;
   }
-
-  //separate path builder
   _createClass(characterObject, [{
+    key: "returnDivisor",
+    value: function returnDivisor(x, y, z) {
+      return (0,_divisor_js__WEBPACK_IMPORTED_MODULE_0__.returnDivisor)(x, y, z);
+    }
+
+    //separate path builder
+  }, {
     key: "moveCharacter",
     value: function moveCharacter() {
       var _this = this;
@@ -49,16 +65,26 @@ var characterObject = /*#__PURE__*/function () {
       //let pivot = 0;
       var quadAngle;
       var divisor;
-      var endPath = false;
+      //let endPath = false; 
+      var classLabel;
+      if (this.pathInterrupted == false) {
+        classLabel = 'pathPoint';
+      } else {
+        classLabel = 'pathPoint' + this.pathCount;
+      }
+
+      //let template = '<h2><p>This is my voice on ${device} </p></h2>';
+
       this.opp = Math.pow(this.endPt[0] - this.startPt[0], 1);
       this.adj = Math.pow(this.endPt[1] - this.startPt[1], 1) * -1;
       this.angle = Math.abs(Math.atan(this.opp / this.adj) * 180 / Math.PI);
-      //char.hypo = Math.sqrt((char.opp*char.opp)+(char.adj*char.adj));  
+      //char.hypo = Math.sqrt((char.opp*char.opp)+(char.adj*char.adj));   
 
       //QUAD 1 :
       if (this.endPt[1] <= this.startPt[1] && this.endPt[0] >= this.startPt[0]) {
         console.log("quad 1 PIVOT");
         this.currQuad = 1; //Define current quad number
+        this.pivot = 0;
         quadAngle = 38.5;
         quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
         quadAdj = Math.round(this.frameDistance * Math.cos(quadAngle / (180 / Math.PI))); //10px
@@ -75,7 +101,7 @@ var characterObject = /*#__PURE__*/function () {
             this.xDist += quadAdj;
             this.yDist -= quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -86,7 +112,7 @@ var characterObject = /*#__PURE__*/function () {
             this.xDist += this.frameDistance * 2; // Multiply char.xDist x2 if horizontal
             this.yDist -= 6; //Previously -=6
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var j = 0;
           var k = 2;
@@ -101,7 +127,7 @@ var characterObject = /*#__PURE__*/function () {
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -110,13 +136,13 @@ var characterObject = /*#__PURE__*/function () {
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
-            this.animateCharacterWalk();
+            this.animateCharacterWalk(this.pathCount);
           }
 
           //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
           else {
             this.rotateCharacter().then(function () {
-              _this.animateCharacterWalk();
+              _this.animateCharacterWalk(_this.pathCount);
             });
           }
         }
@@ -134,7 +160,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= quadOpp * 4;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //construct vertical path
@@ -142,35 +168,35 @@ var characterObject = /*#__PURE__*/function () {
             while (this.yDist > this.endPt[1] - this.frameDistance * 20) {
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 20 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 40) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 40 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 60) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 60 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 80) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 80 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 100) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           var _j = 0;
@@ -185,19 +211,29 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
-          this.animateCharacterWalk();
+          if (this.endAngle == undefined) {
+            this.animateCharacterWalk(this.pathCount);
+          }
+
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          else {
+            this.rotateCharacter().then(function () {
+              _this.animateCharacterWalk(_this.pathCount);
+            });
+          }
         }
       }
 
       //QUAD TWO
       else if (this.endPt[1] <= this.startPt[1] && this.endPt[0] <= this.startPt[0]) {
         console.log("quad 2");
+        this.pivot = 0;
         quadAngle = 38.5;
         this.currQuad = 2;
         quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
@@ -218,7 +254,7 @@ var characterObject = /*#__PURE__*/function () {
           while (this.count < divisor) {
             this.xDist -= quadAdj;
             this.yDist -= quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -228,7 +264,7 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.xDist -= this.frameDistance * 2; // Multiply this.xDist x2 if horizontal
             this.yDist -= 6; //Previously -=6
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j2 = 0;
           var _k2 = 2;
@@ -242,21 +278,20 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
-            this.animateCharacterWalk();
+            this.animateCharacterWalk(this.pathCount);
           }
 
-          //if this.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
           else {
-            //short pause
             this.rotateCharacter().then(function () {
-              _this.animateCharacterWalk();
+              _this.animateCharacterWalk(_this.pathCount);
             });
           }
         }
@@ -274,7 +309,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= quadOpp * 4;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //construct vertical path
@@ -282,7 +317,7 @@ var characterObject = /*#__PURE__*/function () {
             while (this.yDist > this.endPt[1] - this.frameDistance * 20) {
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
@@ -290,35 +325,35 @@ var characterObject = /*#__PURE__*/function () {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 10 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 40) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 40 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 60) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 60 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 80) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 80 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 100) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
               this.count++;
               this.yDist -= calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           var _j3 = 0;
@@ -333,18 +368,28 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= this.frameDistance * 1.2; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
-          this.animateCharacterWalk();
+          if (this.endAngle == undefined) {
+            this.animateCharacterWalk(this.pathCount);
+          }
+
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          else {
+            this.rotateCharacter().then(function () {
+              _this.animateCharacterWalk(_this.pathCount);
+            });
+          }
         }
       }
 
       //QUAD THREE
       else if (this.endPt[1] >= this.startPt[1] && this.endPt[0] <= this.startPt[0]) {
+        this.pivot = 0;
         console.log("quad 3");
         quadAngle = 38.5;
         this.currQuad = 3;
@@ -362,7 +407,7 @@ var characterObject = /*#__PURE__*/function () {
           while (this.count < divisor) {
             this.xDist -= quadAdj;
             this.yDist += quadOpp / 5;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -370,9 +415,9 @@ var characterObject = /*#__PURE__*/function () {
           //construct horizontal line
           while (this.xDist > this.endPt[0]) {
             this.xDist -= this.frameDistance * 2;
-            this.yDist -= calibration;
+            this.yDist -= 6;
             this.count++;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j4 = 0;
           var _k4 = 2;
@@ -386,21 +431,20 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6 
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
-            this.animateCharacterWalk();
+            this.animateCharacterWalk(this.pathCount);
           }
 
           //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
           else {
-            //short pause
             this.rotateCharacter().then(function () {
-              _this.animateCharacterWalk();
+              _this.animateCharacterWalk(_this.pathCount);
             });
           }
         } else if (this.angle < 38.5 && this.angle > 0) {
@@ -414,59 +458,107 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist += quadOpp / 2;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var difference = this.endPt[1] - this.startPt[1];
           console.log("difference : " + difference);
+
+          //construct vertical path
           if (difference > 0 && difference < this.frameDistance * 10) {
+            console.log('1');
+            console.log("frameDistance * 10 = " + 5.56 * 10);
             while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 10 && difference <= this.frameDistance * 20) {
+            console.log("2");
+            console.log("frameDistance * 10 = " + 5.56 * 20);
             while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 10 && difference <= this.frameDistance * 25) {
-            console.log("100-200");
+            console.log("3");
+            console.log("frameDistance * 10 = " + 5.56 * 20);
             while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 25 && difference <= this.frameDistance * 30) {
-            console.log("100-200");
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+            console.log("4");
+            console.log("frameDistance * 10 = " + 5.56 * 30);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 22) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 30 && difference <= this.frameDistance * 35) {
+            console.log("5");
+            console.log("frameDistance * 10 = " + 5.56 * 35);
             while (this.yDist < this.endPt[1] - this.frameDistance * 25) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 35 && difference <= this.frameDistance * 40) {
+            console.log("6");
+            console.log("frameDistance * 10 = " + 5.56 * 40);
             while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 40 && difference <= this.frameDistance * 45) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 31) {
+            console.log("7");
+            console.log("frameDistance * 10 = " + 5.56 * 42);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 34) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 45 && difference <= this.frameDistance * 50) {
+            console.log("8");
+            console.log("frameDistance * 10 = " + 5.56 * 50);
             while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
               this.count++;
               this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (difference > this.frameDistance * 50 && difference <= this.frameDistance * 55) {
+            console.log("9");
+            console.log("frameDistance * 10 = " + 5.56 * 55);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 44) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (difference > this.frameDistance * 55 && difference <= this.frameDistance * 60) {
+            console.log("10");
+            console.log("frameDistance * 10 = " + 5.56 * 60);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 47) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (difference > this.frameDistance * 60 && difference <= this.frameDistance * 65) {
+            console.log("11");
+            console.log("frameDistance * 10 = " + 5.56 * 65);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 51) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (difference > this.frameDistance * 65 && difference <= this.frameDistance * 70) {
+            console.log("12");
+            console.log("frameDistance * 10 = " + 5.56 * 70);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 55) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           var _j5 = 0;
@@ -481,13 +573,22 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= this.frameDistance * 1.2; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
-          this.animateCharacterWalk();
+          if (this.endAngle == undefined) {
+            this.animateCharacterWalk(this.pathCount);
+          }
+
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          else {
+            this.rotateCharacter().then(function () {
+              _this.animateCharacterWalk(_this.pathCount);
+            });
+          }
         }
       }
 
@@ -499,6 +600,9 @@ var characterObject = /*#__PURE__*/function () {
         this.pivot = 0;
         quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
         quadAdj = Math.round(this.frameDistance * Math.cos(quadAngle / (180 / Math.PI))); //10px
+
+        this.quadAdj = quadAdj;
+        this.quadOpp = quadOpp;
 
         //if end point is between 180 and 141.5 degrees
         if (this.angle > 38.5 && this.angle < 90) {
@@ -513,7 +617,7 @@ var characterObject = /*#__PURE__*/function () {
           while (this.count < divisor) {
             this.xDist += quadAdj;
             this.yDist += quadOpp / 5;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -523,7 +627,7 @@ var characterObject = /*#__PURE__*/function () {
             this.xDist += this.frameDistance * 2;
             this.yDist -= 6;
             this.count++;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j6 = 0;
           var _k6 = 2;
@@ -537,21 +641,122 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
-          //Reset start Points   chane to .style.left = 
+          //Reset start Points change to .style.left = 
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
-            this.animateCharacterWalk();
+            this.animateCharacterWalk(this.pathCount);
           }
 
           //if this.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
-          else {
-            //short pause
+          else if (this.pathInterrupted == true) {
+            if (this.endAngle == 292) {
+              this.animateCharacterWalk(this.pathCount);
+            } else {
+              this.rotateCharacter().then(function () {
+                _this.animateCharacterWalk(_this.pathCount);
+              });
+            }
+          }
+          //if path is not interrupted :
+          else if (this.pathInterrupted == false) {
+            //short pause 
             this.rotateCharacter().then(function () {
-              _this.animateCharacterWalk();
+              _this.animateCharacterWalk(_this.pathCount);
+            });
+          }
+        } else if (this.angle < 38.5 && this.angle > 0) {
+          console.log("diagonal then down");
+          this.xDist = this.startPt[0];
+          this.yDist = this.startPt[1] - calibration;
+
+          //diagonal
+          while (this.xDist <= this.endPt[0]) {
+            this.xDist += quadAdj;
+            this.yDist += quadOpp / 5;
+            this.count++;
+            this.pivot++;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+          var _difference = this.endPt[1] - this.startPt[1];
+          if (_difference > 0 && _difference < this.frameDistance * 10) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 20) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 25) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 25 && _difference <= this.frameDistance * 30) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 30 && _difference <= this.frameDistance * 35) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 25) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 35 && _difference <= this.frameDistance * 40) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 40 && _difference <= this.frameDistance * 45) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 31) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 45 && _difference <= this.frameDistance * 50) {
+            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
+              this.count++;
+              this.yDist += quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          }
+          var _j7 = 0;
+          var _k7 = 2;
+
+          //stop path cycle 
+          while (_j7 < 12) {
+            _j7++;
+            this.count++;
+            this.yDist += this.frameDistance * _k7; // Multiply this.xDist x2 if horizontal
+            _k7 = _k7 * .8;
+            this.yDist -= this.frameDistance * 1.2; //Previously -=6
+            this.startPt[0] = this.xDist;
+            this.startPt[1] = this.yDist;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+
+          //Reset start Points
+          document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
+          document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
+          if (this.endAngle == undefined) {
+            this.animateCharacterWalk(this.pathCount);
+          }
+
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          else {
+            this.rotateCharacter().then(function () {
+              _this.animateCharacterWalk(_this.pathCount);
             });
           }
         }
@@ -561,16 +766,27 @@ var characterObject = /*#__PURE__*/function () {
     key: "rotateCharacter",
     value: function rotateCharacter() {
       var _this2 = this;
-      //hack job
-      var thisEl = $('.pathPoint').eq(0);
-      console.log("thisEl : " + $('.pathPoint'));
-      thisEl[0].classList.add('tempPoint');
-      thisEl[0].classList.remove('pathPoint');
-      var rotate0q1 = [this.gif.r0q1x1, this.gif.r0q1x2, this.gif.r0q1x3, this.gif.r0q1x4];
-      var rotate0q2 = [this.gif.r0q2x1, this.gif.r0q2x2, this.gif.r0q2x3, this.gif.r0q2x4, this.gif.r0q2x5, this.gif.r0q2x6, this.gif.r0q2x7];
-      var rotate0q3 = [this.gif.r0q3x1, this.gif.r0q3x2, this.gif.r0q3x3, this.gif.r0q3x4, this.gif.r0q3x5, this.gif.r0q3x6];
-      var rotate0q4 = [this.gif.r0q4x1, this.gif.r0q4x2, this.gif.r0q4x3, this.gif.r0q4x4];
+      var thisEl;
+      if (this.pathInterrupted == true) {
+        var itemClass = '.' + 'pathPoint' + this.pathCount;
+        thisEl = $(itemClass).eq(0).append("<img width='" + this.width + "' height='" + this.height + "' class='cabbit' />"); //add img child with this.height and this.width 
+        thisEl[0].classList.add('tempPoint');
+        thisEl[0].classList.remove('pathPoint' + this.pathCount);
+      } else {
+        //hack job  
+        thisEl = $('.pathPoint');
+        thisEl[0].classList.add('tempPoint');
+        thisEl[0].classList.remove('pathPoint');
+      }
+
+      /*
+      let rotate0q1 = [this.gif.r0q1x1, this.gif.r0q1x2, this.gif.r0q1x3, this.gif.r0q1x4]
+      let rotate0q2 = [this.gif.r0q2x1, this.gif.r0q2x2, this.gif.r0q2x3, this.gif.r0q2x4, this.gif.r0q2x5, this.gif.r0q2x6, this.gif.r0q2x7]
+      let rotate0q3 = [this.gif.r0q3x1, this.gif.r0q3x2, this.gif.r0q3x3, this.gif.r0q3x4, this.gif.r0q3x5, this.gif.r0q3x6]
+      let rotate0q4 = [this.gif.r0q4x1, this.gif.r0q4x2, this.gif.r0q4x3, this.gif.r0q4x4]*/
+
       var p = new Promise(function (resolve, reject) {
+        //rotate 0 to quad 1
         if (_this2.endAngle == 0 && _this2.currQuad == 1) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad1-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
@@ -586,7 +802,8 @@ var characterObject = /*#__PURE__*/function () {
             resolve(_this2);
           }, 76 * 3);
         }
-        if (_this2.endAngle == 0 && _this2.currQuad == 2) {
+        //rotate 0 to quad 2
+        else if (_this2.endAngle == 0 && _this2.currQuad == 2) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad2-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
@@ -608,7 +825,8 @@ var characterObject = /*#__PURE__*/function () {
             resolve();
           }, 76 * 5);
         }
-        if (_this2.endAngle == 0 && _this2.currQuad == 3) {
+        //rotate 0 to quad 3
+        else if (_this2.endAngle == 0 && _this2.currQuad == 3) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad3-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -629,10 +847,196 @@ var characterObject = /*#__PURE__*/function () {
             resolve();
           }, 76 * 5);
         }
-        if (_this2.endAngle == 0 && _this2.currQuad == 4) {
+        //rotate 0 to quad 4
+        else if (_this2.endAngle == 0 && _this2.currQuad == 4) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-1.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-4.gif';
+            resolve(_this2);
+          }, 76 * 3);
+        } else if (_this2.endAngle == 90 && _this2.currQuad == 1) {
+          thisEl[0].firstChild.src = './cabbit-rotate-90-quad1-1.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad1-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad1-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad1-4.gif';
+            resolve(_this2);
+          }, 76 * 3);
+        } else if (_this2.endAngle == 90 && _this2.currQuad == 2) {
+          thisEl[0].firstChild.src = './cabbit-rotate-90-quad2-1.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad2-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad2-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad2-4.gif';
+            resolve(_this2);
+          }, 76 * 3);
+        } else if (_this2.endAngle == 90 && _this2.currQuad == 3) {
+          thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-1.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-4.gif';
+          }, 76 * 3);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-4.gif';
+          }, 76 * 4);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-5.gif';
+          }, 76 * 5);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-6.gif';
+          }, 76 * 6);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-7.gif';
+          }, 76 * 7);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-8.gif';
+          }, 76 * 8);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-9.gif';
+          }, 76 * 9);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-10.gif';
+            resolve(_this2);
+          }, 76 * 10);
+        } else if (_this2.endAngle == 90 && _this2.currQuad == 4) {
+          thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-1.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-4.gif';
+          }, 76 * 3);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-5.gif';
+          }, 76 * 4);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-6.gif';
+          }, 76 * 5);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-7.gif';
+          }, 76 * 6);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-8.gif';
+          }, 76 * 7);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-9.gif';
+          }, 76 * 8);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-10.gif';
+            resolve(_this2);
+          }, 76 * 9);
+        } else if (_this2.endAngle == 180 && _this2.currQuad == 1) {
+          thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-1.gif';
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-4.gif';
+          }, 76 * 3);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-5.gif';
+          }, 76 * 4);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-6.gif';
+          }, 76 * 5);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-7.gif';
+          }, 76 * 6);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-8.gif';
+            resolve(_this2);
+          }, 76 * 7);
+        } else if (_this2.endAngle == 180 && _this2.currQuad == 2) {
+          thisEl[0].firstChild.src = './cabbit-rotate-180-quad2-1.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad2-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad2-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad2-4.gif';
+            resolve(_this2);
+          }, 76 * 3);
+        } else if (_this2.endAngle == 180 && _this2.currQuad == 3) {
+          thisEl[0].firstChild.src = './cabbit-rotate-180-quad3-2.gif';
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad3-1.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad3-3.gif';
+            resolve(_this2);
+          }, 76 * 2);
+        } else if (_this2.endAngle == 180 && _this2.currQuad == 4) {
+          thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-4.gif';
+          }, 76 * 3);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-5.gif';
+          }, 76 * 4);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-6.gif';
+          }, 76 * 5);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-7.gif';
+            resolve(_this2);
+          }, 76 * 6);
+        }
+
+        //rotate 38.5 to quad 4
+        else if (_this2.endAngle == 38.5 && _this2.currQuad == 4) {
+          thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-1.gif';
+
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative  height : 400px  width : 300px  left : -150px  top : -200px ">') 
 
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-2.gif';
@@ -650,26 +1054,20 @@ var characterObject = /*#__PURE__*/function () {
     }
   }, {
     key: "animateCharacterWalk",
-    value: function animateCharacterWalk() {
+    value: function animateCharacterWalk(pathCount) {
       var _this3 = this;
-      setTimeout(function () {
-        for (var i = 1; i <= _this3.count; i++) {
-          _this3.pauseDisplay(i, _this3.currQuad, _this3.angle, _this3.pivot, _this3.count - 6).then(function (result) {
-            //****** 12-8-22 *** previously  this.count-7
-            _this3.endAngle = result.angle;
-            return _this3.displayChar(result);
-          }).then(function (result) {
-            return _this3.stopDisplay(result);
-          })["catch"](function (err) {
-            console.log(err);
-          });
-        }
-      }, 300);
-    }
-  }, {
-    key: "returnDivisor",
-    value: function returnDivisor(x, y, z) {
-      return (x - y) / z / 2; // if frame distance is 10, then return (x-y)/z
+      this.inMotion = true;
+      for (var i = 1; i <= this.count; i++) {
+        this.pauseDisplay(i, this.currQuad, this.angle, this.pivot, this.count - 6).then(function (result) {
+          //****** 12-8-22 *** previously  this.count-7
+          _this3.endAngle = result.angle;
+          return _this3.displayChar(result, pathCount);
+        }).then(function (result) {
+          return _this3.stopDisplay(result, pathCount);
+        })["catch"](function (err) {
+          console.log(err);
+        });
+      }
     }
   }, {
     key: "pauseDisplay",
@@ -764,6 +1162,12 @@ var characterObject = /*#__PURE__*/function () {
       } else if (quad == 4 && angle > 38.5 && index > pivot) {
         state.index = index;
         state.angle = 0;
+      } else if (quad == 4 && angle <= 38.5 && index <= pivot) {
+        state.index = index;
+        state.angle = 292;
+      } else if (quad == 4 && angle <= 38.5 && index > pivot) {
+        state.index = index;
+        state.angle = 270;
       }
       if (state.index >= pathEnd) {
         state.pathEnd = true;
@@ -784,7 +1188,7 @@ var characterObject = /*#__PURE__*/function () {
     }
   }, {
     key: "displayChar",
-    value: function displayChar(state) {
+    value: function displayChar(state, pathCount) {
       var _this4 = this;
       var p = new Promise(function (resolve, reject) {
         var srcGif; //URL for image 
@@ -799,18 +1203,209 @@ var characterObject = /*#__PURE__*/function () {
           }
         }
         var thisIndex = state.frameIndex - 1;
-        var walk0 = [_this4.gif.w0x1, _this4.gif.w0x2, _this4.gif.w0x3, _this4.gif.w0x4, _this4.gif.w0x5, _this4.gif.w0x6, _this4.gif.w0x7, _this4.gif.w0x8, _this4.gif.w0x9, _this4.gif.w0x10, _this4.gif.w0x11, _this4.gif.w0x12];
+        if (_this4.angle == 0) {
+          switch (thisIndex) {
+            case 0:
+              srcGif = 'w0x1';
+              break;
+            case 1:
+              srcGif = 'w0x2';
+              break;
+            case 2:
+              srcGif = 'w0x3';
+              break;
+            case 3:
+              srcGif = 'w0x4';
+              break;
+            case 4:
+              srcGif = 'w0x5';
+              break;
+            case 5:
+              srcGif = 'w0x6';
+              break;
+            case 6:
+              srcGif = 'w0x7';
+              break;
+            case 7:
+              srcGif = 'w0x8';
+              break;
+            case 8:
+              srcGif = 'w0x9';
+              break;
+            case 9:
+              srcGif = 'w0x10';
+              break;
+            case 10:
+              srcGif = 'w0x11';
+              break;
+            case 11:
+              srcGif = 'w0x12';
+              break;
+          }
+        }
+        var walk0 = [];
         var walk45 = [_this4.gif.w45x1, _this4.gif.w45x2, _this4.gif.w45x3, _this4.gif.w45x4, _this4.gif.w45x5, _this4.gif.w45x6, _this4.gif.w45x7, _this4.gif.w45x8, _this4.gif.w45x9, _this4.gif.w45x10, _this4.gif.w45x11, _this4.gif.w45x12];
-        var walk90 = [_this4.gif.w90x1, _this4.gif.w90x2, _this4.gif.w90x3, _this4.gif.w90x4, _this4.gif.w90x5, _this4.gif.w90x6, _this4.gif.w90x7, _this4.gif.w90x8, _this4.gif.w90x9, _this4.gif.w90x10, _this4.gif.w90x11, _this4.gif.w90x12];
+        var walk90 = [];
         var walk135 = [_this4.gif.w135x1, _this4.gif.w135x2, _this4.gif.w135x3, _this4.gif.w135x4, _this4.gif.w135x5, _this4.gif.w135x6, _this4.gif.w135x7, _this4.gif.w135x8, _this4.gif.w135x9, _this4.gif.w135x10, _this4.gif.w135x11, _this4.gif.w135x12];
-        var walk180 = [_this4.gif.w180x1, _this4.gif.w180x2, _this4.gif.w180x3, _this4.gif.w180x4, _this4.gif.w180x5, _this4.gif.w180x6, _this4.gif.w180x7, _this4.gif.w180x8, _this4.gif.w180x9, _this4.gif.w180x10, _this4.gif.w180x11, _this4.gif.w180x12];
+        var walk180 = [];
         var walk225 = [_this4.gif.w225x1, _this4.gif.w225x2, _this4.gif.w225x3, _this4.gif.w225x4, _this4.gif.w225x5, _this4.gif.w225x6, _this4.gif.w225x7, _this4.gif.w225x8, _this4.gif.w225x9, _this4.gif.w225x10, _this4.gif.w225x11, _this4.gif.w225x12];
         var walk270 = [_this4.gif.w270x1, _this4.gif.w270x2, _this4.gif.w270x3, _this4.gif.w270x4, _this4.gif.w270x5, _this4.gif.w270x6, _this4.gif.w270x7, _this4.gif.w270x8, _this4.gif.w270x9, _this4.gif.w270x10, _this4.gif.w270x11, _this4.gif.w270x12];
         var walk292 = [_this4.gif.w292x1, _this4.gif.w292x2, _this4.gif.w292x3, _this4.gif.w292x4, _this4.gif.w292x5, _this4.gif.w292x6, _this4.gif.w292x7, _this4.gif.w292x8, _this4.gif.w292x9, _this4.gif.w292x10, _this4.gif.w292x11, _this4.gif.w292x12];
-        if (state.angle == 38.5) {
-          srcGif = walk45[thisIndex];
-        } else if (state.angle == 0) {
+        if (state.angle == 0) {
+          var temp0;
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-1.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-2.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-3.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-4.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-5.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-6.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-7.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-8.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-9.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-10.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-11.gif';
+          walk0.push(temp0);
+          temp0 = new Image(_this4.width, _this4.height);
+          temp0.classList.add('cabbit');
+          temp0.src = './cabbit-walk-0-12.gif';
+          walk0.push(temp0);
+        } else if (state.angle == 90) {
+          var temp90;
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-1.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-2.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-3.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-4.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-5.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-6.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-7.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-8.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-9.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-10.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-11.gif';
+          walk90.push(temp90);
+          temp90 = new Image(_this4.width, _this4.height);
+          temp90.classList.add('cabbit');
+          temp90.src = './cabbit-walk-90-12.gif';
+          walk90.push(temp90);
+        } else if (state.angle == 180) {
+          var temp180;
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-1.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-2.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-3.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-4.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-5.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-6.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-7.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-8.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-9.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-10.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-11.gif';
+          walk180.push(temp180);
+          temp180 = new Image(_this4.width, _this4.height);
+          temp180.classList.add('cabbit');
+          temp180.src = './cabbit-walk-180-12.gif';
+          walk180.push(temp180);
+        }
+        if (state.angle == 0) {
           srcGif = walk0[thisIndex];
+        } else if (state.angle == 38.5) {
+          srcGif = walk45[thisIndex];
         } else if (state.angle == 90) {
           srcGif = walk90[thisIndex];
         } else if (state.angle == 141.5) {
@@ -825,15 +1420,37 @@ var characterObject = /*#__PURE__*/function () {
           srcGif = walk292[thisIndex];
         }
         if (state.pathEnd == false) {
-          console.log($('.pathPoint').eq(state.index));
-          $('.pathPoint').eq(state.index).append(srcGif);
-          $('.tempPoint').remove();
-
-          //Clears image from pathPoint after 1/15 sec
-          setTimeout(function () {
-            // document.getElementsByClassName('pathPoint')[state.index].empty();  
-            $('.pathPoint').eq(state.index).empty();
-          }, 76);
+          var pathPt;
+          if (pathCount == 0) {
+            pathPt = '.' + 'pathPoint';
+          }
+          if (pathCount >= 1) {
+            pathPt = '.' + 'pathPoint' + pathCount;
+          }
+          if (_this4.pathInterrupted == true) {
+            if (state.index == 1) {
+              $('.tempPoint').remove();
+            }
+            _this4.currIndex = state.index;
+            _this4.frameIndex = state.frameIndex;
+            $(pathPt).eq(state.index).append(srcGif);
+            setTimeout(function () {
+              $(pathPt).eq(state.index).empty();
+            }, 76);
+          } else {
+            _this4.currIndex = state.index;
+            _this4.frameIndex = state.frameIndex;
+            console.log(state.angle);
+            console.log(srcGif);
+            console.log("__________");
+            $(pathPt).eq(state.index).append(srcGif);
+            setTimeout(function () {
+              $(pathPt).eq(state.index).empty();
+            }, 76);
+          }
+          if (_this4.pathInterrupted == false) {
+            $('.tempPoint').remove();
+          }
         }
         if (state.index == state.pathEndFrame) {
           state.stopFrameIndex = state.frameIndex;
@@ -846,26 +1463,168 @@ var characterObject = /*#__PURE__*/function () {
     }
   }, {
     key: "stopDisplay",
-    value: function stopDisplay(state) {
+    value: function stopDisplay(state, pathCount) {
+      var pathPt;
       var gifSrc;
-      var walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3, this.gif.w0x4, this.gif.w0x4a, this.gif.w0x5, this.gif.w0x5a, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x8a, this.gif.w0x9, this.gif.w0x9a, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12];
+      if (pathCount == 0) {
+        pathPt = '.' + 'pathPoint';
+      }
+      if (pathCount >= 1) {
+        pathPt = '.' + 'pathPoint' + pathCount;
+      }
+
+      //let walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3,  this.gif.w0x4, this.gif.w0x4a, this.gif.w0x5, this.gif.w0x5a, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x8a,  this.gif.w0x9, this.gif.w0x9a, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12];
       var walk45 = [this.gif.w45x1, this.gif.w45x2, this.gif.w45x3, this.gif.w45x4, this.gif.w45x4a, this.gif.w45x5, this.gif.w45x5a, this.gif.w45x6, this.gif.w45x7, this.gif.w45x8, this.gif.w45x8a, this.gif.w45x9, this.gif.w45x9a, this.gif.w45x10, this.gif.w45x11, this.gif.w45x12];
       var walk90 = [this.gif.w90x1, this.gif.w90x2, this.gif.w90x3, this.gif.w90x4, this.gif.w90x4a, this.gif.w90x5, this.gif.w90x5a, this.gif.w90x6, this.gif.w90x7, this.gif.w90x8, this.gif.w90x8a, this.gif.w90x9, this.gif.w90x9a, this.gif.w90x10, this.gif.w90x11, this.gif.w90x12];
       var walk135 = [this.gif.w135x1, this.gif.w135x2, this.gif.w135x3, this.gif.w135x4, this.gif.w135x4a, this.gif.w135x5, this.gif.w135x5a, this.gif.w135x6, this.gif.w135x7, this.gif.w135x8, this.gif.w135x8a, this.gif.w135x9, this.gif.w135x9a, this.gif.w135x10, this.gif.w135x11, this.gif.w135x12];
-      var walk180 = [this.gif.w180x1, this.gif.w180x2, this.gif.w180x3, this.gif.w180x4, this.gif.w180x4a, this.gif.w180x5, this.gif.w180x5a, this.gif.w180x6, this.gif.w180x7, this.gif.w180x8, this.gif.w180x8a, this.gif.w180x9, this.gif.w180x9a, this.gif.w180x10, this.gif.w180x11, this.gif.w180x12];
+      //let walk180 = [this.gif.w180x1, this.gif.w180x2, this.gif.w180x3,  this.gif.w180x4, this.gif.w180x4a, this.gif.w180x5, this.gif.w180x5a,  this.gif.w180x6, this.gif.w180x7, this.gif.w180x8, this.gif.w180x8a,  this.gif.w180x9, this.gif.w180x9a, this.gif.w180x10, this.gif.w180x11, this.gif.w180x12];
       var walk225 = [this.gif.w225x1, this.gif.w225x2, this.gif.w225x3, this.gif.w225x4, this.gif.w225x4a, this.gif.w225x5, this.gif.w225x5a, this.gif.w225x6, this.gif.w225x7, this.gif.w225x8, this.gif.w225x8a, this.gif.w225x9, this.gif.w225x9a, this.gif.w225x10, this.gif.w225x11, this.gif.w225x12];
       var walk270 = [this.gif.w270x1, this.gif.w270x2, this.gif.w270x3, this.gif.w270x4, this.gif.w270x4a, this.gif.w270x5, this.gif.w270x5a, this.gif.w270x6, this.gif.w270x7, this.gif.w270x8, this.gif.w270x8a, this.gif.w270x9, this.gif.w270x9a, this.gif.w270x10, this.gif.w270x11, this.gif.w270x12];
       var walk292 = [this.gif.w292x1, this.gif.w292x2, this.gif.w292x3, this.gif.w292x4, this.gif.w292x4a, this.gif.w292x5, this.gif.w292x5a, this.gif.w292x6, this.gif.w292x7, this.gif.w292x8, this.gif.w292x8a, this.gif.w292x9, this.gif.w292x9a, this.gif.w292x10, this.gif.w292x11, this.gif.w292x12];
+      var stop0 = [];
+      if (state.angle == 0) {
+        var charGif = new Image(this.width, this.height);
+        charGif.classList.add('cabbit');
+        charGif.src = './cabbit-walk-0-1.gif';
+        stop0.push(charGif);
+        var charGif1 = new Image(this.width, this.height);
+        charGif1.classList.add('cabbit');
+        charGif1.src = './cabbit-walk-0-2.gif';
+        stop0.push(charGif1);
+        var charGif2 = new Image(this.width, this.height);
+        charGif2.classList.add('cabbit');
+        charGif2.src = './cabbit-walk-0-3.gif';
+        stop0.push(charGif2);
+        var charGif4 = new Image(this.width, this.height);
+        charGif4.classList.add('cabbit');
+        charGif4.src = './cabbit-walk-0-4.gif';
+        stop0.push(charGif4);
+        var charGif4a = new Image(this.width, this.height);
+        charGif4a.classList.add('cabbit');
+        charGif4a.src = './cabbit-walk-0-4a.gif';
+        stop0.push(charGif4a);
+        var charGif5 = new Image(this.width, this.height);
+        charGif5.classList.add('cabbit');
+        charGif5.src = './cabbit-walk-0-5.gif';
+        stop0.push(charGif5);
+        var charGif5a = new Image(this.width, this.height);
+        charGif5a.classList.add('cabbit');
+        charGif5a.src = './cabbit-walk-0-5a.gif';
+        stop0.push(charGif5a);
+        var charGif6 = new Image(this.width, this.height);
+        charGif6.classList.add('cabbit');
+        charGif6.src = './cabbit-walk-0-6.gif';
+        stop0.push(charGif6);
+        var charGif7 = new Image(this.width, this.height);
+        charGif7.classList.add('cabbit');
+        charGif7.src = './cabbit-walk-0-7.gif';
+        stop0.push(charGif7);
+        var charGif8 = new Image(this.width, this.height);
+        charGif8.classList.add('cabbit');
+        charGif8.src = './cabbit-walk-0-8.gif';
+        stop0.push(charGif8);
+        var charGif8a = new Image(this.width, this.height);
+        charGif8a.classList.add('cabbit');
+        charGif8a.src = './cabbit-walk-0-8a.gif';
+        stop0.push(charGif8a);
+        var charGif9 = new Image(this.width, this.height);
+        charGif9.classList.add('cabbit');
+        charGif9.src = './cabbit-walk-0-9.gif';
+        stop0.push(charGif9);
+        var charGif9a = new Image(this.width, this.height);
+        charGif9a.classList.add('cabbit');
+        charGif9a.src = './cabbit-walk-0-9a.gif';
+        stop0.push(charGif9a);
+        var charGif10 = new Image(this.width, this.height);
+        charGif10.classList.add('cabbit');
+        charGif10.src = './cabbit-walk-0-10.gif';
+        stop0.push(charGif10);
+        var charGif11 = new Image(this.width, this.height);
+        charGif11.classList.add('cabbit');
+        charGif11.src = './cabbit-walk-0-11.gif';
+        stop0.push(charGif11);
+        var charGif12 = new Image(this.width, this.height);
+        charGif12.classList.add('cabbit');
+        charGif12.src = './cabbit-walk-0-12.gif';
+        stop0.push(charGif12);
+      }
+      var stop180 = [];
+      if (state.angle == 180) {
+        var _charGif = new Image(this.width, this.height);
+        _charGif.classList.add('cabbit');
+        _charGif.src = './cabbit-walk-180-1.gif';
+        stop180.push(_charGif);
+        var _charGif2 = new Image(this.width, this.height);
+        _charGif2.classList.add('cabbit');
+        _charGif2.src = './cabbit-walk-180-2.gif';
+        stop180.push(_charGif2);
+        var _charGif3 = new Image(this.width, this.height);
+        _charGif3.classList.add('cabbit');
+        _charGif3.src = './cabbit-walk-180-3.gif';
+        stop180.push(_charGif3);
+        var _charGif4 = new Image(this.width, this.height);
+        _charGif4.classList.add('cabbit');
+        _charGif4.src = './cabbit-walk-180-4.gif';
+        stop180.push(_charGif4);
+        var _charGif4a = new Image(this.width, this.height);
+        _charGif4a.classList.add('cabbit');
+        _charGif4a.src = './cabbit-walk-180-4a.gif';
+        stop180.push(_charGif4a);
+        var _charGif5 = new Image(this.width, this.height);
+        _charGif5.classList.add('cabbit');
+        _charGif5.src = './cabbit-walk-180-5.gif';
+        stop180.push(_charGif5);
+        var _charGif5a = new Image(this.width, this.height);
+        _charGif5a.classList.add('cabbit');
+        _charGif5a.src = './cabbit-walk-180-5a.gif';
+        stop180.push(_charGif5a);
+        var _charGif6 = new Image(this.width, this.height);
+        _charGif6.classList.add('cabbit');
+        _charGif6.src = './cabbit-walk-180-6.gif';
+        stop180.push(_charGif6);
+        var _charGif7 = new Image(this.width, this.height);
+        _charGif7.classList.add('cabbit');
+        _charGif7.src = './cabbit-walk-180-7.gif';
+        stop180.push(_charGif7);
+        var _charGif8 = new Image(this.width, this.height);
+        _charGif8.classList.add('cabbit');
+        _charGif8.src = './cabbit-walk-180-8.gif';
+        stop180.push(_charGif8);
+        var _charGif8a = new Image(this.width, this.height);
+        _charGif8a.classList.add('cabbit');
+        _charGif8a.src = './cabbit-walk-180-8a.gif';
+        stop180.push(_charGif8a);
+        var _charGif9 = new Image(this.width, this.height);
+        _charGif9.classList.add('cabbit');
+        _charGif9.src = './cabbit-walk-180-9.gif';
+        stop180.push(_charGif9);
+        var _charGif9a = new Image(this.width, this.height);
+        _charGif9a.classList.add('cabbit');
+        _charGif9a.src = './cabbit-walk-180-9a.gif';
+        stop180.push(_charGif9a);
+        var _charGif10 = new Image(this.width, this.height);
+        _charGif10.classList.add('cabbit');
+        _charGif10.src = './cabbit-walk-180-10.gif';
+        stop180.push(_charGif10);
+        var _charGif11 = new Image(this.width, this.height);
+        _charGif11.classList.add('cabbit');
+        _charGif11.src = './cabbit-walk-180-11.gif';
+        stop180.push(_charGif11);
+        var _charGif12 = new Image(this.width, this.height);
+        _charGif12.classList.add('cabbit');
+        _charGif12.src = './cabbit-walk-180-12.gif';
+        stop180.push(_charGif12);
+      }
       if (state.angle == 38.5) {
         gifSrc = walk45;
       } else if (state.angle == 0) {
-        gifSrc = walk0;
+        gifSrc = stop0;
       } else if (state.angle == 90) {
         gifSrc = walk90;
       } else if (state.angle == 141.5) {
         gifSrc = walk135;
       } else if (state.angle == 180) {
-        gifSrc = walk180;
+        gifSrc = stop180;
       } else if (state.angle == 225) {
         gifSrc = walk225;
       } else if (state.angle == 270) {
@@ -874,17 +1633,30 @@ var characterObject = /*#__PURE__*/function () {
         gifSrc = walk292;
       }
       if (state.index == state.pathEndFrame) {
-        $('.pathPoint').eq(state.index).append(gifSrc[state.frameIndex - 1]);
+        $(pathPt).eq(state.index).append(gifSrc[state.frameIndex - 1]);
         //document.getElementsByClassName('pathPoint')[state.index].innerHTML += gifSrc[state.frameIndex-1]
         //$('.pathPoint').eq(state.index).html('<img src=' + gifSrc + state.frameIndex + '.gif' + ' style="position : relative; height : 350px; width : 262.5px; left : -150px; top : -200px;">');      
         setTimeout(function () {
           //document.getElementsByClassName('pathPoint')[state.index].empty();  
-          $('.pathPoint').eq(state.index).empty();
+          $(pathPt).eq(state.index).empty();
         }, 76);
       } else if (state.index > state.pathEndFrame) {
         var difference = state.index - state.pathEndFrame;
         var stopFrameIndex = state.frameIndex - difference;
         var thisIndex = state.frameIndex;
+        var amt;
+        if (this.currQuad == 1) {
+          amt = 4;
+        }
+        if (this.currQuad == 2) {
+          amt = 4;
+        }
+        if (this.currQuad == 3) {
+          amt = 4;
+        }
+        if (this.currQuad == 4) {
+          amt = 4;
+        }
 
         //2
         if (stopFrameIndex == 2 && difference == 4) {
@@ -1052,17 +1824,38 @@ var characterObject = /*#__PURE__*/function () {
         if (stopFrameIndex == 12 && difference == 5) {
           thisIndex = difference - 1;
         }
-        $('.pathPoint').eq(state.index).append(gifSrc[thisIndex]);
-        if (difference <= 4) {
+        $(pathPt).eq(state.index).append(gifSrc[thisIndex]);
+        if (difference <= amt) {
           setTimeout(function (thisIndex) {
-            $('.pathPoint').eq(state.index).empty();
+            $(pathPt).eq(state.index).empty();
           }, 76);
+        }
+        if (difference > amt) {
+          this.inMotion = false;
+          this.pathInterrrupted = false;
         }
       }
     }
   }]);
   return characterObject;
 }();
+
+/***/ }),
+
+/***/ "./src/utils/divisor.js":
+/*!******************************!*\
+  !*** ./src/utils/divisor.js ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "returnDivisor": () => (/* binding */ returnDivisor)
+/* harmony export */ });
+function returnDivisor(x, y, z) {
+  return (x - y) / z / 2; // if frame distance is 10, then return (x-y)/z
+}
 
 /***/ }),
 
@@ -1083,7 +1876,7 @@ function generateBackground(name, size) {
   var thisSize = size + '%';
   if (name == '11-small') {
     var thisEl = document.getElementById('bgMain');
-    thisEl.style.backgroundImage = "url(11-small.jpg)";
+    thisEl.style.backgroundImage = "url(smallBG)";
     thisEl.style.backgroundPosition = "center center";
     thisEl.style.backgroundSize = thisSize;
     thisEl.style.zIndex = "-10";
@@ -1110,29 +1903,396 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function generateCharacter(name, charPosition, winWidth, screenPercent) {
+function generateCharacter(name, charPosition, winWidth, winHeight, screenPercent) {
   var charSize = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.setCharSize)(winWidth, screenPercent);
   var frameDistance = winWidth * .002604166666667;
   switch (name) {
     case 'cabbit':
       var cabbitGIFs = (0,_gifs_js__WEBPACK_IMPORTED_MODULE_0__.cabbitGifs)('cabbit', charSize[0], charSize[1]);
-      var cabbit = new _character_js__WEBPACK_IMPORTED_MODULE_1__.characterObject(charPosition.cabbit, [], frameDistance, cabbitGIFs);
-      console.log(cabbit);
+      var cabbit = new _character_js__WEBPACK_IMPORTED_MODULE_1__.characterObject(charPosition.cabbit, [], frameDistance, cabbitGIFs, charSize[0], charSize[1], name);
       document.getElementsByTagName('body')[0].addEventListener('click', function (e) {
+        var itemClass;
+        var count = 0;
+
+        //set end points
         cabbit.endPt[0] = e.pageX;
         cabbit.endPt[1] = e.pageY;
-        if (cabbit.count > 1) {
-          console.log('DONE');
-          var prevCount;
-          var points = $('.pathPoint');
-          var offsetTop = $('#startPoint')[0].offsetTop + "px"; // ******change to percent percentage
 
-          for (var j = 0; j < cabbit.count - 1; j++) {
-            points[j].remove();
+        //If screen is clicked while cabbit is moving, path is being interrupted
+        if (cabbit.count > 1 && cabbit.inMotion == true) {
+          cabbit.pathInterrupted = true;
+          cabbit.pathCount++;
+          if (cabbit.pathCount - 1 == 0) {
+            itemClass = '.pathPoint';
+          } else {
+            itemClass = '.pathPoint' + (cabbit.pathCount - 1);
           }
-          $('.pathPoint').css('top', offsetTop);
-          cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
-          cabbit.count = 0;
+          var offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+          var str1 = $('#' + cabbit.currIndex)[0].style.left;
+          var str2 = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+          str1 = eval(str1.substring(0, str1.length - 2));
+          str2 = eval(str2.substring(0, str2.length - 2));
+
+          //on click, reset start points
+          cabbit.startPt[0] = str1;
+          cabbit.startPt[1] = str2;
+          $('#endPoint').css('left', cabbit.endPt[0]);
+          $('#endPoint').css('top', cabbit.endPt[1]);
+          var points = $(itemClass);
+          if (cabbit.endAngle == 0) {
+            //selected quad == 1
+            if (cabbit.endPt[0] >= cabbit.startPt[0] && cabbit.endPt[1] <= cabbit.startPt[1]) {
+              for (var j = 0; j < cabbit.count - 1; j++) {
+                points[j].remove();
+              }
+              count--;
+            }
+
+            //selected quad == 2
+            else if (cabbit.endPt[1] <= cabbit.startPt[1] && cabbit.endPt[0] <= cabbit.startPt[0]) {
+              for (var _j = 0; _j < cabbit.count - 1; _j++) {
+                points[_j].remove();
+              }
+              count--;
+            }
+
+            //selected quad == 3
+            else if (cabbit.endPt[1] >= cabbit.startPt[1] && cabbit.endPt[0] <= cabbit.startPt[0]) {
+              for (var _j2 = 0; _j2 < cabbit.count - 1; _j2++) {
+                points[_j2].remove();
+              }
+              count--;
+            }
+
+            //selected quad == 4 
+            else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1] && cabbit.currIndex >= cabbit.pivot) {
+              for (var _j3 = 0; _j3 < cabbit.count - 1; _j3++) {
+                points[_j3].remove();
+              }
+            }
+          }
+
+          //if cabbit is moving diagonally at 292  
+          else if (cabbit.endAngle == 292) {
+            var src;
+            /*
+            console.log("start pt x : " + cabbit.startPt[0])
+            console.log("end pt x : " + cabbit.endPt[0])
+             console.log("start pt y : " + cabbit.startPt[1])
+            console.log("end pt y : " + cabbit.endPt[1]) */
+
+            switch (cabbit.frameIndex) {
+              case 1:
+                src = 'w292x2';
+                break;
+              case 2:
+                src = 'w292x3';
+                break;
+              case 3:
+                src = 'w292x4';
+                break;
+              case 4:
+                src = 'w292x5';
+                break;
+              case 5:
+                src = 'w292x6';
+                break;
+              case 6:
+                src = 'w292x7';
+                break;
+              case 7:
+                src = 'w292x8';
+                break;
+              case 8:
+                src = 'w292x9';
+                break;
+              case 9:
+                src = 'w292x10';
+                break;
+              case 10:
+                src = 'w292x11';
+                break;
+              case 11:
+                src = 'w292x12';
+                break;
+              case 12:
+                src = 'w292x1';
+                break;
+            }
+
+            //selected quad 4, pivot
+            if (cabbit.endPt[1] >= cabbit.startPt[1] && cabbit.endPt[0] >= cabbit.startPt[0]) {
+              for (var _j4 = 0; _j4 < cabbit.count - 1; _j4++) {
+                points[_j4].remove();
+              }
+              $('#bgMain').append('<div class="' + 'tempPoint' + '" style="left:' + cabbit.startPt[0] + 'px; top:' + cabbit.startPt[1] + 'px;"></div>');
+              $('.tempPoint').append('<img width="' + cabbit.width + '" height="' + cabbit.height + '" class="' + 'cabbit' + '" />');
+              $('.cabbit')[0].src = cabbitGIFs[src].src;
+              count++;
+            }
+            /*
+            //selected quad 4, diagonal then down
+            else if(){}
+             //selected quad 1, pivot
+            else if(){}
+             //selected quad 1, diagonal up
+            else if(){}
+             //selected quad 2, pivot
+            else if(){}
+             //selected quad 2, diagonal up
+            else if(){}
+             //selected quad 3, pivot
+            else if(){}
+             //selected quad 3, diagonal down
+            else if(){}*/
+          }
+
+          cabbit.count = count;
+          cabbit.moveCharacter();
+        }
+
+        //IF character is not in motion, path 
+        else if (cabbit.count > 1 && cabbit.inMotion == false) {
+          var _offsetTop; // ******change to percent percentage  
+          var calibration = winHeight / 18.32;
+          if (cabbit.pathCount == 0) {
+            itemClass = '.pathPoint';
+          } else {
+            itemClass = '.pathPoint' + cabbit.pathCount;
+          }
+          var points = $(itemClass);
+
+          //cabbit.pathCount = 0
+
+          //endAngle = 0; pathCount = 0
+          if (cabbit.endAngle == 0) {
+            _offsetTop = $('#startPoint')[0].offsetTop + "px";
+            cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
+
+            //CURRENT QUAD == 1
+            if (cabbit.currQuad == 1) {
+              //selected quad == 1  
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j5 = 0; _j5 < cabbit.count - 1; _j5++) {
+                  points[_j5].remove();
+                }
+              }
+              //selected quad == 2
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j6 = 0; _j6 < cabbit.count - 1; _j6++) {
+                  points[_j6].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
+                for (var _j7 = 0; _j7 < cabbit.count - 1; _j7++) {
+                  points[_j7].remove();
+                }
+              }
+              //selected quad == 4
+              else {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j8 = 0; _j8 < cabbit.count - 1; _j8++) {
+                  points[_j8].remove();
+                }
+              }
+            } else if (cabbit.currQuad == 4) {
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j9 = 0; _j9 < cabbit.count - 1; _j9++) {
+                  points[_j9].remove();
+                }
+              }
+              //selected quad == 2
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
+                for (var _j10 = 0; _j10 < cabbit.count - 1; _j10++) {
+                  points[_j10].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j11 = 0; _j11 < cabbit.count - 1; _j11++) {
+                  points[_j11].remove();
+                }
+              }
+              //selected quad == 4
+              else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j12 = 0; _j12 < cabbit.count - 1; _j12++) {
+                  points[_j12].remove();
+                }
+              }
+            }
+          }
+
+          //endAngle == 90; pathCount = 0
+          else if (cabbit.endAngle == 90) {
+            _offsetTop = $('#startPoint')[0].offsetTop + "px";
+            cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
+            //if currQuad == 1 
+            if (cabbit.currQuad == 1) {
+              //selected quad == 1 
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
+                for (var _j13 = 0; _j13 < cabbit.count - 1; _j13++) {
+                  points[_j13].remove();
+                }
+              }
+              //selected quad == 2
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration * 2; // MINUS CALIBRATION
+                for (var _j14 = 0; _j14 < cabbit.count - 1; _j14++) {
+                  points[_j14].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
+                for (var _j15 = 0; _j15 < cabbit.count - 1; _j15++) {
+                  points[_j15].remove();
+                }
+              }
+              //selected quad == 4
+              else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j16 = 0; _j16 < cabbit.count - 1; _j16++) {
+                  points[_j16].remove();
+                }
+              }
+            }
+            //if currQuad == 2
+            else if (cabbit.currQuad == 2) {
+              //selected quad == 1  
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j17 = 0; _j17 < cabbit.count - 1; _j17++) {
+                  points[_j17].remove();
+                }
+              }
+              //selected quad == 2
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j18 = 0; _j18 < cabbit.count - 1; _j18++) {
+                  points[_j18].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
+                for (var _j19 = 0; _j19 < cabbit.count - 1; _j19++) {
+                  points[_j19].remove();
+                }
+              }
+              //selected quad == 4
+              else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j20 = 0; _j20 < cabbit.count - 1; _j20++) {
+                  points[_j20].remove();
+                }
+              }
+            }
+          } else if (cabbit.endAngle == 180) {
+            //currQuad == 2
+            if (cabbit.currQuad == 2) {
+              //selected quad == 1
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 4; // MINUS CALIBRATION
+                for (var _j21 = 0; _j21 < cabbit.count - 1; _j21++) {
+                  points[_j21].remove();
+                }
+              }
+              //selected quad == 2, pivot
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j22 = 0; _j22 < cabbit.count - 1; _j22++) {
+                  points[_j22].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j23 = 0; _j23 < cabbit.count - 1; _j23++) {
+                  points[_j23].remove();
+                }
+              }
+              //selected quad == 4
+              else {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j24 = 0; _j24 < cabbit.count - 1; _j24++) {
+                  points[_j24].remove();
+                }
+              }
+            }
+
+            //currQuad == 3
+            else if (cabbit.currQuad == 3) {
+              //selected quad == 1
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 4; // MINUS CALIBRATION
+                for (var _j25 = 0; _j25 < cabbit.count - 1; _j25++) {
+                  points[_j25].remove();
+                }
+              }
+              //selected quad == 2, pivot
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j26 = 0; _j26 < cabbit.count - 1; _j26++) {
+                  points[_j26].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j27 = 0; _j27 < cabbit.count - 1; _j27++) {
+                  points[_j27].remove();
+                }
+              }
+              //selected quad == 4
+              else {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j28 = 0; _j28 < cabbit.count - 1; _j28++) {
+                  points[_j28].remove();
+                }
+              }
+            }
+          } else if (cabbit.endAngle == 270) {
+            if (cabbit.currQuad == 3) {} else if (cabbit.currQuad == 4) {}
+          }
+          $(itemClass).css('top', _offsetTop);
+
+          //MAKE SURE TO ADD THIS TO EVERY CASE
+          //cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration)
+
+          cabbit.count = count;
           cabbit.moveCharacter();
         } else {
           cabbit.moveCharacter();
@@ -1158,13 +2318,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateCharacter.js */ "./src/utils/generateCharacter.js");
 
 
-function generateScene(sceneNum, winWidth, charPosition) {
+function generateScene(sceneNum, winWidth, winHeight, charPosition) {
   switch (sceneNum) {
     case 1:
       //scene 11
       var screenPercent = 75;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)("11-small", screenPercent);
-      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, winWidth, screenPercent);
+      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, winWidth, winHeight, screenPercent);
       break;
     case 2:
       //sceneName = "10-small"
@@ -1490,899 +2650,452 @@ function cabbitGifs(name, width, height) {
   charGIFS.r0q1x1 = new Image(width, height);
   charGIFS.r0q1x1.classList.add(name);
   charGIFS.r0q1x1.src = _assets_motion_cabbit_cabbit_rotate_0_quad1_1_gif__WEBPACK_IMPORTED_MODULE_0__;
-  charGIFS.r0q1x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q1x2 = new Image(width, height);
   charGIFS.r0q1x2.classList.add(name);
   charGIFS.r0q1x2.src = _assets_motion_cabbit_cabbit_rotate_0_quad1_2_gif__WEBPACK_IMPORTED_MODULE_1__;
-  charGIFS.r0q1x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q1x3 = new Image(width, height);
   charGIFS.r0q1x3.classList.add(name);
   charGIFS.r0q1x3.src = _assets_motion_cabbit_cabbit_rotate_0_quad1_3_gif__WEBPACK_IMPORTED_MODULE_2__;
-  charGIFS.r0q1x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q1x4 = new Image(width, height);
   charGIFS.r0q1x4.classList.add(name);
   charGIFS.r0q1x4.src = _assets_motion_cabbit_cabbit_rotate_0_quad1_4_gif__WEBPACK_IMPORTED_MODULE_3__;
-  charGIFS.r0q1x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x1 = new Image(width, height);
   charGIFS.r0q2x1.classList.add(name);
   charGIFS.r0q2x1.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_1_gif__WEBPACK_IMPORTED_MODULE_4__;
-  charGIFS.r0q2x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x2 = new Image(width, height);
   charGIFS.r0q2x2.classList.add(name);
   charGIFS.r0q2x2.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_2_gif__WEBPACK_IMPORTED_MODULE_5__;
-  charGIFS.r0q2x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x3 = new Image(width, height);
   charGIFS.r0q2x3.classList.add(name);
   charGIFS.r0q2x3.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_3_gif__WEBPACK_IMPORTED_MODULE_6__;
-  charGIFS.r0q2x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x4 = new Image(width, height);
   charGIFS.r0q2x4.classList.add(name);
   charGIFS.r0q2x4.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_4_gif__WEBPACK_IMPORTED_MODULE_7__;
-  charGIFS.r0q2x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x5 = new Image(width, height);
   charGIFS.r0q2x5.classList.add(name);
   charGIFS.r0q2x5.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_5_gif__WEBPACK_IMPORTED_MODULE_8__;
-  charGIFS.r0q2x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x6 = new Image(width, height);
   charGIFS.r0q2x6.classList.add(name);
   charGIFS.r0q2x6.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_6_gif__WEBPACK_IMPORTED_MODULE_9__;
-  charGIFS.r0q2x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q2x7 = new Image(width, height);
   charGIFS.r0q2x7.classList.add(name);
   charGIFS.r0q2x7.src = _assets_motion_cabbit_cabbit_rotate_0_quad2_7_gif__WEBPACK_IMPORTED_MODULE_10__;
-  charGIFS.r0q2x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q3x1 = new Image(width, height);
   charGIFS.r0q3x1.classList.add(name);
   charGIFS.r0q3x1.src = _assets_motion_cabbit_cabbit_rotate_0_quad3_1_gif__WEBPACK_IMPORTED_MODULE_11__;
-  charGIFS.r0q3x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q3x2 = new Image(width, height);
   charGIFS.r0q3x2.classList.add(name);
   charGIFS.r0q3x2.src = _assets_motion_cabbit_cabbit_rotate_0_quad3_2_gif__WEBPACK_IMPORTED_MODULE_12__;
-  charGIFS.r0q3x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q3x3 = new Image(width, height);
   charGIFS.r0q3x3.classList.add(name);
   charGIFS.r0q3x3.src = _assets_motion_cabbit_cabbit_rotate_0_quad3_3_gif__WEBPACK_IMPORTED_MODULE_13__;
-  charGIFS.r0q3x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q3x4 = new Image(width, height);
   charGIFS.r0q3x4.classList.add(name);
   charGIFS.r0q3x4.src = _assets_motion_cabbit_cabbit_rotate_0_quad3_4_gif__WEBPACK_IMPORTED_MODULE_14__;
-  charGIFS.r0q3x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q3x5 = new Image(width, height);
   charGIFS.r0q3x5.classList.add(name);
   charGIFS.r0q3x5.src = _assets_motion_cabbit_cabbit_rotate_0_quad3_5_gif__WEBPACK_IMPORTED_MODULE_15__;
-  charGIFS.r0q3x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q3x6 = new Image(width, height);
   charGIFS.r0q3x6.classList.add(name);
   charGIFS.r0q3x6.src = _assets_motion_cabbit_cabbit_rotate_0_quad3_6_gif__WEBPACK_IMPORTED_MODULE_16__;
-  charGIFS.r0q3x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q4x1 = new Image(width, height);
   charGIFS.r0q4x1.classList.add(name);
   charGIFS.r0q4x1.src = _assets_motion_cabbit_cabbit_rotate_0_quad4_1_gif__WEBPACK_IMPORTED_MODULE_17__;
-  charGIFS.r0q4x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q4x2 = new Image(width, height);
   charGIFS.r0q4x2.classList.add(name);
   charGIFS.r0q4x2.src = _assets_motion_cabbit_cabbit_rotate_0_quad4_2_gif__WEBPACK_IMPORTED_MODULE_18__;
-  charGIFS.r0q4x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q4x3 = new Image(width, height);
   charGIFS.r0q4x3.classList.add(name);
   charGIFS.r0q4x3.src = _assets_motion_cabbit_cabbit_rotate_0_quad4_3_gif__WEBPACK_IMPORTED_MODULE_19__;
-  charGIFS.r0q4x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.r0q4x4 = new Image(width, height);
   charGIFS.r0q4x4.classList.add(name);
   charGIFS.r0q4x4.src = _assets_motion_cabbit_cabbit_rotate_0_quad4_4_gif__WEBPACK_IMPORTED_MODULE_20__;
-  charGIFS.r0q4x4.onload = function () {
-    console.log('img loaded');
-  };
 
   //walk
   charGIFS.w0x1 = new Image(width, height);
   charGIFS.w0x1.classList.add(name);
   charGIFS.w0x1.src = _assets_motion_cabbit_cabbit_walk_0_1_gif__WEBPACK_IMPORTED_MODULE_21__;
-  charGIFS.w0x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x2 = new Image(width, height);
   charGIFS.w0x2.classList.add(name);
   charGIFS.w0x2.src = _assets_motion_cabbit_cabbit_walk_0_2_gif__WEBPACK_IMPORTED_MODULE_22__;
-  charGIFS.w0x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x3 = new Image(width, height);
   charGIFS.w0x3.classList.add(name);
   charGIFS.w0x3.src = _assets_motion_cabbit_cabbit_walk_0_3_gif__WEBPACK_IMPORTED_MODULE_23__;
-  charGIFS.w0x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x4 = new Image(width, height);
   charGIFS.w0x4.classList.add(name);
   charGIFS.w0x4.src = _assets_motion_cabbit_cabbit_walk_0_4_gif__WEBPACK_IMPORTED_MODULE_24__;
-  charGIFS.w0x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x4a = new Image(width, height);
   charGIFS.w0x4a.classList.add(name);
   charGIFS.w0x4a.src = _assets_motion_cabbit_cabbit_walk_0_4a_gif__WEBPACK_IMPORTED_MODULE_25__;
-  charGIFS.w0x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x5 = new Image(width, height);
   charGIFS.w0x5.classList.add(name);
   charGIFS.w0x5.src = _assets_motion_cabbit_cabbit_walk_0_5_gif__WEBPACK_IMPORTED_MODULE_26__;
-  charGIFS.w0x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x5a = new Image(width, height);
   charGIFS.w0x5a.classList.add('cabbit');
   charGIFS.w0x5a.src = _assets_motion_cabbit_cabbit_walk_0_5a_gif__WEBPACK_IMPORTED_MODULE_27__;
-  charGIFS.w0x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x6 = new Image(width, height);
   charGIFS.w0x6.classList.add('cabbit');
   charGIFS.w0x6.src = _assets_motion_cabbit_cabbit_walk_0_6_gif__WEBPACK_IMPORTED_MODULE_28__;
-  charGIFS.w0x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x7 = new Image(width, height);
   charGIFS.w0x7.classList.add('cabbit');
   charGIFS.w0x7.src = _assets_motion_cabbit_cabbit_walk_0_7_gif__WEBPACK_IMPORTED_MODULE_29__;
-  charGIFS.w0x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x8 = new Image(width, height);
   charGIFS.w0x8.classList.add('cabbit');
   charGIFS.w0x8.src = _assets_motion_cabbit_cabbit_walk_0_8_gif__WEBPACK_IMPORTED_MODULE_30__;
-  charGIFS.w0x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x8a = new Image(width, height);
   charGIFS.w0x8a.classList.add('cabbit');
   charGIFS.w0x8a.src = _assets_motion_cabbit_cabbit_walk_0_8a_gif__WEBPACK_IMPORTED_MODULE_31__;
-  charGIFS.w0x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x9 = new Image(width, height);
   charGIFS.w0x9.classList.add('cabbit');
   charGIFS.w0x9.src = _assets_motion_cabbit_cabbit_walk_0_9_gif__WEBPACK_IMPORTED_MODULE_32__;
-  charGIFS.w0x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x9a = new Image(width, height);
   charGIFS.w0x9a.classList.add('cabbit');
   charGIFS.w0x9a.src = _assets_motion_cabbit_cabbit_walk_0_9a_gif__WEBPACK_IMPORTED_MODULE_33__;
-  charGIFS.w0x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x10 = new Image(width, height);
   charGIFS.w0x10.classList.add('cabbit');
   charGIFS.w0x10.src = _assets_motion_cabbit_cabbit_walk_0_10_gif__WEBPACK_IMPORTED_MODULE_34__;
-  charGIFS.w0x10.onload = function () {
-    console.log('img loaded : ' + _assets_motion_cabbit_cabbit_walk_0_10_gif__WEBPACK_IMPORTED_MODULE_34__);
-  };
   charGIFS.w0x11 = new Image(width, height);
   charGIFS.w0x11.classList.add('cabbit');
   charGIFS.w0x11.src = _assets_motion_cabbit_cabbit_walk_0_11_gif__WEBPACK_IMPORTED_MODULE_35__;
-  charGIFS.w0x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w0x12 = new Image(width, height);
   charGIFS.w0x12.classList.add('cabbit');
   charGIFS.w0x12.src = _assets_motion_cabbit_cabbit_walk_0_12_gif__WEBPACK_IMPORTED_MODULE_36__;
-  charGIFS.w0x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x1 = new Image(width, height);
   charGIFS.w45x1.classList.add('cabbit');
   charGIFS.w45x1.src = _assets_motion_cabbit_cabbit_walk_45_1_gif__WEBPACK_IMPORTED_MODULE_37__;
-  charGIFS.w45x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x2 = new Image(width, height);
   charGIFS.w45x2.classList.add('cabbit');
   charGIFS.w45x2.src = _assets_motion_cabbit_cabbit_walk_45_2_gif__WEBPACK_IMPORTED_MODULE_38__;
-  charGIFS.w45x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x3 = new Image(width, height);
   charGIFS.w45x3.classList.add('cabbit');
   charGIFS.w45x3.src = _assets_motion_cabbit_cabbit_walk_45_3_gif__WEBPACK_IMPORTED_MODULE_39__;
-  charGIFS.w45x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x4 = new Image(width, height);
   charGIFS.w45x4.classList.add('cabbit');
   charGIFS.w45x4.src = _assets_motion_cabbit_cabbit_walk_45_4_gif__WEBPACK_IMPORTED_MODULE_40__;
-  charGIFS.w45x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x4a = new Image(width, height);
   charGIFS.w45x4a.classList.add('cabbit');
   charGIFS.w45x4a.src = _assets_motion_cabbit_cabbit_walk_45_4a_gif__WEBPACK_IMPORTED_MODULE_41__;
-  charGIFS.w45x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x5 = new Image(width, height);
   charGIFS.w45x5.classList.add('cabbit');
   charGIFS.w45x5.src = _assets_motion_cabbit_cabbit_walk_45_5_gif__WEBPACK_IMPORTED_MODULE_42__;
-  charGIFS.w45x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x5a = new Image(width, height);
   charGIFS.w45x5a.classList.add('cabbit');
   charGIFS.w45x5a.src = _assets_motion_cabbit_cabbit_walk_45_5a_gif__WEBPACK_IMPORTED_MODULE_43__;
-  charGIFS.w45x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x6 = new Image(width, height);
   charGIFS.w45x6.classList.add('cabbit');
   charGIFS.w45x6.src = _assets_motion_cabbit_cabbit_walk_45_6_gif__WEBPACK_IMPORTED_MODULE_44__;
-  charGIFS.w45x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x7 = new Image(width, height);
   charGIFS.w45x7.classList.add('cabbit');
   charGIFS.w45x7.src = _assets_motion_cabbit_cabbit_walk_45_7_gif__WEBPACK_IMPORTED_MODULE_45__;
-  charGIFS.w45x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x8 = new Image(width, height);
   charGIFS.w45x8.classList.add('cabbit');
   charGIFS.w45x8.src = _assets_motion_cabbit_cabbit_walk_45_8_gif__WEBPACK_IMPORTED_MODULE_46__;
-  charGIFS.w45x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x8a = new Image(width, height);
   charGIFS.w45x8a.classList.add('cabbit');
   charGIFS.w45x8a.src = _assets_motion_cabbit_cabbit_walk_45_8a_gif__WEBPACK_IMPORTED_MODULE_47__;
-  charGIFS.w45x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x9 = new Image(width, height);
   charGIFS.w45x9.classList.add('cabbit');
   charGIFS.w45x9.src = _assets_motion_cabbit_cabbit_walk_45_9_gif__WEBPACK_IMPORTED_MODULE_48__;
-  charGIFS.w45x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x9a = new Image(width, height);
   charGIFS.w45x9a.classList.add('cabbit');
   charGIFS.w45x9a.src = _assets_motion_cabbit_cabbit_walk_45_9a_gif__WEBPACK_IMPORTED_MODULE_49__;
-  charGIFS.w45x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x10 = new Image(width, height);
   charGIFS.w45x10.classList.add('cabbit');
   charGIFS.w45x10.src = _assets_motion_cabbit_cabbit_walk_45_10_gif__WEBPACK_IMPORTED_MODULE_50__;
-  charGIFS.w45x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x11 = new Image(width, height);
   charGIFS.w45x11.classList.add('cabbit');
   charGIFS.w45x11.src = _assets_motion_cabbit_cabbit_walk_45_11_gif__WEBPACK_IMPORTED_MODULE_51__;
-  charGIFS.w45x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w45x12 = new Image(width, height);
   charGIFS.w45x12.classList.add('cabbit');
   charGIFS.w45x12.src = _assets_motion_cabbit_cabbit_walk_45_12_gif__WEBPACK_IMPORTED_MODULE_52__;
-  charGIFS.w45x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x1 = new Image(width, height);
   charGIFS.w90x1.classList.add('cabbit');
   charGIFS.w90x1.src = _assets_motion_cabbit_cabbit_walk_90_1_gif__WEBPACK_IMPORTED_MODULE_53__;
-  charGIFS.w90x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x2 = new Image(width, height);
   charGIFS.w90x2.classList.add('cabbit');
   charGIFS.w90x2.src = _assets_motion_cabbit_cabbit_walk_90_2_gif__WEBPACK_IMPORTED_MODULE_54__;
-  charGIFS.w90x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x3 = new Image(width, height);
   charGIFS.w90x3.classList.add('cabbit');
   charGIFS.w90x3.src = _assets_motion_cabbit_cabbit_walk_90_3_gif__WEBPACK_IMPORTED_MODULE_55__;
-  charGIFS.w90x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x4 = new Image(width, height);
   charGIFS.w90x4.classList.add('cabbit');
   charGIFS.w90x4.src = _assets_motion_cabbit_cabbit_walk_90_4_gif__WEBPACK_IMPORTED_MODULE_56__;
-  charGIFS.w90x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x4a = new Image(width, height);
   charGIFS.w90x4a.classList.add('cabbit');
   charGIFS.w90x4a.src = _assets_motion_cabbit_cabbit_walk_90_4a_gif__WEBPACK_IMPORTED_MODULE_57__;
-  charGIFS.w90x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x5 = new Image(width, height);
   charGIFS.w90x5.classList.add('cabbit');
   charGIFS.w90x5.src = _assets_motion_cabbit_cabbit_walk_90_5_gif__WEBPACK_IMPORTED_MODULE_58__;
-  charGIFS.w90x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x5a = new Image(width, height);
   charGIFS.w90x5a.classList.add('cabbit');
   charGIFS.w90x5a.src = _assets_motion_cabbit_cabbit_walk_90_5a_gif__WEBPACK_IMPORTED_MODULE_59__;
-  charGIFS.w90x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x6 = new Image(width, height);
   charGIFS.w90x6.classList.add('cabbit');
   charGIFS.w90x6.src = _assets_motion_cabbit_cabbit_walk_90_6_gif__WEBPACK_IMPORTED_MODULE_60__;
-  charGIFS.w90x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x7 = new Image(width, height);
   charGIFS.w90x7.classList.add('cabbit');
   charGIFS.w90x7.src = _assets_motion_cabbit_cabbit_walk_90_7_gif__WEBPACK_IMPORTED_MODULE_61__;
-  charGIFS.w90x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x8 = new Image(width, height);
   charGIFS.w90x8.classList.add('cabbit');
   charGIFS.w90x8.src = _assets_motion_cabbit_cabbit_walk_90_8_gif__WEBPACK_IMPORTED_MODULE_62__;
-  charGIFS.w90x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x8a = new Image(width, height);
   charGIFS.w90x8a.classList.add('cabbit');
   charGIFS.w90x8a.src = _assets_motion_cabbit_cabbit_walk_90_8a_gif__WEBPACK_IMPORTED_MODULE_63__;
-  charGIFS.w90x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x9 = new Image(width, height);
   charGIFS.w90x9.classList.add('cabbit');
   charGIFS.w90x9.src = _assets_motion_cabbit_cabbit_walk_90_9_gif__WEBPACK_IMPORTED_MODULE_64__;
-  charGIFS.w90x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x9a = new Image(width, height);
   charGIFS.w90x9a.classList.add('cabbit');
   charGIFS.w90x9a.src = _assets_motion_cabbit_cabbit_walk_90_9a_gif__WEBPACK_IMPORTED_MODULE_65__;
-  charGIFS.w90x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x10 = new Image(width, height);
   charGIFS.w90x10.classList.add('cabbit');
   charGIFS.w90x10.src = _assets_motion_cabbit_cabbit_walk_90_10_gif__WEBPACK_IMPORTED_MODULE_66__;
-  charGIFS.w90x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x11 = new Image(width, height);
   charGIFS.w90x11.classList.add('cabbit');
   charGIFS.w90x11.src = _assets_motion_cabbit_cabbit_walk_90_11_gif__WEBPACK_IMPORTED_MODULE_67__;
-  charGIFS.w90x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w90x12 = new Image(width, height);
   charGIFS.w90x12.classList.add('cabbit');
   charGIFS.w90x12.src = _assets_motion_cabbit_cabbit_walk_90_12_gif__WEBPACK_IMPORTED_MODULE_68__;
-  charGIFS.w90x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x1 = new Image(width, height);
   charGIFS.w135x1.classList.add('cabbit');
   charGIFS.w135x1.src = _assets_motion_cabbit_cabbit_walk_135_1_gif__WEBPACK_IMPORTED_MODULE_69__;
-  charGIFS.w135x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x2 = new Image(width, height);
   charGIFS.w135x2.classList.add('cabbit');
   charGIFS.w135x2.src = _assets_motion_cabbit_cabbit_walk_135_2_gif__WEBPACK_IMPORTED_MODULE_70__;
-  charGIFS.w135x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x3 = new Image(width, height);
   charGIFS.w135x3.classList.add('cabbit');
   charGIFS.w135x3.src = _assets_motion_cabbit_cabbit_walk_135_3_gif__WEBPACK_IMPORTED_MODULE_71__;
-  charGIFS.w135x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x4 = new Image(width, height);
   charGIFS.w135x4.classList.add('cabbit');
   charGIFS.w135x4.src = _assets_motion_cabbit_cabbit_walk_135_4_gif__WEBPACK_IMPORTED_MODULE_72__;
-  charGIFS.w135x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x4a = new Image(width, height);
   charGIFS.w135x4a.classList.add('cabbit');
   charGIFS.w135x4a.src = _assets_motion_cabbit_cabbit_walk_135_4a_gif__WEBPACK_IMPORTED_MODULE_73__;
-  charGIFS.w135x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x5 = new Image(width, height);
   charGIFS.w135x5.classList.add('cabbit');
   charGIFS.w135x5.src = _assets_motion_cabbit_cabbit_walk_135_5_gif__WEBPACK_IMPORTED_MODULE_74__;
-  charGIFS.w135x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x5a = new Image(width, height);
   charGIFS.w135x5a.classList.add('cabbit');
   charGIFS.w135x5a.src = _assets_motion_cabbit_cabbit_walk_135_5a_gif__WEBPACK_IMPORTED_MODULE_75__;
-  charGIFS.w135x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x6 = new Image(width, height);
   charGIFS.w135x6.classList.add('cabbit');
   charGIFS.w135x6.src = _assets_motion_cabbit_cabbit_walk_135_6_gif__WEBPACK_IMPORTED_MODULE_76__;
-  charGIFS.w135x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x7 = new Image(width, height);
   charGIFS.w135x7.classList.add('cabbit');
   charGIFS.w135x7.src = _assets_motion_cabbit_cabbit_walk_135_7_gif__WEBPACK_IMPORTED_MODULE_77__;
-  charGIFS.w135x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x8 = new Image(width, height);
   charGIFS.w135x8.classList.add('cabbit');
   charGIFS.w135x8.src = _assets_motion_cabbit_cabbit_walk_135_8_gif__WEBPACK_IMPORTED_MODULE_78__;
-  charGIFS.w135x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x8a = new Image(width, height);
   charGIFS.w135x8a.classList.add('cabbit');
   charGIFS.w135x8a.src = _assets_motion_cabbit_cabbit_walk_135_8a_gif__WEBPACK_IMPORTED_MODULE_79__;
-  charGIFS.w135x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x9 = new Image(width, height);
   charGIFS.w135x9.classList.add('cabbit');
   charGIFS.w135x9.src = _assets_motion_cabbit_cabbit_walk_135_9_gif__WEBPACK_IMPORTED_MODULE_80__;
-  charGIFS.w135x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x9a = new Image(width, height);
   charGIFS.w135x9a.classList.add('cabbit');
   charGIFS.w135x9a.src = _assets_motion_cabbit_cabbit_walk_135_9a_gif__WEBPACK_IMPORTED_MODULE_81__;
-  charGIFS.w135x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x10 = new Image(width, height);
   charGIFS.w135x10.classList.add('cabbit');
   charGIFS.w135x10.src = _assets_motion_cabbit_cabbit_walk_135_10_gif__WEBPACK_IMPORTED_MODULE_82__;
-  charGIFS.w135x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x11 = new Image(width, height);
   charGIFS.w135x11.classList.add('cabbit');
   charGIFS.w135x11.src = _assets_motion_cabbit_cabbit_walk_135_11_gif__WEBPACK_IMPORTED_MODULE_83__;
-  charGIFS.w135x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w135x12 = new Image(width, height);
   charGIFS.w135x12.classList.add('cabbit');
   charGIFS.w135x12.src = _assets_motion_cabbit_cabbit_walk_135_12_gif__WEBPACK_IMPORTED_MODULE_84__;
-  charGIFS.w135x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x1 = new Image(width, height);
   charGIFS.w180x1.classList.add('cabbit');
   charGIFS.w180x1.src = _assets_motion_cabbit_cabbit_walk_180_1_gif__WEBPACK_IMPORTED_MODULE_85__;
-  charGIFS.w180x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x2 = new Image(width, height);
   charGIFS.w180x2.classList.add('cabbit');
   charGIFS.w180x2.src = _assets_motion_cabbit_cabbit_walk_180_2_gif__WEBPACK_IMPORTED_MODULE_86__;
-  charGIFS.w180x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x3 = new Image(width, height);
   charGIFS.w180x3.classList.add('cabbit');
   charGIFS.w180x3.src = _assets_motion_cabbit_cabbit_walk_180_3_gif__WEBPACK_IMPORTED_MODULE_87__;
-  charGIFS.w180x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x4 = new Image(width, height);
   charGIFS.w180x4.classList.add('cabbit');
   charGIFS.w180x4.src = _assets_motion_cabbit_cabbit_walk_180_4_gif__WEBPACK_IMPORTED_MODULE_88__;
-  charGIFS.w180x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x4a = new Image(width, height);
   charGIFS.w180x4a.classList.add('cabbit');
   charGIFS.w180x4a.src = _assets_motion_cabbit_cabbit_walk_180_4a_gif__WEBPACK_IMPORTED_MODULE_89__;
-  charGIFS.w180x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x5 = new Image(width, height);
   charGIFS.w180x5.classList.add('cabbit');
   charGIFS.w180x5.src = _assets_motion_cabbit_cabbit_walk_180_5_gif__WEBPACK_IMPORTED_MODULE_90__;
-  charGIFS.w180x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x5a = new Image(width, height);
   charGIFS.w180x5a.classList.add('cabbit');
   charGIFS.w180x5a.src = _assets_motion_cabbit_cabbit_walk_180_5a_gif__WEBPACK_IMPORTED_MODULE_91__;
-  charGIFS.w180x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x6 = new Image(width, height);
   charGIFS.w180x6.classList.add('cabbit');
   charGIFS.w180x6.src = _assets_motion_cabbit_cabbit_walk_180_6_gif__WEBPACK_IMPORTED_MODULE_92__;
-  charGIFS.w180x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x7 = new Image(width, height);
   charGIFS.w180x7.classList.add('cabbit');
   charGIFS.w180x7.src = _assets_motion_cabbit_cabbit_walk_180_7_gif__WEBPACK_IMPORTED_MODULE_93__;
-  charGIFS.w180x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x8 = new Image(width, height);
   charGIFS.w180x8.classList.add('cabbit');
   charGIFS.w180x8.src = _assets_motion_cabbit_cabbit_walk_180_8_gif__WEBPACK_IMPORTED_MODULE_94__;
-  charGIFS.w180x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x8a = new Image(width, height);
   charGIFS.w180x8a.classList.add('cabbit');
   charGIFS.w180x8a.src = _assets_motion_cabbit_cabbit_walk_180_8a_gif__WEBPACK_IMPORTED_MODULE_95__;
-  charGIFS.w180x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x9 = new Image(width, height);
   charGIFS.w180x9.classList.add('cabbit');
   charGIFS.w180x9.src = _assets_motion_cabbit_cabbit_walk_180_9_gif__WEBPACK_IMPORTED_MODULE_96__;
-  charGIFS.w180x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x9a = new Image(width, height);
   charGIFS.w180x9a.classList.add('cabbit');
   charGIFS.w180x9a.src = _assets_motion_cabbit_cabbit_walk_180_9a_gif__WEBPACK_IMPORTED_MODULE_97__;
-  charGIFS.w180x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x10 = new Image(width, height);
   charGIFS.w180x10.classList.add('cabbit');
   charGIFS.w180x10.src = _assets_motion_cabbit_cabbit_walk_180_10_gif__WEBPACK_IMPORTED_MODULE_98__;
-  charGIFS.w180x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x11 = new Image(width, height);
   charGIFS.w180x11.classList.add('cabbit');
   charGIFS.w180x11.src = _assets_motion_cabbit_cabbit_walk_180_11_gif__WEBPACK_IMPORTED_MODULE_99__;
-  charGIFS.w180x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w180x12 = new Image(width, height);
   charGIFS.w180x12.classList.add('cabbit');
   charGIFS.w180x12.src = _assets_motion_cabbit_cabbit_walk_180_12_gif__WEBPACK_IMPORTED_MODULE_100__;
-  charGIFS.w180x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x1 = new Image(width, height);
   charGIFS.w225x1.classList.add('cabbit');
   charGIFS.w225x1.src = _assets_motion_cabbit_cabbit_walk_225_1_gif__WEBPACK_IMPORTED_MODULE_101__;
-  charGIFS.w225x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x2 = new Image(width, height);
   charGIFS.w225x2.classList.add('cabbit');
   charGIFS.w225x2.src = _assets_motion_cabbit_cabbit_walk_225_2_gif__WEBPACK_IMPORTED_MODULE_102__;
-  charGIFS.w225x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x3 = new Image(width, height);
   charGIFS.w225x3.classList.add('cabbit');
   charGIFS.w225x3.src = _assets_motion_cabbit_cabbit_walk_225_3_gif__WEBPACK_IMPORTED_MODULE_103__;
-  charGIFS.w225x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x4 = new Image(width, height);
   charGIFS.w225x4.classList.add('cabbit');
   charGIFS.w225x4.src = _assets_motion_cabbit_cabbit_walk_225_4_gif__WEBPACK_IMPORTED_MODULE_104__;
-  charGIFS.w225x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x4a = new Image(width, height);
   charGIFS.w225x4a.classList.add('cabbit');
   charGIFS.w225x4a.src = _assets_motion_cabbit_cabbit_walk_225_4a_gif__WEBPACK_IMPORTED_MODULE_105__;
-  charGIFS.w225x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x5 = new Image(width, height);
   charGIFS.w225x5.classList.add('cabbit');
   charGIFS.w225x5.src = _assets_motion_cabbit_cabbit_walk_225_5_gif__WEBPACK_IMPORTED_MODULE_106__;
-  charGIFS.w225x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x5a = new Image(width, height);
   charGIFS.w225x5a.classList.add('cabbit');
   charGIFS.w225x5a.src = _assets_motion_cabbit_cabbit_walk_225_5a_gif__WEBPACK_IMPORTED_MODULE_107__;
-  charGIFS.w225x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x6 = new Image(width, height);
   charGIFS.w225x6.classList.add('cabbit');
   charGIFS.w225x6.src = _assets_motion_cabbit_cabbit_walk_225_6_gif__WEBPACK_IMPORTED_MODULE_108__;
-  charGIFS.w225x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x7 = new Image(width, height);
   charGIFS.w225x7.classList.add('cabbit');
   charGIFS.w225x7.src = _assets_motion_cabbit_cabbit_walk_225_7_gif__WEBPACK_IMPORTED_MODULE_109__;
-  charGIFS.w225x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x8 = new Image(width, height);
   charGIFS.w225x8.classList.add('cabbit');
   charGIFS.w225x8.src = _assets_motion_cabbit_cabbit_walk_225_8_gif__WEBPACK_IMPORTED_MODULE_110__;
-  charGIFS.w225x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x8a = new Image(width, height);
   charGIFS.w225x8a.classList.add('cabbit');
   charGIFS.w225x8a.src = _assets_motion_cabbit_cabbit_walk_225_8a_gif__WEBPACK_IMPORTED_MODULE_111__;
-  charGIFS.w225x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x9 = new Image(width, height);
   charGIFS.w225x9.classList.add('cabbit');
   charGIFS.w225x9.src = _assets_motion_cabbit_cabbit_walk_225_9_gif__WEBPACK_IMPORTED_MODULE_112__;
-  charGIFS.w225x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x9a = new Image(width, height);
   charGIFS.w225x9a.classList.add('cabbit');
   charGIFS.w225x9a.src = _assets_motion_cabbit_cabbit_walk_225_9a_gif__WEBPACK_IMPORTED_MODULE_113__;
-  charGIFS.w225x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x10 = new Image(width, height);
   charGIFS.w225x10.classList.add('cabbit');
   charGIFS.w225x10.src = _assets_motion_cabbit_cabbit_walk_225_10_gif__WEBPACK_IMPORTED_MODULE_114__;
-  charGIFS.w225x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x11 = new Image(width, height);
   charGIFS.w225x11.classList.add('cabbit');
   charGIFS.w225x11.src = _assets_motion_cabbit_cabbit_walk_225_11_gif__WEBPACK_IMPORTED_MODULE_115__;
-  charGIFS.w225x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w225x12 = new Image(width, height);
   charGIFS.w225x12.classList.add('cabbit');
   charGIFS.w225x12.src = _assets_motion_cabbit_cabbit_walk_225_12_gif__WEBPACK_IMPORTED_MODULE_116__;
-  charGIFS.w225x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x1 = new Image(width, height);
   charGIFS.w270x1.classList.add('cabbit');
   charGIFS.w270x1.src = _assets_motion_cabbit_cabbit_walk_270_1_gif__WEBPACK_IMPORTED_MODULE_117__;
-  charGIFS.w270x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x2 = new Image(width, height);
   charGIFS.w270x2.classList.add('cabbit');
   charGIFS.w270x2.src = _assets_motion_cabbit_cabbit_walk_270_2_gif__WEBPACK_IMPORTED_MODULE_118__;
-  charGIFS.w270x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x3 = new Image(width, height);
   charGIFS.w270x3.classList.add('cabbit');
   charGIFS.w270x3.src = _assets_motion_cabbit_cabbit_walk_270_3_gif__WEBPACK_IMPORTED_MODULE_119__;
-  charGIFS.w270x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x4 = new Image(width, height);
   charGIFS.w270x4.classList.add('cabbit');
   charGIFS.w270x4.src = _assets_motion_cabbit_cabbit_walk_270_4_gif__WEBPACK_IMPORTED_MODULE_120__;
-  charGIFS.w270x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x4a = new Image(width, height);
   charGIFS.w270x4a.classList.add('cabbit');
   charGIFS.w270x4a.src = _assets_motion_cabbit_cabbit_walk_270_4a_gif__WEBPACK_IMPORTED_MODULE_121__;
-  charGIFS.w270x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x5 = new Image(width, height);
   charGIFS.w270x5.classList.add('cabbit');
   charGIFS.w270x5.src = _assets_motion_cabbit_cabbit_walk_270_5_gif__WEBPACK_IMPORTED_MODULE_122__;
-  charGIFS.w270x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x5a = new Image(width, height);
   charGIFS.w270x5a.classList.add('cabbit');
   charGIFS.w270x5a.src = _assets_motion_cabbit_cabbit_walk_270_5a_gif__WEBPACK_IMPORTED_MODULE_123__;
-  charGIFS.w270x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x6 = new Image(width, height);
   charGIFS.w270x6.classList.add('cabbit');
   charGIFS.w270x6.src = _assets_motion_cabbit_cabbit_walk_270_6_gif__WEBPACK_IMPORTED_MODULE_124__;
-  charGIFS.w270x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x7 = new Image(width, height);
   charGIFS.w270x7.classList.add('cabbit');
   charGIFS.w270x7.src = _assets_motion_cabbit_cabbit_walk_270_7_gif__WEBPACK_IMPORTED_MODULE_125__;
-  charGIFS.w270x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x8 = new Image(width, height);
   charGIFS.w270x8.classList.add('cabbit');
   charGIFS.w270x8.src = _assets_motion_cabbit_cabbit_walk_270_8_gif__WEBPACK_IMPORTED_MODULE_126__;
-  charGIFS.w270x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x8a = new Image(width, height);
   charGIFS.w270x8a.classList.add('cabbit');
   charGIFS.w270x8a.src = _assets_motion_cabbit_cabbit_walk_270_8a_gif__WEBPACK_IMPORTED_MODULE_127__;
-  charGIFS.w270x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x9 = new Image(width, height);
   charGIFS.w270x9.classList.add('cabbit');
   charGIFS.w270x9.src = _assets_motion_cabbit_cabbit_walk_270_9_gif__WEBPACK_IMPORTED_MODULE_128__;
-  charGIFS.w270x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x9a = new Image(width, height);
   charGIFS.w270x9a.classList.add('cabbit');
   charGIFS.w270x9a.src = _assets_motion_cabbit_cabbit_walk_270_9a_gif__WEBPACK_IMPORTED_MODULE_129__;
-  charGIFS.w270x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x10 = new Image(width, height);
   charGIFS.w270x10.classList.add('cabbit');
   charGIFS.w270x10.src = _assets_motion_cabbit_cabbit_walk_270_10_gif__WEBPACK_IMPORTED_MODULE_130__;
-  charGIFS.w270x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x11 = new Image(width, height);
   charGIFS.w270x11.classList.add('cabbit');
   charGIFS.w270x11.src = _assets_motion_cabbit_cabbit_walk_270_11_gif__WEBPACK_IMPORTED_MODULE_131__;
-  charGIFS.w270x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w270x12 = new Image(width, height);
   charGIFS.w270x12.classList.add('cabbit');
   charGIFS.w270x12.src = _assets_motion_cabbit_cabbit_walk_270_12_gif__WEBPACK_IMPORTED_MODULE_132__;
-  charGIFS.w270x12.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x1 = new Image(width, height);
   charGIFS.w292x1.classList.add('cabbit');
   charGIFS.w292x1.src = _assets_motion_cabbit_cabbit_walk_292_1_gif__WEBPACK_IMPORTED_MODULE_133__;
-  charGIFS.w292x1.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x2 = new Image(width, height);
   charGIFS.w292x2.classList.add('cabbit');
   charGIFS.w292x2.src = _assets_motion_cabbit_cabbit_walk_292_2_gif__WEBPACK_IMPORTED_MODULE_134__;
-  charGIFS.w292x2.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x3 = new Image(width, height);
   charGIFS.w292x3.classList.add('cabbit');
   charGIFS.w292x3.src = _assets_motion_cabbit_cabbit_walk_292_3_gif__WEBPACK_IMPORTED_MODULE_135__;
-  charGIFS.w292x3.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x4 = new Image(width, height);
   charGIFS.w292x4.classList.add('cabbit');
   charGIFS.w292x4.src = _assets_motion_cabbit_cabbit_walk_292_4_gif__WEBPACK_IMPORTED_MODULE_136__;
-  charGIFS.w292x4.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x4a = new Image(width, height);
   charGIFS.w292x4a.classList.add('cabbit');
   charGIFS.w292x4a.src = _assets_motion_cabbit_cabbit_walk_292_4a_gif__WEBPACK_IMPORTED_MODULE_137__;
-  charGIFS.w292x4a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x5 = new Image(width, height);
   charGIFS.w292x5.classList.add('cabbit');
   charGIFS.w292x5.src = _assets_motion_cabbit_cabbit_walk_292_5_gif__WEBPACK_IMPORTED_MODULE_138__;
-  charGIFS.w292x5.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x5a = new Image(width, height);
   charGIFS.w292x5a.classList.add('cabbit');
   charGIFS.w292x5a.src = _assets_motion_cabbit_cabbit_walk_292_5a_gif__WEBPACK_IMPORTED_MODULE_139__;
-  charGIFS.w292x5a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x6 = new Image(width, height);
   charGIFS.w292x6.classList.add('cabbit');
   charGIFS.w292x6.src = _assets_motion_cabbit_cabbit_walk_292_6_gif__WEBPACK_IMPORTED_MODULE_140__;
-  charGIFS.w292x6.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x7 = new Image(width, height);
   charGIFS.w292x7.classList.add('cabbit');
   charGIFS.w292x7.src = _assets_motion_cabbit_cabbit_walk_292_7_gif__WEBPACK_IMPORTED_MODULE_141__;
-  charGIFS.w292x7.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x8 = new Image(width, height);
   charGIFS.w292x8.classList.add('cabbit');
   charGIFS.w292x8.src = _assets_motion_cabbit_cabbit_walk_292_8_gif__WEBPACK_IMPORTED_MODULE_142__;
-  charGIFS.w292x8.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x8a = new Image(width, height);
   charGIFS.w292x8a.classList.add('cabbit');
   charGIFS.w292x8a.src = _assets_motion_cabbit_cabbit_walk_292_8a_gif__WEBPACK_IMPORTED_MODULE_143__;
-  charGIFS.w292x8a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x9 = new Image(width, height);
   charGIFS.w292x9.classList.add('cabbit');
   charGIFS.w292x9.src = _assets_motion_cabbit_cabbit_walk_292_9_gif__WEBPACK_IMPORTED_MODULE_144__;
-  charGIFS.w292x9.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x9a = new Image(width, height);
   charGIFS.w292x9a.classList.add('cabbit');
   charGIFS.w292x9a.src = _assets_motion_cabbit_cabbit_walk_292_9a_gif__WEBPACK_IMPORTED_MODULE_145__;
-  charGIFS.w292x9a.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x10 = new Image(width, height);
   charGIFS.w292x10.classList.add('cabbit');
   charGIFS.w292x10.src = _assets_motion_cabbit_cabbit_walk_292_10_gif__WEBPACK_IMPORTED_MODULE_146__;
-  charGIFS.w292x10.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x11 = new Image(width, height);
   charGIFS.w292x11.classList.add('cabbit');
   charGIFS.w292x11.src = _assets_motion_cabbit_cabbit_walk_292_11_gif__WEBPACK_IMPORTED_MODULE_147__;
-  charGIFS.w292x11.onload = function () {
-    console.log('img loaded');
-  };
   charGIFS.w292x12 = new Image(width, height);
   charGIFS.w292x12.classList.add('cabbit');
   charGIFS.w292x12.src = _assets_motion_cabbit_cabbit_walk_292_12_gif__WEBPACK_IMPORTED_MODULE_148__;
-  charGIFS.w292x12.onload = function () {
-    console.log('img loaded');
-  };
   return charGIFS;
 }
 
@@ -2447,7 +3160,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n@media (min-width: 200px) and (max-width: 640px) {\n  #aboutHeader {\n    display: none;\n  }\n  .containerMain {\n    margin: 0 auto;\n    display: inline-block;\n    position: relative;\n    max-width: 1000px;\n  }\n  #deviconContainer {\n    margin-top: -30px;\n  }\n  .projectButton h2 {\n    margin-top: -8px;\n  }\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: grey;\n  }\n  .social {\n    margin-left: -15px;\n  }\n  .folioText {\n    margin-left: 25px;\n    margin-right: 25px;\n  }\n  .tagWhite a {\n    font-family: \"Share Tech Mono\";\n    font-size: 1.5em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n  nav a {\n    margin-right: 5px;\n    margin-left: 5px;\n  }\n  .bandOrange a {\n    line-height: 50px;\n    vertical-align: middle;\n  }\n  .folioDiv20 {\n    position: relative;\n    display: inline-block;\n    width: 100%;\n    padding: 0px -1px 0px 10px;\n  }\n  #ff2 {\n    padding-bottom: 20px;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n    text-align: center;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: white;\n  }\n  .folioWrapper {\n    padding: 0px 0px 0px 0px;\n    display: block;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  .containerBackground {\n    width: 100%;\n  }\n  #navBar {\n    display: none;\n  }\n  #container2 p {\n    font-size: 1rem;\n  }\n  .social p {\n    font-family: Share Tech Mono;\n    font-size: 1.2rem;\n  }\n  h1 {\n    font-size: 1.5rem;\n    color: black;\n  }\n  .folioCode p {\n    font-size: 1.2em;\n    line-height: 1.2em;\n  }\n}\n@media (min-width: 641px) and (max-width: 780px) {\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioCode p {\n    font-size: 1.3em;\n    line-height: 1.3em;\n  }\n  .folioText {\n    margin-left: 35px;\n    margin-right: 35px;\n  }\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: grey;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .tagWhite a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n}\n@media (min-width: 900px) {\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,iBAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;AAAJ;;AAIA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AAFJ;;AAKA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AAFJ;;AAMA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,qBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAHJ;;AAOA;EACI;IACI,aAAA;EAJN;EAOE;IACI,cAAA;IACA,qBAAA;IACA,kBAAA;IACA,iBAAA;EALN;EAQE;IACI,iBAAA;EANN;EASE;IACI,gBAAA;EAPN;EAUE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EARN;EAWE;IACI,4BAAA;IACA,gBAAA;IACA,YAAA;EATN;EAaE;IACI,4BAAA;IACA,gBAAA;IACA,WAAA;EAXN;EAcG;IACG,kBAAA;EAZN;EAeE;IACI,iBAAA;IACA,kBAAA;EAbN;EAkBE;IACI,8BAAA;IACA,gBAAA;IACA,YAAA;IACA,gBAAA;IACA,iBAAA;EAhBN;EAmBE;IACI,iBAAA;IACA,gBAAA;EAjBN;EAoBE;IACI,iBAAA;IACA,sBAAA;EAlBN;EAqBE;IACI,kBAAA;IACA,qBAAA;IACA,WAAA;IACA,0BAAA;EAnBN;EAsBE;IACI,oBAAA;EApBN;EAuBE;IACI,YAAA;IACA,mBAAA;IACA,4BAAA;IACA,gBAAA;IACA,YAAA;IACA,kBAAA;EArBN;EAwBE;IACI,4BAAA;IACA,cAAA;IACA,YAAA;EAtBN;EAyBE;IACI,wBAAA;IACA,cAAA;EAvBN;EA0BE;IACI,4BAAA;IACA,gBAAA;IACA,YAAA;EAxBN;EA2BE;IACI,WAAA;EAzBN;EA4BE;IACI,aAAA;EA1BN;EA6BE;IACI,eAAA;EA3BN;EA8BE;IACI,4BAAA;IACA,iBAAA;EA5BN;EA+BE;IACI,iBAAA;IACC,YAAA;EA7BP;EAgCE;IACI,gBAAA;IACA,kBAAA;EA9BN;AACF;AAkCA;EACI;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAhCN;EAmCE;IACI,gBAAA;IACA,kBAAA;EAjCN;EAoCE;IACI,iBAAA;IACA,kBAAA;EAlCN;EAqCE;IACI,eAAA;IACA,uBAAA;EAnCN;EAsCE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EApCN;EAuCE;IACI,4BAAA;IACA,cAAA;IACA,WAAA;EArCN;EAuCE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EArCN;EAwCE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAtCN;EAwCE;IACI,YAAA;IACA,mBAAA;IACA,4BAAA;IACA,iBAAA;IACA,YAAA;EAtCN;EAwCE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;IACA,gBAAA;IACA,iBAAA;EAtCN;AACF;AA2CA;EAEI;IACI,eAAA;IACA,uBAAA;EA1CN;AACF","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : yellow solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : red solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n \n\n@media (min-width: 200px) and (max-width: 640px) {  \n    #aboutHeader {\n        display : none;\n    }\n\n    .containerMain {\n        margin : 0 auto;\n        display : inline-block;\n        position : relative; \n        max-width : 1000px;\n    }\n \n    #deviconContainer {\n        margin-top : -30px;\n    } \n\n    .projectButton h2 {\n        margin-top : -8px;\n    }\n\n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : grey;\n    }\n\n     .social {\n        margin-left : -15px;\n    }\n\n    .folioText {\n        margin-left : 25px;\n        margin-right : 25px;\n    }\n\n \n\n    .tagWhite a { \n        font-family : 'Share Tech Mono';\n        font-size : 1.5em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n    nav a {\n        margin-right: 5px;\n        margin-left: 5px;\n    }\n\n    .bandOrange a {\n        line-height: 50px;\n        vertical-align: middle;\n    }\n\n    .folioDiv20 {\n        position : relative;\n        display : inline-block;\n        width: 100%; \n        padding: 0px -1px 0px 10px;  \n    }\n\n    #ff2 {\n        padding-bottom : 20px;\n    }\n\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n        text-align : center;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : white;\n    }\n\n    .folioWrapper {\n        padding: 0px 0px 0px 0px;  \n        display : block;\n    }\n\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n    .containerBackground {\n        width: 100%; \n    }\n\n    #navBar {\n        display : none;\n    }\n    \n    #container2 p{\n        font-size : 1rem;\n    }\n\n    .social p { \n        font-family : Share Tech Mono;\n        font-size : 1.2rem;\n    }\n\n    h1 {\n        font-size : 1.5rem;\n         color : black;\n    }\n\n    .folioCode p {\n        font-size: 1.2em;\n        line-height : 1.2em;\n    }\n\n} \n\n@media (min-width: 641px) and (max-width: 780px) {  \n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioCode p {\n        font-size: 1.3em;\n        line-height : 1.3em;\n    }\n\n    .folioText {\n        margin-left : 35px;\n        margin-right : 35px;\n    }\n\n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : grey;\n    }\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .tagWhite a { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n\n}\n\n@media (min-width: 900px) {\n    \n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n} \n \n \n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: green solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}\n\n@media (min-width: 200px) and (max-width: 640px) {\n  #aboutHeader {\n    display: none;\n  }\n  .containerMain {\n    margin: 0 auto;\n    display: inline-block;\n    position: relative;\n    max-width: 1000px;\n  }\n  #deviconContainer {\n    margin-top: -30px;\n  }\n  .projectButton h2 {\n    margin-top: -8px;\n  }\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: grey;\n  }\n  .social {\n    margin-left: -15px;\n  }\n  .folioText {\n    margin-left: 25px;\n    margin-right: 25px;\n  }\n  .tagWhite a {\n    font-family: \"Share Tech Mono\";\n    font-size: 1.5em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n  nav a {\n    margin-right: 5px;\n    margin-left: 5px;\n  }\n  .bandOrange a {\n    line-height: 50px;\n    vertical-align: middle;\n  }\n  .folioDiv20 {\n    position: relative;\n    display: inline-block;\n    width: 100%;\n    padding: 0px -1px 0px 10px;\n  }\n  #ff2 {\n    padding-bottom: 20px;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n    text-align: center;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: white;\n  }\n  .folioWrapper {\n    padding: 0px 0px 0px 0px;\n    display: block;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  .containerBackground {\n    width: 100%;\n  }\n  #navBar {\n    display: none;\n  }\n  #container2 p {\n    font-size: 1rem;\n  }\n  .social p {\n    font-family: Share Tech Mono;\n    font-size: 1.2rem;\n  }\n  h1 {\n    font-size: 1.5rem;\n    color: black;\n  }\n  .folioCode p {\n    font-size: 1.2em;\n    line-height: 1.2em;\n  }\n}\n@media (min-width: 641px) and (max-width: 780px) {\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioCode p {\n    font-size: 1.3em;\n    line-height: 1.3em;\n  }\n  .folioText {\n    margin-left: 35px;\n    margin-right: 35px;\n  }\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: grey;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .tagWhite a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n}\n@media (min-width: 900px) {\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,iBAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;AAAJ;;AAIA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AAFJ;;AAKA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AAFJ;;AAMA;EACI,uBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAHJ;;AAMA;EACI,sBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,qBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAQA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AALJ;;AAQA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AALJ;;AAQA;EACI,aAAA;AALJ;;AASA;EACI;IACI,aAAA;EANN;EASE;IACI,cAAA;IACA,qBAAA;IACA,kBAAA;IACA,iBAAA;EAPN;EAUE;IACI,iBAAA;EARN;EAWE;IACI,gBAAA;EATN;EAYE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAVN;EAaE;IACI,4BAAA;IACA,gBAAA;IACA,YAAA;EAXN;EAeE;IACI,4BAAA;IACA,gBAAA;IACA,WAAA;EAbN;EAgBG;IACG,kBAAA;EAdN;EAiBE;IACI,iBAAA;IACA,kBAAA;EAfN;EAoBE;IACI,8BAAA;IACA,gBAAA;IACA,YAAA;IACA,gBAAA;IACA,iBAAA;EAlBN;EAqBE;IACI,iBAAA;IACA,gBAAA;EAnBN;EAsBE;IACI,iBAAA;IACA,sBAAA;EApBN;EAuBE;IACI,kBAAA;IACA,qBAAA;IACA,WAAA;IACA,0BAAA;EArBN;EAwBE;IACI,oBAAA;EAtBN;EAyBE;IACI,YAAA;IACA,mBAAA;IACA,4BAAA;IACA,gBAAA;IACA,YAAA;IACA,kBAAA;EAvBN;EA0BE;IACI,4BAAA;IACA,cAAA;IACA,YAAA;EAxBN;EA2BE;IACI,wBAAA;IACA,cAAA;EAzBN;EA4BE;IACI,4BAAA;IACA,gBAAA;IACA,YAAA;EA1BN;EA6BE;IACI,WAAA;EA3BN;EA8BE;IACI,aAAA;EA5BN;EA+BE;IACI,eAAA;EA7BN;EAgCE;IACI,4BAAA;IACA,iBAAA;EA9BN;EAiCE;IACI,iBAAA;IACC,YAAA;EA/BP;EAkCE;IACI,gBAAA;IACA,kBAAA;EAhCN;AACF;AAoCA;EACI;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAlCN;EAqCE;IACI,gBAAA;IACA,kBAAA;EAnCN;EAsCE;IACI,iBAAA;IACA,kBAAA;EApCN;EAuCE;IACI,eAAA;IACA,uBAAA;EArCN;EAwCE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAtCN;EAyCE;IACI,4BAAA;IACA,cAAA;IACA,WAAA;EAvCN;EAyCE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAvCN;EA0CE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;EAxCN;EA0CE;IACI,YAAA;IACA,mBAAA;IACA,4BAAA;IACA,iBAAA;IACA,YAAA;EAxCN;EA0CE;IACI,4BAAA;IACA,iBAAA;IACA,YAAA;IACA,gBAAA;IACA,iBAAA;EAxCN;AACF;AA6CA;EAEI;IACI,eAAA;IACA,uBAAA;EA5CN;AACF","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : green solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : red solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n\n@media (min-width: 200px) and (max-width: 640px) {  \n    #aboutHeader {\n        display : none;\n    }\n\n    .containerMain {\n        margin : 0 auto;\n        display : inline-block;\n        position : relative; \n        max-width : 1000px;\n    }\n \n    #deviconContainer {\n        margin-top : -30px;\n    } \n\n    .projectButton h2 {\n        margin-top : -8px;\n    }\n\n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : grey;\n    }\n\n     .social {\n        margin-left : -15px;\n    }\n\n    .folioText {\n        margin-left : 25px;\n        margin-right : 25px;\n    }\n\n \n\n    .tagWhite a { \n        font-family : 'Share Tech Mono';\n        font-size : 1.5em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n    nav a {\n        margin-right: 5px;\n        margin-left: 5px;\n    }\n\n    .bandOrange a {\n        line-height: 50px;\n        vertical-align: middle;\n    }\n\n    .folioDiv20 {\n        position : relative;\n        display : inline-block;\n        width: 100%; \n        padding: 0px -1px 0px 10px;  \n    }\n\n    #ff2 {\n        padding-bottom : 20px;\n    }\n\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n        text-align : center;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : white;\n    }\n\n    .folioWrapper {\n        padding: 0px 0px 0px 0px;  \n        display : block;\n    }\n\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n    .containerBackground {\n        width: 100%; \n    }\n\n    #navBar {\n        display : none;\n    }\n    \n    #container2 p{\n        font-size : 1rem;\n    }\n\n    .social p { \n        font-family : Share Tech Mono;\n        font-size : 1.2rem;\n    }\n\n    h1 {\n        font-size : 1.5rem;\n         color : black;\n    }\n\n    .folioCode p {\n        font-size: 1.2em;\n        line-height : 1.2em;\n    }\n\n} \n\n@media (min-width: 641px) and (max-width: 780px) {  \n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioCode p {\n        font-size: 1.3em;\n        line-height : 1.3em;\n    }\n\n    .folioText {\n        margin-left : 35px;\n        margin-right : 35px;\n    }\n\n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : grey;\n    }\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .tagWhite a { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n\n}\n\n@media (min-width: 900px) {\n    \n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n} \n \n \n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -15722,7 +16435,7 @@ var charPosition = {
 var scene = 1;
 
 //Generate Scene
-(0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(scene, win1.width, charPosition);
+(0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(scene, win1.width, win1.height, charPosition);
 })();
 
 /******/ })()
