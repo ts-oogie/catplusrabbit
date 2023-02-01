@@ -1876,7 +1876,6 @@ function generateBackground(name, size) {
   var thisSize = size + '%';
   if (name == '11-small') {
     var thisEl = document.getElementById('bgMain');
-    thisEl.style.backgroundImage = "url(smallBG)";
     thisEl.style.backgroundPosition = "center center";
     thisEl.style.backgroundSize = thisSize;
     thisEl.style.zIndex = "-10";
