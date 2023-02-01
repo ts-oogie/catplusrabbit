@@ -12,9 +12,7 @@
     "express": "^4.18.2",
     "jquery": "^3.6.3" 
   },
-  "scripts": {
-    "build": "webpack",
-    "dev": "webpack serve",
+  "scripts": { 
     "start": "node server.js"
   },
   "repository": {
@@ -27,6 +25,6 @@
     "url": "https://github.com/ts-oogie/toshiplus/issues"
   },
   "homepage": "https://github.com/ts-oogie/toshiplus#readme",
-  
+
   "description": ""
 }
