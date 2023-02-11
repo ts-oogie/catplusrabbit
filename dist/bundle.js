@@ -26,7 +26,12 @@ var characterObject = /*#__PURE__*/function () {
     _classCallCheck(this, characterObject);
     this.adj;
     this.angle;
+    this.calibration;
     this.count = 0;
+    this.classLabel;
+    this.direction;
+    this.divisor;
+    this.divisorMultiplier;
     this.gif = gifs;
     this.height = h;
     this.currIndex;
@@ -42,7 +47,11 @@ var characterObject = /*#__PURE__*/function () {
     this.pathInterrupted = false;
     this.pivot = 0;
     this.quadAdj;
+    this.quadAdjMultiplier;
+    this.quadAngle;
+    this.quadAngleMultiplier;
     this.quadOpp;
+    this.quadOppMultiplier;
     this.startPt = startPt;
     this.width = w;
     this.xDist;
@@ -59,22 +68,12 @@ var characterObject = /*#__PURE__*/function () {
     key: "moveCharacter",
     value: function moveCharacter() {
       var _this = this;
-      var calibration = this.frameDistance * 1.2;
-      var quadOpp;
-      var quadAdj;
-      //let pivot = 0;
-      var quadAngle;
-      var divisor;
-      //let endPath = false; 
-      var classLabel;
+      this.calibration = this.frameDistance * 1.2;
       if (this.pathInterrupted == false) {
-        classLabel = 'pathPoint';
+        this.classLabel = 'pathPoint';
       } else {
-        classLabel = 'pathPoint' + this.pathCount;
+        this.classLabel = 'pathPoint' + this.pathCount;
       }
-
-      //let template = '<h2><p>This is my voice on ${device} </p></h2>';
-
       this.opp = Math.pow(this.endPt[0] - this.startPt[0], 1);
       this.adj = Math.pow(this.endPt[1] - this.startPt[1], 1) * -1;
       this.angle = Math.abs(Math.atan(this.opp / this.adj) * 180 / Math.PI);
@@ -85,23 +84,23 @@ var characterObject = /*#__PURE__*/function () {
         console.log("quad 1 PIVOT");
         this.currQuad = 1; //Define current quad number
         this.pivot = 0;
-        quadAngle = 38.5;
-        quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
-        quadAdj = Math.round(this.frameDistance * Math.cos(quadAngle / (180 / Math.PI))); //10px
+        this.quadAngle = 38.5;
+        this.quadOpp = Math.round(this.frameDistance * Math.sin(this.quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
+        this.quadAdj = Math.round(this.frameDistance * Math.cos(this.quadAngle / (180 / Math.PI))); //10px
 
         //if end point is between 0 and 38.5 degrees
         if (this.angle >= 38.5 && this.angle < 90) {
-          //pivot
-          divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % quadOpp, quadOpp)); // divided
+          this.direction = 'pivot';
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
+          this.yDist = this.startPt[1] - this.calibration;
 
           //construct path diagonal until ....
-          while (this.count < divisor) {
-            this.xDist += quadAdj;
-            this.yDist -= quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
+          while (this.count < this.divisor) {
+            this.xDist += this.quadAdj;
+            this.yDist -= this.quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -112,7 +111,7 @@ var characterObject = /*#__PURE__*/function () {
             this.xDist += this.frameDistance * 2; // Multiply char.xDist x2 if horizontal
             this.yDist -= 6; //Previously -=6
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var j = 0;
           var k = 2;
@@ -127,7 +126,7 @@ var characterObject = /*#__PURE__*/function () {
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -151,52 +150,52 @@ var characterObject = /*#__PURE__*/function () {
         else if (90 - this.angle >= 38.5 && 90 - this.angle < 90) {
           console.log("diagonal then up");
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
-          divisor = Math.abs(this.returnDivisor(this.startPt[0] - this.endPt[0], (this.startPt[0] - this.endPt[0]) % quadAdj, quadAdj));
+          this.yDist = this.startPt[1] - this.calibration;
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[0] - this.endPt[0], (this.startPt[0] - this.endPt[0]) % this.quadAdj, this.quadAdj));
 
           //construct path diagonal until 
-          while (this.count < divisor * 2) {
-            this.xDist += quadAdj;
-            this.yDist -= quadOpp * 4;
+          while (this.count < this.divisor * 2) {
+            this.xDist += this.quadAdj;
+            this.yDist -= this.quadOpp * 4;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //construct vertical path
           if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 20) {
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 20 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 40) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 40 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 60) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 60 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 80) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 80 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 100) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           var _j = 0;
@@ -211,7 +210,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -219,10 +218,7 @@ var characterObject = /*#__PURE__*/function () {
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
             this.animateCharacterWalk(this.pathCount);
-          }
-
-          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
-          else {
+          } else {
             this.rotateCharacter().then(function () {
               _this.animateCharacterWalk(_this.pathCount);
             });
@@ -234,27 +230,26 @@ var characterObject = /*#__PURE__*/function () {
       else if (this.endPt[1] <= this.startPt[1] && this.endPt[0] <= this.startPt[0]) {
         console.log("quad 2");
         this.pivot = 0;
-        quadAngle = 38.5;
+        this.quadAngle = 38.5;
         this.currQuad = 2;
-        quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
-        quadAdj = Math.round(this.frameDistance * Math.cos(quadAngle / (180 / Math.PI))); //10px
+        this.quadOpp = Math.round(this.frameDistance * Math.sin(this.quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
+        this.quadAdj = Math.round(this.frameDistance * Math.cos(this.quadAngle / (180 / Math.PI))); //10px
 
         //if end point is between 38.5 and 0
         //this angle reference point is from 90 degrees
         if (Math.abs(this.angle) > 38.5 && Math.abs(this.angle) < 90) {
           //pivot
           console.log("PIVOT");
-          divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % quadOpp, quadOpp)); // divided
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
 
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
+          this.yDist = this.startPt[1] - this.calibration;
 
-          //construct path diagonal until 
-          //construct path diagonal until 
-          while (this.count < divisor) {
-            this.xDist -= quadAdj;
-            this.yDist -= quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          //construct path diagonal until  
+          while (this.count < this.divisor) {
+            this.xDist -= this.quadAdj;
+            this.yDist -= this.quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -264,12 +259,12 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.xDist -= this.frameDistance * 2; // Multiply this.xDist x2 if horizontal
             this.yDist -= 6; //Previously -=6
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j2 = 0;
           var _k2 = 2;
 
-          //stop path cycle 
+          //stop path cycle vertical
           while (_j2 < 12) {
             _j2++;
             this.count++;
@@ -278,7 +273,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -300,60 +295,60 @@ var characterObject = /*#__PURE__*/function () {
           //diagonal then up
           console.log("diagonal then up");
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
-          divisor = Math.abs(this.returnDivisor(this.startPt[0] - this.endPt[0], (this.startPt[0] - this.endPt[0]) % quadAdj, quadAdj));
+          this.yDist = this.startPt[1] - this.calibration;
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[0] - this.endPt[0], (this.startPt[0] - this.endPt[0]) % this.quadAdj, this.quadAdj));
 
           //construct path diagonal until 
           while (this.xDist >= this.endPt[0]) {
-            this.xDist -= quadAdj;
-            this.yDist -= quadOpp * 4;
+            this.xDist -= this.quadAdj;
+            this.yDist -= this.quadOpp * 4;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //construct vertical path
           if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 20) {
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 10) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 10 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 40) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 40 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 60) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 60 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 80) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 80 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 100) {
             while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
               this.count++;
-              this.yDist -= calibration;
+              this.yDist -= this.calibration;
               this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           var _j3 = 0;
@@ -368,7 +363,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= this.frameDistance * 1.2; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -391,23 +386,23 @@ var characterObject = /*#__PURE__*/function () {
       else if (this.endPt[1] >= this.startPt[1] && this.endPt[0] <= this.startPt[0]) {
         this.pivot = 0;
         console.log("quad 3");
-        quadAngle = 38.5;
+        this.quadAngle = 38.5;
         this.currQuad = 3;
-        quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
-        quadAdj = Math.round(this.frameDistance * Math.cos(quadAngle / (180 / Math.PI))); //10px
+        this.quadOpp = Math.round(this.frameDistance * Math.sin(this.quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
+        this.quadAdj = Math.round(this.frameDistance * Math.cos(this.quadAngle / (180 / Math.PI))); //10px
 
         if (this.angle > 38.5 && this.angle < 90) {
           //pivot 
 
-          divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % quadOpp, quadOpp)); // divided
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
+          this.yDist = this.startPt[1] - this.calibration;
 
           //construct path diagonal until 
-          while (this.count < divisor) {
-            this.xDist -= quadAdj;
-            this.yDist += quadOpp / 5;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          while (this.count < this.divisor) {
+            this.xDist -= this.quadAdj;
+            this.yDist += this.quadOpp / 5;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -417,7 +412,7 @@ var characterObject = /*#__PURE__*/function () {
             this.xDist -= this.frameDistance * 2;
             this.yDist -= 6;
             this.count++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j4 = 0;
           var _k4 = 2;
@@ -431,7 +426,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6 
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -450,115 +445,90 @@ var characterObject = /*#__PURE__*/function () {
         } else if (this.angle < 38.5 && this.angle > 0) {
           console.log("diagonal then down");
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
+          this.yDist = this.startPt[1] - this.calibration;
 
           //diagonal
           while (this.xDist >= this.endPt[0]) {
-            this.xDist -= quadAdj;
-            this.yDist += quadOpp / 2;
+            this.xDist -= this.quadAdj;
+            this.yDist += this.quadOpp / 2;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var difference = this.endPt[1] - this.startPt[1];
-          console.log("difference : " + difference);
 
           //construct vertical path
           if (difference > 0 && difference < this.frameDistance * 10) {
-            console.log('1');
-            console.log("frameDistance * 10 = " + 5.56 * 10);
             while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 10 && difference <= this.frameDistance * 20) {
-            console.log("2");
-            console.log("frameDistance * 10 = " + 5.56 * 20);
             while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 10 && difference <= this.frameDistance * 25) {
-            console.log("3");
-            console.log("frameDistance * 10 = " + 5.56 * 20);
             while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 25 && difference <= this.frameDistance * 30) {
-            console.log("4");
-            console.log("frameDistance * 10 = " + 5.56 * 30);
             while (this.yDist < this.endPt[1] - this.frameDistance * 22) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 30 && difference <= this.frameDistance * 35) {
-            console.log("5");
-            console.log("frameDistance * 10 = " + 5.56 * 35);
             while (this.yDist < this.endPt[1] - this.frameDistance * 25) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 35 && difference <= this.frameDistance * 40) {
-            console.log("6");
-            console.log("frameDistance * 10 = " + 5.56 * 40);
             while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 40 && difference <= this.frameDistance * 45) {
-            console.log("7");
-            console.log("frameDistance * 10 = " + 5.56 * 42);
             while (this.yDist < this.endPt[1] - this.frameDistance * 34) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 45 && difference <= this.frameDistance * 50) {
-            console.log("8");
-            console.log("frameDistance * 10 = " + 5.56 * 50);
             while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 50 && difference <= this.frameDistance * 55) {
-            console.log("9");
-            console.log("frameDistance * 10 = " + 5.56 * 55);
             while (this.yDist < this.endPt[1] - this.frameDistance * 44) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 55 && difference <= this.frameDistance * 60) {
-            console.log("10");
-            console.log("frameDistance * 10 = " + 5.56 * 60);
             while (this.yDist < this.endPt[1] - this.frameDistance * 47) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 60 && difference <= this.frameDistance * 65) {
-            console.log("11");
-            console.log("frameDistance * 10 = " + 5.56 * 65);
             while (this.yDist < this.endPt[1] - this.frameDistance * 51) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           } else if (difference > this.frameDistance * 65 && difference <= this.frameDistance * 70) {
-            console.log("12");
-            console.log("frameDistance * 10 = " + 5.56 * 70);
             while (this.yDist < this.endPt[1] - this.frameDistance * 55) {
               this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
           }
           var _j5 = 0;
@@ -573,7 +543,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= this.frameDistance * 1.2; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -595,29 +565,29 @@ var characterObject = /*#__PURE__*/function () {
       //QUAD 4
       else if (this.endPt[1] > this.startPt[1] && this.endPt[0] >= this.startPt[0]) {
         console.log("quad 4");
-        quadAngle = 38.5;
+        this.quadAngle = 38.5;
         this.currQuad = 4;
         this.pivot = 0;
-        quadOpp = Math.round(this.frameDistance * Math.sin(quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
-        quadAdj = Math.round(this.frameDistance * Math.cos(quadAngle / (180 / Math.PI))); //10px
+        this.quadOpp = Math.round(this.frameDistance * Math.sin(this.quadAngle / (180 / Math.PI))); //10px opp distance - 1 frame
+        this.quadAdj = Math.round(this.frameDistance * Math.cos(this.quadAngle / (180 / Math.PI))); //10px
 
-        this.quadAdj = quadAdj;
-        this.quadOpp = quadOpp;
+        //this.quadAdj = quadAdj
+        //this.quadOpp = quadOpp
 
         //if end point is between 180 and 141.5 degrees
         if (this.angle > 38.5 && this.angle < 90) {
           //pivot
           console.log("Pivot");
-          divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % quadOpp, quadOpp)); // divided
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
 
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
+          this.yDist = this.startPt[1] - this.calibration;
 
           //construct path diagonal until 
-          while (this.count < divisor) {
-            this.xDist += quadAdj;
-            this.yDist += quadOpp / 5;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          while (this.count < this.divisor) {
+            this.xDist += this.quadAdj;
+            this.yDist += this.quadOpp / 5;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             this.count++;
             this.pivot++;
           }
@@ -627,7 +597,7 @@ var characterObject = /*#__PURE__*/function () {
             this.xDist += this.frameDistance * 2;
             this.yDist -= 6;
             this.count++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j6 = 0;
           var _k6 = 2;
@@ -641,7 +611,7 @@ var characterObject = /*#__PURE__*/function () {
             this.yDist -= 6; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points change to .style.left = 
@@ -668,82 +638,178 @@ var characterObject = /*#__PURE__*/function () {
               _this.animateCharacterWalk(_this.pathCount);
             });
           }
-        } else if (this.angle < 38.5 && this.angle > 0) {
-          console.log("diagonal then down");
+        } else if (this.angle > 25 && this.angle < 30) {
+          console.log("pivot");
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - calibration;
+          this.yDist = this.startPt[1] - this.calibration;
 
           //diagonal
           while (this.xDist <= this.endPt[0]) {
-            this.xDist += quadAdj;
-            this.yDist += quadOpp / 5;
+            this.xDist += this.quadAdj;
+            this.yDist += this.quadOpp / 5;
             this.count++;
             this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-          }
-          var _difference = this.endPt[1] - this.startPt[1];
-          if (_difference > 0 && _difference < this.frameDistance * 10) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 20) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 25) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 25 && _difference <= this.frameDistance * 30) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 30 && _difference <= this.frameDistance * 35) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 25) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 35 && _difference <= this.frameDistance * 40) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 40 && _difference <= this.frameDistance * 45) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 31) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 45 && _difference <= this.frameDistance * 50) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
-              this.count++;
-              this.yDist += quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j7 = 0;
           var _k7 = 2;
-
-          //stop path cycle 
           while (_j7 < 12) {
             _j7++;
             this.count++;
-            this.yDist += this.frameDistance * _k7; // Multiply this.xDist x2 if horizontal
+            this.xDist += this.frameDistance * _k7; // Multiply this.xDist x2 if horizontal
             _k7 = _k7 * .8;
+            this.yDist -= 6; //Previously -=6
+            this.startPt[0] = this.xDist;
+            this.startPt[1] = this.yDist;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+
+          //Reset start Points
+          document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
+          document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
+          if (this.endAngle == undefined) {
+            this.animateCharacterWalk(this.pathCount);
+          }
+
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          else {
+            this.rotateCharacter().then(function () {
+              _this.animateCharacterWalk(_this.pathCount);
+            });
+          }
+        } else if (this.angle > 30 && this.angle < 38.5) {
+          console.log("pivot");
+          this.xDist = this.startPt[0];
+          this.yDist = this.startPt[1] - this.calibration;
+
+          //diagonal
+          while (this.xDist <= this.endPt[0] * .95) {
+            this.xDist += this.quadAdj;
+            this.yDist += this.quadOpp / 5;
+            this.count++;
+            this.pivot++;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+          var _j8 = 0;
+          var _k8 = 2;
+
+          //stop path cycle VERTICAL
+          while (_j8 < 12) {
+            _j8++;
+            this.count++;
+            this.xDist += this.frameDistance * _k8; // Multiply this.xDist x2 if horizontal
+            _k8 = _k8 * .8;
+            this.yDist -= 6; //Previously -=6
+            this.startPt[0] = this.xDist;
+            this.startPt[1] = this.yDist;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+
+          //Reset start Points
+          document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
+          document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
+          if (this.endAngle == undefined) {
+            this.animateCharacterWalk(this.pathCount);
+          }
+
+          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
+          else {
+            this.rotateCharacter().then(function () {
+              _this.animateCharacterWalk(_this.pathCount);
+            });
+          }
+        } else if (this.angle < 25 && this.angle > 0) {
+          console.log("diagonal then down");
+          this.xDist = this.startPt[0];
+          this.yDist = this.startPt[1] - this.calibration;
+
+          //diagonal
+          while (this.xDist <= this.endPt[0]) {
+            this.xDist += this.quadAdj;
+            this.yDist += this.quadOpp / 5;
+            this.count++;
+            this.pivot++;
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+          var _difference = this.endPt[1] - this.startPt[1];
+          if (_difference > 0 && _difference < this.frameDistance * 10) {
+            console.log("1");
+            console.log("frameDistance * 10 = " + 5.56 * 10);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 20) {
+            console.log("2");
+            console.log("frameDistance * 10 = " + 5.56 * 15);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 25) {
+            console.log("3");
+            console.log("frameDistance * 10 = " + 5.56 * 25);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 25 && _difference <= this.frameDistance * 30) {
+            console.log("4");
+            console.log("frameDistance * 10 = " + 5.56 * 30);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 30 && _difference <= this.frameDistance * 35) {
+            console.log("5");
+            console.log("frameDistance * 10 = " + 5.56 * 35);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 35) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 35 && _difference <= this.frameDistance * 40) {
+            console.log("6");
+            console.log("frameDistance * 10 = " + 5.56 * 40);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 40 && _difference <= this.frameDistance * 45) {
+            console.log("7");
+            console.log("frameDistance * 10 = " + 5.56 * 45);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference > this.frameDistance * 45 && _difference <= this.frameDistance * 50) {
+            console.log("8");
+            console.log("frameDistance * 10 = " + 5.56 * 50);
+            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
+              this.count++;
+              this.yDist += this.quadOpp;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          }
+          var _j9 = 0;
+          var _k9 = 2;
+
+          //stop path cycle 
+          while (_j9 < 12) {
+            _j9++;
+            this.count++;
+            this.yDist += this.frameDistance * _k9; // Multiply this.xDist x2 if horizontal
+            _k9 = _k9 * .8;
             this.yDist -= this.frameDistance * 1.2; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
@@ -1048,6 +1114,87 @@ var characterObject = /*#__PURE__*/function () {
             thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-4.gif';
             resolve(_this2);
           }, 76 * 3);
+        } else if (_this2.endAngle == 270 && _this2.currQuad == 1) {
+          thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-1.gif';
+
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-4.gif';
+          }, 76 * 3);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-5.gif';
+          }, 76 * 4);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-6.gif';
+          }, 76 * 5);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-7.gif';
+          }, 76 * 6);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-8.gif';
+            resolve(_this2);
+          }, 76 * 7);
+        } else if (_this2.endAngle == 270 && _this2.currQuad == 2) {
+          thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-1.gif';
+
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-3.gif';
+          }, 76 * 2);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-4.gif';
+          }, 76 * 3);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-5.gif';
+          }, 76 * 4);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-6.gif';
+          }, 76 * 5);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-7.gif';
+          }, 76 * 6);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-8.gif';
+          }, 76 * 7);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-9.gif';
+            resolve(_this2);
+          }, 76 * 8);
+        } else if (_this2.endAngle == 270 && _this2.currQuad == 3) {
+          thisEl[0].firstChild.src = './cabbit-rotate-270-quad3-1.gif';
+
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative  height : 400px  width : 300px  left : -150px  top : -200px ">') 
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad3-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad3-3.gif';
+            resolve(_this2);
+          }, 76 * 2);
+        } else if (_this2.endAngle == 270 && _this2.currQuad == 4) {
+          thisEl[0].firstChild.src = './cabbit-rotate-270-quad4-1.gif';
+
+          //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative  height : 400px  width : 300px  left : -150px  top : -200px ">') 
+
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad4-2.gif';
+          }, 76);
+          setTimeout(function () {
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad4-3.gif';
+            resolve(_this2);
+          }, 76 * 2);
         }
       });
       return p;
@@ -1056,6 +1203,7 @@ var characterObject = /*#__PURE__*/function () {
     key: "animateCharacterWalk",
     value: function animateCharacterWalk(pathCount) {
       var _this3 = this;
+      $('#bgMain').css('pointer-events', 'none');
       this.inMotion = true;
       for (var i = 1; i <= this.count; i++) {
         this.pauseDisplay(i, this.currQuad, this.angle, this.pivot, this.count - 6).then(function (result) {
@@ -1159,7 +1307,7 @@ var characterObject = /*#__PURE__*/function () {
       if (quad == 4 && angle > 38.5 && index <= pivot) {
         state.index = index;
         state.angle = 292;
-      } else if (quad == 4 && angle > 38.5 && index > pivot) {
+      } else if (quad == 4 && angle > 25 && index > pivot) {
         state.index = index;
         state.angle = 0;
       } else if (quad == 4 && angle <= 38.5 && index <= pivot) {
@@ -1440,9 +1588,6 @@ var characterObject = /*#__PURE__*/function () {
           } else {
             _this4.currIndex = state.index;
             _this4.frameIndex = state.frameIndex;
-            console.log(state.angle);
-            console.log(srcGif);
-            console.log("__________");
             $(pathPt).eq(state.index).append(srcGif);
             setTimeout(function () {
               $(pathPt).eq(state.index).empty();
@@ -1872,14 +2017,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _assets_bg_11_small_jpg__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../assets/bg/11-small.jpg */ "./src/assets/bg/11-small.jpg");
 
-function generateBackground(name, size) {
+function generateBackground(scene, size) {
   var thisSize = size + '%';
-  if (name == '11-small') {
-    var thisEl = document.getElementById('bgMain');
-    thisEl.style.backgroundImage = "url(11-small.jpg)";
-    thisEl.style.backgroundPosition = "center center";
-    thisEl.style.backgroundSize = thisSize;
-    thisEl.style.zIndex = "-10";
+  var thisBG = document.getElementById('bgMain');
+  if (scene == 0) {
+    thisBG.style.backgroundImage = "url(braveNotice.gif)";
+    thisBG.style.backgroundPosition = "center center";
+    thisBG.style.backgroundSize = thisSize;
+    thisBG.style.zIndex = "-10";
+  } else if (scene == 1) {
+    thisBG.style.backgroundImage = "url(11-small.jpg)";
+    thisBG.style.backgroundPosition = "center center";
+    thisBG.style.backgroundSize = thisSize;
+    thisBG.style.zIndex = "-10";
   }
 }
 
@@ -1903,9 +2053,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function generateCharacter(name, charPosition, winWidth, winHeight, screenPercent) {
-  var charSize = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.setCharSize)(winWidth, screenPercent);
-  var frameDistance = winWidth * .002604166666667;
+function generateCharacter(name, charPosition, win, screenPercent) {
+  var charSize = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.setCharSize)(win.width, screenPercent);
+  var frameDistance = win.width * .002604166666667;
   switch (name) {
     case 'cabbit':
       var cabbitGIFs = (0,_gifs_js__WEBPACK_IMPORTED_MODULE_0__.cabbitGifs)('cabbit', charSize[0], charSize[1]);
@@ -2054,7 +2204,7 @@ function generateCharacter(name, charPosition, winWidth, winHeight, screenPercen
         //IF character is not in motion, path 
         else if (cabbit.count > 1 && cabbit.inMotion == false) {
           var _offsetTop; // ******change to percent percentage  
-          var calibration = winHeight / 18.32;
+          var calibration = win.height / 18.32;
           if (cabbit.pathCount == 0) {
             itemClass = '.pathPoint';
           } else {
@@ -2285,7 +2435,74 @@ function generateCharacter(name, charPosition, winWidth, winHeight, screenPercen
               }
             }
           } else if (cabbit.endAngle == 270) {
-            if (cabbit.currQuad == 3) {} else if (cabbit.currQuad == 4) {}
+            if (cabbit.currQuad == 3) {
+              alert("Q3");
+              //selected quad == 1
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j29 = 0; _j29 < cabbit.count - 1; _j29++) {
+                  points[_j29].remove();
+                }
+              }
+              //selected quad == 2, pivot
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j30 = 0; _j30 < cabbit.count - 1; _j30++) {
+                  points[_j30].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
+                for (var _j31 = 0; _j31 < cabbit.count - 1; _j31++) {
+                  points[_j31].remove();
+                }
+              }
+              //selected quad == 4
+              else {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
+                for (var _j32 = 0; _j32 < cabbit.count - 1; _j32++) {
+                  points[_j32].remove();
+                }
+              }
+            } else if (cabbit.currQuad == 4) {
+              //QUAD 1
+              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 2; // MINUS CALIBRATION
+                for (var _j33 = 0; _j33 < cabbit.count - 1; _j33++) {
+                  points[_j33].remove();
+                }
+              }
+              //selected quad == 2, pivot
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
+                for (var _j34 = 0; _j34 < cabbit.count - 1; _j34++) {
+                  points[_j34].remove();
+                }
+              }
+              //selected quad == 3
+              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
+                for (var _j35 = 0; _j35 < cabbit.count - 1; _j35++) {
+                  points[_j35].remove();
+                }
+              }
+              //selected quad == 4
+              else {
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
+                for (var _j36 = 0; _j36 < cabbit.count - 1; _j36++) {
+                  points[_j36].remove();
+                }
+              }
+            }
           }
           $(itemClass).css('top', _offsetTop);
 
@@ -2316,19 +2533,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _generateBG_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./generateBG.js */ "./src/utils/generateBG.js");
 /* harmony import */ var _generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateCharacter.js */ "./src/utils/generateCharacter.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./src/utils/utils.js");
 
 
-function generateScene(sceneNum, winWidth, winHeight, charPosition) {
+
+function generateScene(sceneNum, win) {
+  var screenPercent;
+  var sceneComplete = false;
+  var charPosition = {
+    cabbit: [700, 400]
+  };
   switch (sceneNum) {
+    case 0:
+      screenPercent = 75;
+      (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(0, screenPercent);
+      setTimeout(function () {
+        generateScene(1, win);
+      }, 5000);
+      return;
     case 1:
       //scene 11
-      var screenPercent = 75;
-      (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)("11-small", screenPercent);
-      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, winWidth, winHeight, screenPercent);
-      break;
-    case 2:
-      //sceneName = "10-small"
-      break;
+      screenPercent = 75;
+      (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(1, screenPercent);
+      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent);
+      return;
   }
 }
 
@@ -3111,6 +3339,7 @@ function cabbitGifs(name, width, height) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "setCharSize": () => (/* binding */ setCharSize),
+/* harmony export */   "thisClick": () => (/* binding */ thisClick),
 /* harmony export */   "win": () => (/* binding */ win)
 /* harmony export */ });
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
@@ -3137,6 +3366,9 @@ var win = /*#__PURE__*/_createClass(function win(window) {
   this.url = window.location.href;
   this.charSize = [];
 });
+function thisClick(status) {
+  alert("Clicked");
+}
 
 /***/ }),
 
@@ -3160,7 +3392,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: green solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}\n\n@media (min-width: 200px) and (max-width: 640px) {\n  #aboutHeader {\n    display: none;\n  }\n  .containerMain {\n    margin: 0 auto;\n    display: inline-block;\n    position: relative;\n    max-width: 1000px;\n  }\n  #deviconContainer {\n    margin-top: -30px;\n  }\n  .projectButton h2 {\n    margin-top: -8px;\n  }\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: grey;\n  }\n  .social {\n    margin-left: -15px;\n  }\n  .folioText {\n    margin-left: 25px;\n    margin-right: 25px;\n  }\n  .tagWhite a {\n    font-family: \"Share Tech Mono\";\n    font-size: 1.5em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n  nav a {\n    margin-right: 5px;\n    margin-left: 5px;\n  }\n  .bandOrange a {\n    line-height: 50px;\n    vertical-align: middle;\n  }\n  .folioDiv20 {\n    position: relative;\n    display: inline-block;\n    width: 100%;\n    padding: 0px -1px 0px 10px;\n  }\n  #ff2 {\n    padding-bottom: 20px;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n    text-align: center;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: white;\n  }\n  .folioWrapper {\n    padding: 0px 0px 0px 0px;\n    display: block;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  .containerBackground {\n    width: 100%;\n  }\n  #navBar {\n    display: none;\n  }\n  #container2 p {\n    font-size: 1rem;\n  }\n  .social p {\n    font-family: Share Tech Mono;\n    font-size: 1.2rem;\n  }\n  h1 {\n    font-size: 1.5rem;\n    color: black;\n  }\n  .folioCode p {\n    font-size: 1.2em;\n    line-height: 1.2em;\n  }\n}\n@media (min-width: 641px) and (max-width: 780px) {\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioCode p {\n    font-size: 1.3em;\n    line-height: 1.3em;\n  }\n  .folioText {\n    margin-left: 35px;\n    margin-right: 35px;\n  }\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: grey;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .tagWhite a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n}\n@media (min-width: 900px) {\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"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","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : green solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : red solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n\n@media (min-width: 200px) and (max-width: 640px) {  \n    #aboutHeader {\n        display : none;\n    }\n\n    .containerMain {\n        margin : 0 auto;\n        display : inline-block;\n        position : relative; \n        max-width : 1000px;\n    }\n \n    #deviconContainer {\n        margin-top : -30px;\n    } \n\n    .projectButton h2 {\n        margin-top : -8px;\n    }\n\n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : grey;\n    }\n\n     .social {\n        margin-left : -15px;\n    }\n\n    .folioText {\n        margin-left : 25px;\n        margin-right : 25px;\n    }\n\n \n\n    .tagWhite a { \n        font-family : 'Share Tech Mono';\n        font-size : 1.5em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n    nav a {\n        margin-right: 5px;\n        margin-left: 5px;\n    }\n\n    .bandOrange a {\n        line-height: 50px;\n        vertical-align: middle;\n    }\n\n    .folioDiv20 {\n        position : relative;\n        display : inline-block;\n        width: 100%; \n        padding: 0px -1px 0px 10px;  \n    }\n\n    #ff2 {\n        padding-bottom : 20px;\n    }\n\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n        text-align : center;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : white;\n    }\n\n    .folioWrapper {\n        padding: 0px 0px 0px 0px;  \n        display : block;\n    }\n\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n    .containerBackground {\n        width: 100%; \n    }\n\n    #navBar {\n        display : none;\n    }\n    \n    #container2 p{\n        font-size : 1rem;\n    }\n\n    .social p { \n        font-family : Share Tech Mono;\n        font-size : 1.2rem;\n    }\n\n    h1 {\n        font-size : 1.5rem;\n         color : black;\n    }\n\n    .folioCode p {\n        font-size: 1.2em;\n        line-height : 1.2em;\n    }\n\n} \n\n@media (min-width: 641px) and (max-width: 780px) {  \n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioCode p {\n        font-size: 1.3em;\n        line-height : 1.3em;\n    }\n\n    .folioText {\n        margin-left : 35px;\n        margin-right : 35px;\n    }\n\n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : grey;\n    }\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .tagWhite a { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n\n}\n\n@media (min-width: 900px) {\n    \n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n} \n \n \n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: transparent solid 2px;\n}\n\n#startPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}\n\n@media (min-width: 200px) and (max-width: 640px) {\n  #aboutHeader {\n    display: none;\n  }\n  .containerMain {\n    margin: 0 auto;\n    display: inline-block;\n    position: relative;\n    max-width: 1000px;\n  }\n  #deviconContainer {\n    margin-top: -30px;\n  }\n  .projectButton h2 {\n    margin-top: -8px;\n  }\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: grey;\n  }\n  .social {\n    margin-left: -15px;\n  }\n  .folioText {\n    margin-left: 25px;\n    margin-right: 25px;\n  }\n  .tagWhite a {\n    font-family: \"Share Tech Mono\";\n    font-size: 1.5em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n  nav a {\n    margin-right: 5px;\n    margin-left: 5px;\n  }\n  .bandOrange a {\n    line-height: 50px;\n    vertical-align: middle;\n  }\n  .folioDiv20 {\n    position: relative;\n    display: inline-block;\n    width: 100%;\n    padding: 0px -1px 0px 10px;\n  }\n  #ff2 {\n    padding-bottom: 20px;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n    text-align: center;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: white;\n  }\n  .folioWrapper {\n    padding: 0px 0px 0px 0px;\n    display: block;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.5em;\n    color: white;\n  }\n  .containerBackground {\n    width: 100%;\n  }\n  #navBar {\n    display: none;\n  }\n  #container2 p {\n    font-size: 1rem;\n  }\n  .social p {\n    font-family: Share Tech Mono;\n    font-size: 1.2rem;\n  }\n  h1 {\n    font-size: 1.5rem;\n    color: black;\n  }\n  .folioCode p {\n    font-size: 1.2em;\n    line-height: 1.2em;\n  }\n}\n@media (min-width: 641px) and (max-width: 780px) {\n  .containerMain p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioCode p {\n    font-size: 1.3em;\n    line-height: 1.3em;\n  }\n  .folioText {\n    margin-left: 35px;\n    margin-right: 35px;\n  }\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n  p {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  h3 {\n    font-family: Share Tech Mono;\n    font-size: 2em;\n    color: grey;\n  }\n  .folioTag a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioTitle {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .folioDescription20 {\n    color: white;\n    margin-bottom: 10px;\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n  }\n  .tagWhite a {\n    font-family: Share Tech Mono;\n    font-size: 1.75em;\n    color: white;\n    margin-left: 2px;\n    line-height: 30px;\n  }\n}\n@media (min-width: 900px) {\n  .folioDiv20 {\n    width: 33.3333%;\n    margin: 0px 0px 0px 0px;\n  }\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"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","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : transparent solid 2px;\n    \n}\n\n#startPoint {\n    border : transparent solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n\n@media (min-width: 200px) and (max-width: 640px) {  \n    #aboutHeader {\n        display : none;\n    }\n\n    .containerMain {\n        margin : 0 auto;\n        display : inline-block;\n        position : relative; \n        max-width : 1000px;\n    }\n \n    #deviconContainer {\n        margin-top : -30px;\n    } \n\n    .projectButton h2 {\n        margin-top : -8px;\n    }\n\n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : grey;\n    }\n\n     .social {\n        margin-left : -15px;\n    }\n\n    .folioText {\n        margin-left : 25px;\n        margin-right : 25px;\n    }\n\n \n\n    .tagWhite a { \n        font-family : 'Share Tech Mono';\n        font-size : 1.5em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n    nav a {\n        margin-right: 5px;\n        margin-left: 5px;\n    }\n\n    .bandOrange a {\n        line-height: 50px;\n        vertical-align: middle;\n    }\n\n    .folioDiv20 {\n        position : relative;\n        display : inline-block;\n        width: 100%; \n        padding: 0px -1px 0px 10px;  \n    }\n\n    #ff2 {\n        padding-bottom : 20px;\n    }\n\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n        text-align : center;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : white;\n    }\n\n    .folioWrapper {\n        padding: 0px 0px 0px 0px;  \n        display : block;\n    }\n\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.5em;\n        color : white;\n    }\n\n    .containerBackground {\n        width: 100%; \n    }\n\n    #navBar {\n        display : none;\n    }\n    \n    #container2 p{\n        font-size : 1rem;\n    }\n\n    .social p { \n        font-family : Share Tech Mono;\n        font-size : 1.2rem;\n    }\n\n    h1 {\n        font-size : 1.5rem;\n         color : black;\n    }\n\n    .folioCode p {\n        font-size: 1.2em;\n        line-height : 1.2em;\n    }\n\n} \n\n@media (min-width: 641px) and (max-width: 780px) {  \n    .containerMain p { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioCode p {\n        font-size: 1.3em;\n        line-height : 1.3em;\n    }\n\n    .folioText {\n        margin-left : 35px;\n        margin-right : 35px;\n    }\n\n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n    p {\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    h3 {\n        font-family : Share Tech Mono;\n        font-size : 2em;\n        color : grey;\n    }\n    .folioTag a{\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n\n    .folioTitle {  \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .folioDescription20 {  \n        color : white;\n        margin-bottom : 10px;\n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n    }\n    .tagWhite a { \n        font-family : Share Tech Mono;\n        font-size : 1.75em;\n        color : white;\n        margin-left: 2px;\n        line-height: 30px;\n    }\n\n\n}\n\n@media (min-width: 900px) {\n    \n    .folioDiv20 {\n        width: 33.3333%;\n        margin: 0px 0px 0px 0px;\n    }\n\n} \n \n \n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -16428,14 +16660,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var win1 = new _utils_utils_js__WEBPACK_IMPORTED_MODULE_2__.win(window);
-var charPosition = {
-  cabbit: [700, 400]
-};
-var scene = 1;
+var windowInst = new _utils_utils_js__WEBPACK_IMPORTED_MODULE_2__.win(window);
+var running = true;
 
 //Generate Scene
-(0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(scene, win1.width, win1.height, charPosition);
+(0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(0, windowInst);
 })();
 
 /******/ })()
