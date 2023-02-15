@@ -19,7 +19,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                 let itemClass
                 let count = 0  
 
-                
+                $('body').css('pointer-events','none')    
 
                 //set end points
                 cabbit.endPt[0] = e.pageX

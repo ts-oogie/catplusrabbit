@@ -1,6 +1,19 @@
-import {generateBackground} from './generateBG.js'
-import {generateCharacter} from './generateCharacter.js'
-import {thisClick} from './utils.js'  
+import {generateBackground, generateForeground} from './generateBG.js'  
+import {generateCharacter} from './generateCharacter.js' 
+
+export class sceneObject{
+    constructor(name, win){
+        this.dimension = win 
+        this.sceneComplete = false
+        this.name = name
+    }
+
+    generateScene(){
+
+    }
+
+
+}
 
 export function generateScene(sceneNum, win){ 
 
@@ -22,6 +35,7 @@ export function generateScene(sceneNum, win){
             //scene 11
             screenPercent = 75 
             generateBackground(1, screenPercent) 
+            generateForeground(1, screenPercent, win)
             generateCharacter('cabbit', charPosition, win, screenPercent)
             return 
 

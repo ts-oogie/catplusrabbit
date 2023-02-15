@@ -1501,11 +1501,10 @@ export class characterObject {
             this.pauseDisplay(i, this.currQuad, this.angle, this.pivot, (this.count - 6))
             .then((result) => { //****** 12-8-22 *** previously  this.count-7
                 this.endAngle = result.angle 
-                $('body').css('pointer-events','none')   
                 return this.displayChar(result, pathCount)
             })
             .then((result) => {
-                $('body').css('pointer-events','auto') 
+                
                 return this.stopDisplay(result, pathCount) 
             })
             .catch((err) => { 
@@ -1636,8 +1635,7 @@ export class characterObject {
         
         let p = new Promise((resolve, reject) => {
             setTimeout(() => {
-                resolve(state)
-                
+                resolve(state) 
             }, index*66.667)//  1/15 of a second = 66.667
         })
    
@@ -1963,22 +1961,19 @@ export class characterObject {
                    
                     setTimeout(() => { 
                            $(pathPt).eq(state.index).empty()   
-                    }, 76 )   
+                    }, 70 )   
                        
                 }
 
                 else {   
 
                     this.currIndex = state.index 
-                    this.frameIndex = state.frameIndex
-
-                     
-
+                    this.frameIndex = state.frameIndex 
                     
                     $(pathPt).eq(state.index).append(srcGif) 
                         setTimeout(() => { 
                             $(pathPt).eq(state.index).empty()   
-                    }, 76 )   
+                    }, 70 )   
                 }
                 
                 if (this.pathInterrupted == false){
@@ -1992,6 +1987,7 @@ export class characterObject {
            }
     
            if (state.pathEnd == true){
+                $('body').css('pointer-events','none')    
                 resolve(state) 
            }
             
@@ -2460,6 +2456,7 @@ export class characterObject {
             if(difference > amt){ 
                 this.inMotion = false 
                 this.pathInterrrupted = false 
+                $('body').css('pointer-events','auto') 
             }
            
         }

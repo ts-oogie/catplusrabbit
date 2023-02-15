@@ -1,3 +1,8 @@
+//BGS
+import bg1 from '../assets/bg/11-small.jpg'
+import fg from '../assets/bg/fgFrame.gif'
+
+//Cabbit
 import r0q1x1 from '../assets/motion/cabbit/cabbit-rotate-0-quad1-1.gif'   
 import r0q1x2 from '../assets/motion/cabbit/cabbit-rotate-0-quad1-2.gif'    
 import r0q1x3 from '../assets/motion/cabbit/cabbit-rotate-0-quad1-3.gif'   
@@ -159,6 +164,29 @@ import w292x10 from '../assets/motion/cabbit/cabbit-walk-292-10.gif'
 import w292x11 from '../assets/motion/cabbit/cabbit-walk-292-11.gif'  
 import w292x12 from '../assets/motion/cabbit/cabbit-walk-292-12.gif'  
 
+export function bgGifs(name, width, height){
+
+    let bgGif = new Image(width, height)
+
+    if(name == 0){
+        bgGif.classList.add("bg" + name)
+        bgGif.src = bg1
+    }     
+
+}
+
+export function fgGif(name, width, height){
+
+    let fgGif = new Image(width, height)
+
+    if(name == 1){
+        fgGif.classList.add("fg" + name)
+        fgGif.src = fg
+    }   
+
+    return fgGif
+
+}
  
 export function cabbitGifs(name, width, height){
 
