@@ -10,8 +10,8 @@ export class sceneObject{
 
     generateScene(){
 
-    }
-
+        
+    } 
 
 }
 
