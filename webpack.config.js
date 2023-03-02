@@ -65,7 +65,7 @@ module.exports = {
             jQuery: 'jquery'
         }),
         new HtmlWebpackPlugin({
-            title: "Spirit Animals",
+            title: "CAT+RABBIT",
             filename: 'index.html',
             template: 'src/template.html',
             //inject: false
