@@ -1,4 +1,4 @@
-import {fgGif} from './gifs.js' 
+//import {fgGif} from './gifs.js' 
 
 export function generateBackground(scene, size){ 
     const thisSize = size + '%'
