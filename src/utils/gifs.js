@@ -1,6 +1,6 @@
 //BGS
 import bg1 from '../assets/bg/11-small.jpg'
-import fg from '../assets/bg/fgFrame.gif'
+//import fg from '../assets/bg/fgFrame.gif'
 
 //Cabbit
 import r0q1x1 from '../assets/motion/cabbit/cabbit-rotate-0-quad1-1.gif'   
@@ -175,7 +175,7 @@ export function bgGifs(name, width, height){
 
 }
 
-export function fgGif(name, width, height){
+/*export function fgGif(name, width, height){
 
     let fgGif = new Image(width, height)
 
@@ -186,7 +186,7 @@ export function fgGif(name, width, height){
 
     return fgGif
 
-}
+}*/
  
 export function cabbitGifs(name, width, height){
 
