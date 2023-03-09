@@ -20,12 +20,12 @@ export function generateBackground(scene, size){
 }
 
 export function generateForeground(name, size, win){
-
+ /*
     let fgGIF = fgGif(name, win.width, win.height)
 
     const thisSize = size + '%'
     let thisFG = document.getElementById('fgMain')  
-    /*
+   
     thisFG.style.backgroundImage = "url(" + fgGIF + ")"
     thisFG.style.backgroundPosition = "center center"
     thisFG.style.backgroundSize = thisSize

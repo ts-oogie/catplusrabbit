@@ -4,8 +4,7 @@ win.height = $(window).height();
 win.url = window.location.href; 
 
 var fps = 15; //FRAMES PER SECOND
-var count = 0;
- 
+var count = 0; 
 
 //style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;
 
