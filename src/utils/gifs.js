@@ -1,7 +1,5 @@
-//BGS
-import bg1 from '../assets/bg/11-small.jpg'
-//import fg from '../assets/bg/fgFrame.gif'
-
+//BGS 
+  
 //Cabbit
 import r0q1x1 from '../assets/motion/cabbit/cabbit-rotate-0-quad1-1.gif'   
 import r0q1x2 from '../assets/motion/cabbit/cabbit-rotate-0-quad1-2.gif'    
@@ -27,6 +25,8 @@ import r0q4x1 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-1.gif'
 import r0q4x2 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-2.gif'    
 import r0q4x3 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-3.gif'   
 import r0q4x4 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-4.gif'  
+
+ 
  
 import w0x1 from '../assets/motion/cabbit/cabbit-walk-0-1.gif'   
 import w0x2 from  '../assets/motion/cabbit/cabbit-walk-0-2.gif'  
@@ -193,19 +193,19 @@ export function cabbitGifs(name, width, height){
     let charGIFS = {} 
 
         //rotate
-        charGIFS.r0q1x1 = new Image(width, height) 
+        charGIFS.r0q1x1 = new Image(width, height) //rotate 0 degree to quad 1 - frame 1
         charGIFS.r0q1x1.classList.add(name) 
         charGIFS.r0q1x1.src = r0q1x1
  
-        charGIFS.r0q1x2 = new Image(width, height) 
+        charGIFS.r0q1x2 = new Image(width, height) //rotate 0 degree to quad 2 - frame 2
         charGIFS.r0q1x2.classList.add(name) 
         charGIFS.r0q1x2.src = r0q1x2
  
-        charGIFS.r0q1x3 = new Image(width, height) 
+        charGIFS.r0q1x3 = new Image(width, height)  //rotate 0 degree to quad 3 - frame 3
         charGIFS.r0q1x3.classList.add(name) 
         charGIFS.r0q1x3.src = r0q1x3
  
-        charGIFS.r0q1x4 = new Image(width, height) 
+        charGIFS.r0q1x4 = new Image(width, height) //rotate 0 degree to quad 4 - frame 4
         charGIFS.r0q1x4.classList.add(name) 
         charGIFS.r0q1x4.src = r0q1x4
  
@@ -276,6 +276,8 @@ export function cabbitGifs(name, width, height){
         charGIFS.r0q4x4 = new Image(width, height) 
         charGIFS.r0q4x4.classList.add(name) 
         charGIFS.r0q4x4.src = r0q4x4
+
+
          
 
         //walk
@@ -795,3 +797,7 @@ export function cabbitGifs(name, width, height){
     return charGIFS  
     
 }
+
+
+ 
+ 

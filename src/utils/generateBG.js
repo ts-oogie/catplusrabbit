@@ -1,8 +1,12 @@
 //import {fgGif} from './gifs.js' 
+import '../assets/bg/11-small.jpg'
+import '../assets/bg/braveNotice.gif'
+import '../assets/bg/fgFrame.gif'
 
 export function generateBackground(scene, size){ 
     const thisSize = size + '%'
     let thisBG = document.getElementById('bgMain') 
+    let thisFG = document.getElementById('fgMain')
 
     if(scene == 0){  
         thisBG.style.backgroundImage = "url(braveNotice.gif)"
@@ -16,19 +20,13 @@ export function generateBackground(scene, size){
         thisBG.style.backgroundPosition = "center center"
         thisBG.style.backgroundSize = thisSize
         thisBG.style.zIndex = "-10" 
+
+        //thisFG.style.backgroundImage = "url(fgFrame.gif)"
+
+
     } 
-}
 
-export function generateForeground(name, size, win){
- /*
-    let fgGIF = fgGif(name, win.width, win.height)
-
-    const thisSize = size + '%'
-    let thisFG = document.getElementById('fgMain')  
    
-    thisFG.style.backgroundImage = "url(" + fgGIF + ")"
-    thisFG.style.backgroundPosition = "center center"
-    thisFG.style.backgroundSize = thisSize
-    thisFG.style.zIndex = "10" */
-
 }
+
+ 
