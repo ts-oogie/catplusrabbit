@@ -26,7 +26,91 @@ import r0q4x2 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-2.gif'
 import r0q4x3 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-3.gif'   
 import r0q4x4 from '../assets/motion/cabbit/cabbit-rotate-0-quad4-4.gif'  
 
- 
+import r90q1x1 from '../assets/motion/cabbit/cabbit-rotate-90-quad1-1.gif'
+import r90q1x2 from '../assets/motion/cabbit/cabbit-rotate-90-quad1-2.gif'
+import r90q1x3 from '../assets/motion/cabbit/cabbit-rotate-90-quad1-3.gif'
+import r90q1x4 from '../assets/motion/cabbit/cabbit-rotate-90-quad1-4.gif'
+
+import r90q2x1 from '../assets/motion/cabbit/cabbit-rotate-90-quad2-1.gif'
+import r90q2x2 from '../assets/motion/cabbit/cabbit-rotate-90-quad2-2.gif'
+import r90q2x3 from '../assets/motion/cabbit/cabbit-rotate-90-quad2-3.gif'
+import r90q2x4 from '../assets/motion/cabbit/cabbit-rotate-90-quad2-4.gif'
+
+import r90q3x1 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-1.gif'
+import r90q3x2 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-2.gif'
+import r90q3x3 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-3.gif'
+import r90q3x4 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-4.gif'
+import r90q3x5 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-5.gif'
+import r90q3x6 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-6.gif'
+import r90q3x7 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-7.gif'
+import r90q3x8 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-8.gif'
+import r90q3x9 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-9.gif'
+import r90q3x10 from '../assets/motion/cabbit/cabbit-rotate-90-quad3-10.gif'
+
+import r90q4x1 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-1.gif'
+import r90q4x2 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-2.gif'
+import r90q4x3 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-3.gif'
+import r90q4x4 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-4.gif'
+import r90q4x5 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-5.gif'
+import r90q4x6 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-6.gif'
+import r90q4x7 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-7.gif'
+import r90q4x8 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-8.gif'
+import r90q4x9 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-9.gif'
+import r90q4x10 from '../assets/motion/cabbit/cabbit-rotate-90-quad4-10.gif'
+
+import r180q1x1 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-1.gif'
+import r180q1x2 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-2.gif'
+import r180q1x3 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-3.gif'
+import r180q1x4 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-4.gif'
+import r180q1x5 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-5.gif'
+import r180q1x6 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-6.gif'
+import r180q1x7 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-7.gif'
+import r180q1x8 from '../assets/motion/cabbit/cabbit-rotate-180-quad1-8.gif'
+
+import r180q2x1 from '../assets/motion/cabbit/cabbit-rotate-180-quad2-1.gif'
+import r180q2x2 from '../assets/motion/cabbit/cabbit-rotate-180-quad2-2.gif'
+import r180q2x3 from '../assets/motion/cabbit/cabbit-rotate-180-quad2-3.gif'
+import r180q2x4 from '../assets/motion/cabbit/cabbit-rotate-180-quad2-4.gif'
+
+import r180q3x1 from '../assets/motion/cabbit/cabbit-rotate-180-quad3-1.gif'
+import r180q3x2 from '../assets/motion/cabbit/cabbit-rotate-180-quad3-2.gif'
+import r180q3x3 from '../assets/motion/cabbit/cabbit-rotate-180-quad3-3.gif'
+import r180q3x4 from '../assets/motion/cabbit/cabbit-rotate-180-quad3-4.gif'
+
+import r180q4x1 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-1.gif'
+import r180q4x2 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-2.gif'
+import r180q4x3 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-3.gif'
+import r180q4x4 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-4.gif'
+import r180q4x5 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-5.gif'
+import r180q4x6 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-6.gif'
+import r180q4x7 from '../assets/motion/cabbit/cabbit-rotate-180-quad4-7.gif'
+
+import r270q1x1 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-1.gif'
+import r270q1x2 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-2.gif'
+import r270q1x3 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-3.gif'
+import r270q1x4 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-4.gif'
+import r270q1x5 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-5.gif'
+import r270q1x6 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-6.gif'
+import r270q1x7 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-7.gif'
+import r270q1x8 from '../assets/motion/cabbit/cabbit-rotate-270-quad1-8.gif'
+
+import r270q2x1 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x2 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x3 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x4 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x5 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x6 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x7 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x8 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+import r270q2x9 from '../assets/motion/cabbit/cabbit-rotate-270-quad2-1.gif'
+
+import r270q3x1 from '../assets/motion/cabbit/cabbit-rotate-270-quad3-1.gif'
+import r270q3x2 from '../assets/motion/cabbit/cabbit-rotate-270-quad3-2.gif'
+import r270q3x3 from '../assets/motion/cabbit/cabbit-rotate-270-quad3-3.gif'
+
+import r270q4x1 from '../assets/motion/cabbit/cabbit-rotate-270-quad4-1.gif'
+import r270q4x2 from '../assets/motion/cabbit/cabbit-rotate-270-quad4-2.gif'
+import r270q4x3 from '../assets/motion/cabbit/cabbit-rotate-270-quad4-3.gif' 
  
 import w0x1 from '../assets/motion/cabbit/cabbit-walk-0-1.gif'   
 import w0x2 from  '../assets/motion/cabbit/cabbit-walk-0-2.gif'  
@@ -277,14 +361,217 @@ export function cabbitGifs(name, width, height){
         charGIFS.r0q4x4.classList.add(name) 
         charGIFS.r0q4x4.src = r0q4x4
 
+        charGIFS.r90q1x1 = new Image(width, height)
+        charGIFS.r90q1x1.classList.add(name)
+        charGIFS.r90q1x1.src = r90q1x1
 
-         
+        charGIFS.r90q1x2 = new Image(width, height)
+        charGIFS.r90q1x2.classList.add(name)
+        charGIFS.r90q1x2.src = r90q1x2
+
+        charGIFS.r90q1x3 = new Image(width, height)
+        charGIFS.r90q1x3.classList.add(name)
+        charGIFS.r90q1x3.src = r90q1x3
+
+        charGIFS.r90q1x4 = new Image(width, height)
+        charGIFS.r90q1x4.classList.add(name)
+        charGIFS.r90q1x4.src = r90q1x4
+
+        charGIFS.r90q2x1 = new Image(width, height)
+        charGIFS.r90q2x1.classList.add(name)
+        charGIFS.r90q2x1.src = r90q2x1
+
+        charGIFS.r90q2x2 = new Image(width, height)
+        charGIFS.r90q2x2.classList.add(name)
+        charGIFS.r90q2x2.src = r90q2x2
+
+        charGIFS.r90q2x3 = new Image(width, height)
+        charGIFS.r90q2x3.classList.add(name)
+        charGIFS.r90q2x3.src = r90q2x3
+
+        charGIFS.r90q2x4 = new Image(width, height)
+        charGIFS.r90q2x4.classList.add(name)
+        charGIFS.r90q2x4.src = r90q2x4
+
+        charGIFS.r90q3x1 = new Image(width, height)
+        charGIFS.r90q3x1.classList.add(name)
+        charGIFS.r90q3x1.src = r90q3x1
+
+        charGIFS.r90q3x2 = new Image(width, height)
+        charGIFS.r90q3x2.classList.add(name)
+        charGIFS.r90q3x2.src = r90q3x2
+
+        charGIFS.r90q3x3 = new Image(width, height)
+        charGIFS.r90q3x3.classList.add(name)
+        charGIFS.r90q3x3.src = r90q3x3
+
+        charGIFS.r90q3x4 = new Image(width, height)
+        charGIFS.r90q3x4.classList.add(name)
+        charGIFS.r90q3x4.src = r90q3x4
+
+        charGIFS.r90q3x5 = new Image(width, height)
+        charGIFS.r90q3x5.classList.add(name)
+        charGIFS.r90q3x5.src = r90q3x5
+
+        charGIFS.r90q3x6 = new Image(width, height)
+        charGIFS.r90q3x6.classList.add(name)
+        charGIFS.r90q3x6.src = r90q3x6
+
+        charGIFS.r90q3x7 = new Image(width, height)
+        charGIFS.r90q3x7.classList.add(name)
+        charGIFS.r90q3x7.src = r90q3x7
+
+        charGIFS.r90q3x8 = new Image(width, height)
+        charGIFS.r90q3x8.classList.add(name)
+        charGIFS.r90q3x8.src = r90q3x8
+
+        charGIFS.r90q3x9 = new Image(width, height)
+        charGIFS.r90q3x9.classList.add(name)
+        charGIFS.r90q3x9.src = r90q3x9
+
+        charGIFS.r90q3x10 = new Image(width, height)
+        charGIFS.r90q3x10.classList.add(name)
+        charGIFS.r90q3x10.src = r90q3x10
+
+        charGIFS.r90q4x1 = new Image(width, height)
+        charGIFS.r90q4x1.classList.add(name)
+        charGIFS.r90q4x1.src = r90q4x1
+
+        charGIFS.r90q4x2 = new Image(width, height)
+        charGIFS.r90q4x2.classList.add(name)
+        charGIFS.r90q4x2.src = r90q4x2
+
+        charGIFS.r90q4x3 = new Image(width, height)
+        charGIFS.r90q4x3.classList.add(name)
+        charGIFS.r90q4x3.src = r90q4x3
+
+        charGIFS.r90q4x4 = new Image(width, height)
+        charGIFS.r90q4x4.classList.add(name)
+        charGIFS.r90q4x4.src = r90q4x4
+
+        charGIFS.r90q4x5 = new Image(width, height)
+        charGIFS.r90q4x5.classList.add(name)
+        charGIFS.r90q4x5.src = r90q4x5
+
+        charGIFS.r90q4x6 = new Image(width, height)
+        charGIFS.r90q4x6.classList.add(name)
+        charGIFS.r90q4x6.src = r90q4x6
+
+        charGIFS.r90q4x7 = new Image(width, height)
+        charGIFS.r90q4x7.classList.add(name)
+        charGIFS.r90q4x7.src = r90q4x7
+
+        charGIFS.r90q4x8 = new Image(width, height)
+        charGIFS.r90q4x8.classList.add(name)
+        charGIFS.r90q4x8.src = r90q4x8
+
+        charGIFS.r90q4x9 = new Image(width, height)
+        charGIFS.r90q4x9.classList.add(name)
+        charGIFS.r90q4x9.src = r90q4x9
+
+        charGIFS.r90q4x10 = new Image(width, height)
+        charGIFS.r90q4x10.classList.add(name)
+        charGIFS.r90q4x10.src = r90q4x10
+
+        charGIFS.r180q1x1 = new Image(width, height)
+        charGIFS.r180q1x1.classList.add(name)
+        charGIFS.r180q1x1.src = r180q1x1
+
+        charGIFS.r180q1x2 = new Image(width, height)
+        charGIFS.r180q1x2.classList.add(name)
+        charGIFS.r180q1x2.src = r180q1x2
+
+        charGIFS.r180q1x3 = new Image(width, height)
+        charGIFS.r180q1x3.classList.add(name)
+        charGIFS.r180q1x3.src = r180q1x3
+
+        charGIFS.r180q1x4 = new Image(width, height)
+        charGIFS.r180q1x4.classList.add(name)
+        charGIFS.r180q1x4.src = r180q1x4
+
+        charGIFS.r180q1x5 = new Image(width, height)
+        charGIFS.r180q1x5.classList.add(name)
+        charGIFS.r180q1x5.src = r180q1x5
+
+        charGIFS.r180q1x6 = new Image(width, height)
+        charGIFS.r180q1x6.classList.add(name)
+        charGIFS.r180q1x6.src = r180q1x6
+
+        charGIFS.r180q1x7 = new Image(width, height)
+        charGIFS.r180q1x7.classList.add(name)
+        charGIFS.r180q1x7.src = r180q1x7
+
+        charGIFS.r180q1x8 = new Image(width, height)
+        charGIFS.r180q1x8.classList.add(name)
+        charGIFS.r180q1x8.src = r180q1x8
+
+        charGIFS.r180q2x1 = new Image(width, height)
+        charGIFS.r180q2x1.classList.add(name)
+        charGIFS.r180q2x1.src = r180q2x1
+
+        charGIFS.r180q2x2 = new Image(width, height)
+        charGIFS.r180q2x2.classList.add(name)
+        charGIFS.r180q2x2.src = r180q2x2
+
+        charGIFS.r180q2x3 = new Image(width, height)
+        charGIFS.r180q2x3.classList.add(name)
+        charGIFS.r180q2x3.src = r180q2x3
+
+        charGIFS.r180q2x4 = new Image(width, height)
+        charGIFS.r180q2x4.classList.add(name)
+        charGIFS.r180q2x4.src = r180q2x4
+
+        charGIFS.r180q3x1 = new Image(width, height)
+        charGIFS.r180q3x1.classList.add(name)
+        charGIFS.r180q3x1.src = r180q3x1
+
+        charGIFS.r180q3x2 = new Image(width, height)
+        charGIFS.r180q3x2.classList.add(name)
+        charGIFS.r180q3x2.src = r180q3x2
+
+        charGIFS.r180q3x3 = new Image(width, height)
+        charGIFS.r180q3x3.classList.add(name)
+        charGIFS.r180q3x3.src = r180q3x3
+
+        charGIFS.r180q3x4 = new Image(width, height)
+        charGIFS.r180q3x4.classList.add(name)
+        charGIFS.r180q3x4.src = r180q3x4
+
+        charGIFS.r180q4x1 = new Image(width, height)
+        charGIFS.r180q4x1.classList.add(name)
+        charGIFS.r180q4x1.src = r180q4x1
+
+        charGIFS.r180q4x2 = new Image(width, height)
+        charGIFS.r180q4x2.classList.add(name)
+        charGIFS.r180q4x2.src = r180q4x2
+
+        charGIFS.r180q4x3 = new Image(width, height)
+        charGIFS.r180q4x3.classList.add(name)
+        charGIFS.r180q4x3.src = r180q4x3
+
+        charGIFS.r180q4x4 = new Image(width, height)
+        charGIFS.r180q4x4.classList.add(name)
+        charGIFS.r180q4x4.src = r180q4x4
+
+        charGIFS.r180q4x5 = new Image(width, height)
+        charGIFS.r180q4x5.classList.add(name)
+        charGIFS.r180q4x5.src = r180q4x5
+
+        charGIFS.r180q4x6 = new Image(width, height)
+        charGIFS.r180q4x6.classList.add(name)
+        charGIFS.r180q4x6.src = r180q4x6
+
+        charGIFS.r180q4x7 = new Image(width, height)
+        charGIFS.r180q4x7.classList.add(name)
+        charGIFS.r180q4x7.src = r180q4x7
+
+
+
 
         //walk
         charGIFS.w0x1 = new Image(width, height)  
         charGIFS.w0x1.classList.add(name)  
-        charGIFS.w0x1.src = w0x1
- 
+        charGIFS.w0x1.src = w0x1 
 
         charGIFS.w0x2 = new Image(width, height)  
         charGIFS.w0x2.classList.add(name)  
