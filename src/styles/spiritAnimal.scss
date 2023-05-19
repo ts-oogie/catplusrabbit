@@ -51,12 +51,12 @@ body {
     width : 2px;
     height : 2px;
     position : relative; 
-    border : transparent solid 2px;
+    border : green solid 2px;
     
 }
 
 #startPoint {
-    border : transparent solid 2px;
+    border : red solid 2px;
     width : 2px;
     height : 2px;
     position : relative; 
@@ -73,7 +73,7 @@ body {
 }
 
 .pathPoint {
-    border : transparent solid 2px; 
+    border : yellow solid 2px; 
     width : 2px;
     height : 2px; 
     position : relative;  

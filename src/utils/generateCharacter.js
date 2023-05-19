@@ -23,7 +23,10 @@ export function generateCharacter(name, charPosition, win, screenPercent){
 
                 //set end points
                 cabbit.endPt[0] = e.pageX
-                cabbit.endPt[1] = e.pageY   
+                cabbit.endPt[1] = e.pageY  
+                
+                console.log("X : " + win.width*(cabbit.endPt[0]/win.width) + " TOTAL : " + win.width)
+                console.log("Y : " + win.width*(cabbit.endPt[1]/win.height) + " TOTAL : " + win.height)
 
                 //If screen is clicked while cabbit is moving, path is being interrupted
                 if (cabbit.count > 1 && cabbit.inMotion == true){   
@@ -197,6 +200,8 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                     
                     var points = $(itemClass)  
 
+                    console.log("end angle : " + cabbit.endAngle )
+
                     //cabbit.pathCount = 0
 
                     //endAngle = 0; pathCount = 0
@@ -208,8 +213,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                         //CURRENT QUAD == 1
                         if (cabbit.currQuad == 1){
                             //selected quad == 1  
-                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){
-                      
+                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -218,7 +222,6 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                             }
                             //selected quad == 2
                             else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){
-                                 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -244,8 +247,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                         }
 
                         else if(cabbit.currQuad == 4){
-                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){
-                      
+                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -254,7 +256,6 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                             }
                             //selected quad == 2
                             else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){
-                                 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop+(calibration/4)) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -262,8 +263,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                                 } 
                             }
                             //selected quad == 3
-                            else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){
-                             
+                            else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-(calibration/2)) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -271,8 +271,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                                 } 
                             }
                             //selected quad == 4
-                            else if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){
-                                 
+                            else if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-(calibration/2)) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -292,8 +291,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                         //if currQuad == 1 
                         if(cabbit.currQuad == 1){ 
                             //selected quad == 1 
-                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){
-                                 
+                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration ) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -302,7 +300,6 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                             }
                             //selected quad == 2
                             else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){
-                                
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-(calibration*2)) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -318,8 +315,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                                 } 
                             }
                             //selected quad == 4
-                            else if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){
-                                
+                            else if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-(calibration/2)) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -332,8 +328,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                         //if currQuad == 2
                         else if(cabbit.currQuad == 2){
                             //selected quad == 1  
-                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){ 
-                                 
+                            if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){  
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-calibration   + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration/2) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -341,8 +336,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                                 } 
                             }
                             //selected quad == 2
-                            else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){
-                              
+                            else if(cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-calibration + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -358,8 +352,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                                 } 
                             }
                             //selected quad == 4
-                            else if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){
-                                
+                            else if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop-(calibration/2) + 'px' 
                                 cabbit.startPt[1] = ($('#startPoint')[0].offsetTop) // MINUS CALIBRATION
                                 for(let j=0; j<cabbit.count-1; j++){
@@ -448,7 +441,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
 
                     else if(cabbit.endAngle == 270){
                         if(cabbit.currQuad == 3){
-                            alert("Q3")
+                            
                             //selected quad == 1
                             if(cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]){ 
                                 offsetTop = $('#' + cabbit.currIndex)[0].offsetTop+(calibration/2) + 'px' 
@@ -525,7 +518,6 @@ export function generateCharacter(name, charPosition, win, screenPercent){
 
                     //MAKE SURE TO ADD THIS TO EVERY CASE
                     //cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration)
-
 
                     cabbit.count = count
                     cabbit.moveCharacter() 

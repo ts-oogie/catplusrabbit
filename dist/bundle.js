@@ -2077,6 +2077,8 @@ function generateCharacter(name, charPosition, win, screenPercent) {
         //set end points
         cabbit.endPt[0] = e.pageX;
         cabbit.endPt[1] = e.pageY;
+        console.log("X : " + win.width * (cabbit.endPt[0] / win.width) + " TOTAL : " + win.width);
+        console.log("Y : " + win.width * (cabbit.endPt[1] / win.height) + " TOTAL : " + win.height);
 
         //If screen is clicked while cabbit is moving, path is being interrupted
         if (cabbit.count > 1 && cabbit.inMotion == true) {
@@ -2221,6 +2223,7 @@ function generateCharacter(name, charPosition, win, screenPercent) {
             itemClass = '.pathPoint' + cabbit.pathCount;
           }
           var points = $(itemClass);
+          console.log("end angle : " + cabbit.endAngle);
 
           //cabbit.pathCount = 0
 
@@ -2446,7 +2449,6 @@ function generateCharacter(name, charPosition, win, screenPercent) {
             }
           } else if (cabbit.endAngle == 270) {
             if (cabbit.currQuad == 3) {
-              alert("Q3");
               //selected quad == 1
               if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
                 _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
@@ -2539,52 +2541,32 @@ function generateCharacter(name, charPosition, win, screenPercent) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "generateScene": () => (/* binding */ generateScene),
-/* harmony export */   "sceneObject": () => (/* binding */ sceneObject)
+/* harmony export */   "generateScene": () => (/* binding */ generateScene)
 /* harmony export */ });
 /* harmony import */ var _generateBG_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./generateBG.js */ "./src/utils/generateBG.js");
 /* harmony import */ var _generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateCharacter.js */ "./src/utils/generateCharacter.js");
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 
 
-var sceneObject = /*#__PURE__*/function () {
-  function sceneObject(name, win) {
-    _classCallCheck(this, sceneObject);
-    this.dimension = win;
-    this.sceneComplete = false;
-    this.name = name;
-  }
-  _createClass(sceneObject, [{
-    key: "generateScene",
-    value: function generateScene() {}
-  }]);
-  return sceneObject;
-}();
 function generateScene(sceneNum, win) {
   var screenPercent;
   var sceneComplete = false;
   var charPosition = {
     cabbit: [700, 400]
   };
+  document.getElementsByTagName('body')[0].addEventListener('click', function (e) {});
   switch (sceneNum) {
     case 0:
       screenPercent = 75;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(0, screenPercent);
       setTimeout(function () {
         generateScene(1, win);
-      }, 5000);
+      }, 3000);
       return;
     case 1:
       //scene 11
       screenPercent = 75;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(1, screenPercent);
-      //generateForeground(1, screenPercent, win)
-      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent);
+      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 5);
       return;
   }
 }
@@ -3285,6 +3267,75 @@ function cabbitGifs(name, width, height) {
   charGIFS.r180q4x7 = new Image(width, height);
   charGIFS.r180q4x7.classList.add(name);
   charGIFS.r180q4x7.src = _assets_motion_cabbit_cabbit_rotate_180_quad4_7_gif__WEBPACK_IMPORTED_MODULE_71__;
+  charGIFS.r270q1x1 = new Image(width, height);
+  charGIFS.r270q1x1.classList.add(name);
+  charGIFS.r270q1x1.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_1_gif__WEBPACK_IMPORTED_MODULE_72__;
+  charGIFS.r270q1x2 = new Image(width, height);
+  charGIFS.r270q1x2.classList.add(name);
+  charGIFS.r270q1x2.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_2_gif__WEBPACK_IMPORTED_MODULE_73__;
+  charGIFS.r270q1x3 = new Image(width, height);
+  charGIFS.r270q1x3.classList.add(name);
+  charGIFS.r270q1x3.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_3_gif__WEBPACK_IMPORTED_MODULE_74__;
+  charGIFS.r270q1x4 = new Image(width, height);
+  charGIFS.r270q1x4.classList.add(name);
+  charGIFS.r270q1x4.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_4_gif__WEBPACK_IMPORTED_MODULE_75__;
+  charGIFS.r270q1x5 = new Image(width, height);
+  charGIFS.r270q1x5.classList.add(name);
+  charGIFS.r270q1x5.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_5_gif__WEBPACK_IMPORTED_MODULE_76__;
+  charGIFS.r270q1x6 = new Image(width, height);
+  charGIFS.r270q1x6.classList.add(name);
+  charGIFS.r270q1x6.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_6_gif__WEBPACK_IMPORTED_MODULE_77__;
+  charGIFS.r270q1x7 = new Image(width, height);
+  charGIFS.r270q1x7.classList.add(name);
+  charGIFS.r270q1x7.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_7_gif__WEBPACK_IMPORTED_MODULE_78__;
+  charGIFS.r270q1x8 = new Image(width, height);
+  charGIFS.r270q1x8.classList.add(name);
+  charGIFS.r270q1x8.src = _assets_motion_cabbit_cabbit_rotate_270_quad1_8_gif__WEBPACK_IMPORTED_MODULE_79__;
+  charGIFS.r270q2x1 = new Image(width, height);
+  charGIFS.r270q2x1.classList.add(name);
+  charGIFS.r270q2x1.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x2 = new Image(width, height);
+  charGIFS.r270q2x2.classList.add(name);
+  charGIFS.r270q2x2.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x3 = new Image(width, height);
+  charGIFS.r270q2x3.classList.add(name);
+  charGIFS.r270q2x3.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x4 = new Image(width, height);
+  charGIFS.r270q2x4.classList.add(name);
+  charGIFS.r270q2x4.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x5 = new Image(width, height);
+  charGIFS.r270q2x5.classList.add(name);
+  charGIFS.r270q2x5.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x6 = new Image(width, height);
+  charGIFS.r270q2x6.classList.add(name);
+  charGIFS.r270q2x6.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x7 = new Image(width, height);
+  charGIFS.r270q2x7.classList.add(name);
+  charGIFS.r270q2x7.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x8 = new Image(width, height);
+  charGIFS.r270q2x8.classList.add(name);
+  charGIFS.r270q2x8.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q2x9 = new Image(width, height);
+  charGIFS.r270q2x9.classList.add(name);
+  charGIFS.r270q2x9.src = _assets_motion_cabbit_cabbit_rotate_270_quad2_1_gif__WEBPACK_IMPORTED_MODULE_80__;
+  charGIFS.r270q3x1 = new Image(width, height);
+  charGIFS.r270q3x1.classList.add(name);
+  charGIFS.r270q3x1.src = _assets_motion_cabbit_cabbit_rotate_270_quad3_1_gif__WEBPACK_IMPORTED_MODULE_81__;
+  charGIFS.r270q3x2 = new Image(width, height);
+  charGIFS.r270q3x2.classList.add(name);
+  charGIFS.r270q3x2.src = _assets_motion_cabbit_cabbit_rotate_270_quad3_2_gif__WEBPACK_IMPORTED_MODULE_82__;
+  charGIFS.r270q3x3 = new Image(width, height);
+  charGIFS.r270q3x3.classList.add(name);
+  charGIFS.r270q3x3.src = _assets_motion_cabbit_cabbit_rotate_270_quad3_3_gif__WEBPACK_IMPORTED_MODULE_83__;
+  charGIFS.r270q4x1 = new Image(width, height);
+  charGIFS.r270q4x1.classList.add(name);
+  charGIFS.r270q4x1.src = _assets_motion_cabbit_cabbit_rotate_270_quad4_1_gif__WEBPACK_IMPORTED_MODULE_84__;
+  charGIFS.r270q4x2 = new Image(width, height);
+  charGIFS.r270q4x2.classList.add(name);
+  charGIFS.r270q4x2.src = _assets_motion_cabbit_cabbit_rotate_270_quad4_2_gif__WEBPACK_IMPORTED_MODULE_85__;
+  charGIFS.r270q4x3 = new Image(width, height);
+  charGIFS.r270q4x3.classList.add(name);
+  charGIFS.r270q4x3.src = _assets_motion_cabbit_cabbit_rotate_270_quad4_3_gif__WEBPACK_IMPORTED_MODULE_86__;
 
   //walk
   charGIFS.w0x1 = new Image(width, height);
@@ -3739,7 +3790,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  border: 5px solid red;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  border: 1px solid yellow;\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100%;\n  height: 100px;\n  z-index: 10;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: transparent solid 2px;\n}\n\n#startPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,iBAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EACA,qBAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,wBAAA;EACA,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,WAAA;EACA,aAAA;EACA,WAAA;AADJ;;AAIA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,6BAAA;AADJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAFJ;;AAKA;EACI,sBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,aAAA;AAJJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    border: 5px solid red;\n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain {\n    border: 1px solid yellow;\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width: 100%;\n    height: 100px;\n    z-index: 10;\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : transparent solid 2px;\n    \n}\n\n#startPoint {\n    border : transparent solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  border: 5px solid red;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  border: 1px solid yellow;\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100%;\n  height: 100px;\n  z-index: 10;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,iBAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EACA,qBAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,wBAAA;EACA,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,WAAA;EACA,aAAA;EACA,WAAA;AADJ;;AAIA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AADJ;;AAKA;EACI,qBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAFJ;;AAKA;EACI,sBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,aAAA;AAJJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    border: 5px solid red;\n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain {\n    border: 1px solid yellow;\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width: 100%;\n    height: 100px;\n    z-index: 10;\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : red solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -17765,7 +17816,8 @@ var windowInst = new _utils_utils_js__WEBPACK_IMPORTED_MODULE_2__.win(window);
 var running = true;
 
 //Generate Scene
-var scene = new _utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.sceneObject();
+//let scene = new sceneObject()
+
 (0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(0, windowInst);
 
 //while(running == true){

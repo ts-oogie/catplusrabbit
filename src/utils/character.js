@@ -54,37 +54,37 @@ export class characterObject {
             this.classLabel = 'pathPoint' + this.pathCount
         }
  
-        this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1);
+        this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1)
         this.adj = Math.pow((this.endPt[1] - this.startPt[1]), 1)*(-1)
-        this.angle = Math.abs(Math.atan(this.opp/this.adj) * 180/Math.PI);
+        this.angle = Math.abs(Math.atan(this.opp/this.adj) * 180/Math.PI)
         //char.hypo = Math.sqrt((char.opp*char.opp)+(char.adj*char.adj));   
          
         //QUAD 1 :
         if (this.endPt[1] <= this.startPt[1] && this.endPt[0] >= this.startPt[0]){
 
-            console.log("quad 1 PIVOT");
+            console.log("quad 1 PIVOT")
             this.currQuad = 1;//Define current quad number
-            this.pivot = 0;
-            this.quadAngle = 38.5;
-            this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)));//10px opp distance - 1 frame
-            this.quadAdj = Math.round(this.frameDistance*Math.cos(this.quadAngle/(180/Math.PI)));//10px
+            this.pivot = 0
+            this.quadAngle = 38.5
+            this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)))//10px opp distance - 1 frame
+            this.quadAdj = Math.round(this.frameDistance*Math.cos(this.quadAngle/(180/Math.PI)))//10px
 
             //if end point is between 0 and 38.5 degrees
             if ((this.angle >= 38.5) && (this.angle < 90)){
 
                 this.direction = 'pivot'
-                this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)); // divided
-                this.xDist = this.startPt[0];
-                this.yDist = this.startPt[1] - this.calibration;  
+                this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)) // divided
+                this.xDist = this.startPt[0]
+                this.yDist = this.startPt[1] - this.calibration
 
                 //construct path diagonal until ....
                 while (this.count < this.divisor){   
-                    this.xDist += this.quadAdj;  
-                    this.yDist -= this.quadOpp*4; // if frame distance is 10, then multiply quadOpp by 2
+                    this.xDist += this.quadAdj
+                    this.yDist -= this.quadOpp*4// if frame distance is 10, then multiply quadOpp by 2
                     //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    this.count++;
-                    this.pivot++;  
+                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
+                    this.count++
+                    this.pivot++ 
                 }  
                     
                 //construct horizontal line

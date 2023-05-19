@@ -565,8 +565,97 @@ export function cabbitGifs(name, width, height){
         charGIFS.r180q4x7.classList.add(name)
         charGIFS.r180q4x7.src = r180q4x7
 
+        charGIFS.r270q1x1 = new Image(width, height)
+        charGIFS.r270q1x1.classList.add(name)
+        charGIFS.r270q1x1.src = r270q1x1
 
+        charGIFS.r270q1x2 = new Image(width, height)
+        charGIFS.r270q1x2.classList.add(name)
+        charGIFS.r270q1x2.src = r270q1x2
 
+        charGIFS.r270q1x3 = new Image(width, height)
+        charGIFS.r270q1x3.classList.add(name)
+        charGIFS.r270q1x3.src = r270q1x3
+
+        charGIFS.r270q1x4 = new Image(width, height)
+        charGIFS.r270q1x4.classList.add(name)
+        charGIFS.r270q1x4.src = r270q1x4
+
+        charGIFS.r270q1x5 = new Image(width, height)
+        charGIFS.r270q1x5.classList.add(name)
+        charGIFS.r270q1x5.src = r270q1x5
+
+        charGIFS.r270q1x6 = new Image(width, height)
+        charGIFS.r270q1x6.classList.add(name)
+        charGIFS.r270q1x6.src = r270q1x6
+
+        charGIFS.r270q1x7 = new Image(width, height)
+        charGIFS.r270q1x7.classList.add(name)
+        charGIFS.r270q1x7.src = r270q1x7
+
+        charGIFS.r270q1x8 = new Image(width, height)
+        charGIFS.r270q1x8.classList.add(name)
+        charGIFS.r270q1x8.src = r270q1x8
+
+        charGIFS.r270q2x1 = new Image(width, height)
+        charGIFS.r270q2x1.classList.add(name)
+        charGIFS.r270q2x1.src = r270q2x1
+
+        charGIFS.r270q2x2 = new Image(width, height)
+        charGIFS.r270q2x2.classList.add(name)
+        charGIFS.r270q2x2.src = r270q2x2
+
+        charGIFS.r270q2x3 = new Image(width, height)
+        charGIFS.r270q2x3.classList.add(name)
+        charGIFS.r270q2x3.src = r270q2x3
+
+        charGIFS.r270q2x4 = new Image(width, height)
+        charGIFS.r270q2x4.classList.add(name)
+        charGIFS.r270q2x4.src = r270q2x4
+
+        charGIFS.r270q2x5 = new Image(width, height)
+        charGIFS.r270q2x5.classList.add(name)
+        charGIFS.r270q2x5.src = r270q2x5
+
+        charGIFS.r270q2x6 = new Image(width, height)
+        charGIFS.r270q2x6.classList.add(name)
+        charGIFS.r270q2x6.src = r270q2x6
+
+        charGIFS.r270q2x7 = new Image(width, height)
+        charGIFS.r270q2x7.classList.add(name)
+        charGIFS.r270q2x7.src = r270q2x7
+
+        charGIFS.r270q2x8 = new Image(width, height)
+        charGIFS.r270q2x8.classList.add(name)
+        charGIFS.r270q2x8.src = r270q2x8
+
+        charGIFS.r270q2x9 = new Image(width, height)
+        charGIFS.r270q2x9.classList.add(name)
+        charGIFS.r270q2x9.src = r270q2x9 
+
+        charGIFS.r270q3x1 = new Image(width, height)
+        charGIFS.r270q3x1.classList.add(name)
+        charGIFS.r270q3x1.src = r270q3x1
+
+        charGIFS.r270q3x2 = new Image(width, height)
+        charGIFS.r270q3x2.classList.add(name)
+        charGIFS.r270q3x2.src = r270q3x2
+
+        charGIFS.r270q3x3 = new Image(width, height)
+        charGIFS.r270q3x3.classList.add(name)
+        charGIFS.r270q3x3.src = r270q3x3
+
+        charGIFS.r270q4x1 = new Image(width, height)
+        charGIFS.r270q4x1.classList.add(name)
+        charGIFS.r270q4x1.src = r270q4x1
+
+        charGIFS.r270q4x2 = new Image(width, height)
+        charGIFS.r270q4x2.classList.add(name)
+        charGIFS.r270q4x2.src = r270q4x2
+
+        charGIFS.r270q4x3 = new Image(width, height)
+        charGIFS.r270q4x3.classList.add(name)
+        charGIFS.r270q4x3.src = r270q4x3 
 
         //walk
         charGIFS.w0x1 = new Image(width, height)  

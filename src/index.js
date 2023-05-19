@@ -7,10 +7,10 @@ window.$ = $;
 window.jQuery = jQuery;
 
 let windowInst=  new win(window)
-let running = true 
+let running = true  
 
 //Generate Scene
-let scene = new sceneObject()
+//let scene = new sceneObject()
 
 generateScene(0, windowInst) 
 
