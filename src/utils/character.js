@@ -63,7 +63,7 @@ export class characterObject {
         if (this.endPt[1] <= this.startPt[1] && this.endPt[0] >= this.startPt[0]){
 
             console.log("quad 1 PIVOT")
-            this.currQuad = 1;//Define current quad number
+            this.currQuad = 1//Define current quad number
             this.pivot = 0
             this.quadAngle = 38.5
             this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)))//10px opp distance - 1 frame

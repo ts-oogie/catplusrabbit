@@ -1,5 +1,6 @@
 import {generateBackground, generateForeground} from './generateBG.js'  
 import {generateCharacter} from './generateCharacter.js' 
+import {generateZone} from './generateZone.js'
 
 export function generateScene(sceneNum, win){ 
 
