@@ -16,6 +16,8 @@ generateScene(0, windowInst)
 
 
 
+//Hello
+
 //while(running == true){
     //if(){}  add event listener to scene.name, if changes, then run generate scene with new scene.name
 //}
