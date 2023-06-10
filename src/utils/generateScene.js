@@ -28,7 +28,7 @@ export function generateScene(sceneNum, win){
             screenPercent = 75
             generateBackground(1, screenPercent)  
             generateCharacter('cabbit', charPosition, win, screenPercent-5)
-            
+            generateZone()
             
 
             return 
