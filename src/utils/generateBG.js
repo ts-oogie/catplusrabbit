@@ -5,6 +5,7 @@ import '../assets/bg/fgFrame.gif'
 
 export function generateBackground(scene, size){ 
     const thisSize = size + '%'
+    
     let thisBG = document.getElementById('bgMain') 
     let thisFG = document.getElementById('fgMain')
 
@@ -21,9 +22,12 @@ export function generateBackground(scene, size){
         thisBG.style.backgroundSize = thisSize
         thisBG.style.zIndex = "-10" 
 
-        //thisFG.style.backgroundImage = "url(fgFrame.gif)"
+        const fgSize = size + 10 + "%"
 
-
+        thisFG.style.backgroundImage = "url(fgFrame.gif)"
+        thisBG.style.backgroundPosition = "center center"
+        thisFG.style.backgroundSize = fgSize
+        thisBG.style.zIndex = "0"  
     } 
 
    

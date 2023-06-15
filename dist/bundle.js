@@ -2037,8 +2037,10 @@ function generateBackground(scene, size) {
     thisBG.style.backgroundPosition = "center center";
     thisBG.style.backgroundSize = thisSize;
     thisBG.style.zIndex = "-10";
-
-    //thisFG.style.backgroundImage = "url(fgFrame.gif)"
+    thisFG.style.backgroundImage = "url(fgFrame.gif)";
+    thisBG.style.backgroundPosition = "center center";
+    thisFG.style.backgroundSize = thisSize;
+    thisBG.style.zIndex = "0";
   }
 }
 
@@ -2077,8 +2079,8 @@ function generateCharacter(name, charPosition, win, screenPercent) {
         //set end points
         cabbit.endPt[0] = e.pageX;
         cabbit.endPt[1] = e.pageY;
-        console.log("X : " + win.width * (cabbit.endPt[0] / win.width) + " TOTAL : " + win.width);
-        console.log("Y : " + win.width * (cabbit.endPt[1] / win.height) + " TOTAL : " + win.height);
+        alert("X : " + win.width * (cabbit.endPt[0] / win.width) + "  Y : " + win.width * (cabbit.endPt[1] / win.height));
+        alert(" ScreenX : " + win.width + " ScreenY : " + win.height);
 
         //If screen is clicked while cabbit is moving, path is being interrupted
         if (cabbit.count > 1 && cabbit.inMotion == true) {
@@ -2545,6 +2547,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _generateBG_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./generateBG.js */ "./src/utils/generateBG.js");
 /* harmony import */ var _generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateCharacter.js */ "./src/utils/generateCharacter.js");
+/* harmony import */ var _generateZone_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./generateZone.js */ "./src/utils/generateZone.js");
+
 
 
 function generateScene(sceneNum, win) {
@@ -2567,8 +2571,36 @@ function generateScene(sceneNum, win) {
       screenPercent = 75;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(1, screenPercent);
       (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 5);
+      (0,_generateZone_js__WEBPACK_IMPORTED_MODULE_2__.generateZone)();
       return;
   }
+}
+
+/***/ }),
+
+/***/ "./src/utils/generateZone.js":
+/*!***********************************!*\
+  !*** ./src/utils/generateZone.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "generateZone": () => (/* binding */ generateZone)
+/* harmony export */ });
+function generateZone(type, trigger, zone) {
+
+  //type : object, area, switchScene
+  //trigger : click, character
+  //click : on mouse enter of area make mouse active, otherwise make inactive
+  //character : if location of character is within zone, then trigger
+  //zone :  array of points [ [[],[],[],[]], [[],[],[],[]], [[],[],[],[]] ]
+  //for each array, cycle through... 
+  //first array is the top left, second array is the top right, third is bottom right, fourth us bottom left
+
+  //Example : generateZone("switchScene", zone)
+  //if character location is within zone(s), then generateScene(1, win)
 }
 
 /***/ }),
@@ -3790,7 +3822,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: black;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  border: 5px solid red;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  border: 1px solid yellow;\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100%;\n  height: 100px;\n  z-index: 10;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,iBAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EACA,qBAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,wBAAA;EACA,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,WAAA;EACA,aAAA;EACA,WAAA;AADJ;;AAIA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AADJ;;AAKA;EACI,qBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAFJ;;AAKA;EACI,sBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,aAAA;AAJJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: black;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat; \n    border: 5px solid red;\n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain {\n    border: 1px solid yellow;\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width: 100%;\n    height: 100px;\n    z-index: 10;\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : red solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: red;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  background-repeat: no-repeat;\n  min-width: 300px;\n  height: 100%;\n  z-index: 10;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,eAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,4BAAA;EACA,gBAAA;EACA,YAAA;EACA,WAAA;AADJ;;AAKA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AAFJ;;AAMA;EACI,qBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAHJ;;AAMA;EACI,sBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAQA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AALJ;;AAQA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AALJ;;AAQA;EACI,aAAA;AALJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: red;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat;  \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain { \n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width: 100% !important;\n    background-repeat: no-repeat; \n    min-width: 300px;  \n    height: 100%;\n    z-index: 10;\n    \n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : red solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -17819,6 +17851,8 @@ var running = true;
 //let scene = new sceneObject()
 
 (0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(0, windowInst);
+
+//Hello
 
 //while(running == true){
 //if(){}  add event listener to scene.name, if changes, then run generate scene with new scene.name

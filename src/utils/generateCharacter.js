@@ -25,8 +25,8 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                 cabbit.endPt[0] = e.pageX
                 cabbit.endPt[1] = e.pageY  
                 
-                console.log("X : " + win.width*(cabbit.endPt[0]/win.width) + " TOTAL : " + win.width)
-                console.log("Y : " + win.width*(cabbit.endPt[1]/win.height) + " TOTAL : " + win.height)
+                alert("X : " + win.width*(cabbit.endPt[0]/win.width) + "  Y : " + win.width*(cabbit.endPt[1]/win.height) )
+                alert(" ScreenX : " + win.width + " ScreenY : " + win.height)
 
                 //If screen is clicked while cabbit is moving, path is being interrupted
                 if (cabbit.count > 1 && cabbit.inMotion == true){   
