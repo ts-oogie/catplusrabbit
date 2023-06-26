@@ -49,7 +49,7 @@ body {
     width: 100% !important;
     background-repeat: no-repeat; 
     min-width: 300px;   
-    z-index: 10; 
+    z-index: 20; 
     height: 100%;
     background: center;
 }
@@ -63,7 +63,7 @@ body {
 }
 
 #startPoint {
-    border : red solid 2px;
+    border : transparent solid 2px;
     width : 2px;
     height : 2px;
     position : relative; 
@@ -72,15 +72,25 @@ body {
     z-index : 10;
 }
 
+#charPosition {
+    width: 100% !important;
+    color: white;
+    z-index: 30; 
+    position : absolute;
+    display : block; 
+    margin-top: -400px;
+    margin-left: 50px;
+}
+
 .tempPoint {
-    border : blue solid 2px; 
+    border : transparent solid 2px; 
     width : 2px;
     height : 2px; 
     position : relative;  
 }
 
 .pathPoint {
-    border : yellow solid 2px; 
+    border : transparent solid 2px; 
     width : 2px;
     height : 2px; 
     position : relative;  

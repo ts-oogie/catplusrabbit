@@ -1,4 +1,6 @@
 import {returnDivisor} from './divisor.js' 
+import {generateZone} from './generateZone.js'
+import {updateLocation} from './utils.js'
 
 
 export class characterObject {
@@ -43,7 +45,7 @@ export class characterObject {
 
     //separate path builder
     moveCharacter(){   
-        
+  
         this.calibration = this.frameDistance*1.2  
 
         if (this.pathInterrupted == false){
@@ -1504,7 +1506,6 @@ export class characterObject {
                 return this.displayChar(result, pathCount)
             })
             .then((result) => {
-                
                 return this.stopDisplay(result, pathCount) 
             })
             .catch((err) => { 
@@ -1514,6 +1515,8 @@ export class characterObject {
 
     } 
 
+    //initiate state object that contains data for each frame 
+    //Pause before frame is displayed then return a promise that resolves with the state object 
     pauseDisplay(index, quad, angle, pivot, pathEnd){
          
         let state = {}  
@@ -1643,6 +1646,8 @@ export class characterObject {
     
     }
 
+    //Input state object returned from pauseDisplay promise
+    //Append walking animation image to each path point per state obj params
     displayChar(state, pathCount){ 
          
         let p = new Promise((resolve, reject) => {
@@ -1940,11 +1945,11 @@ export class characterObject {
                 let pathPt
 
                 if(pathCount == 0) {
-                    pathPt = '.' + 'pathPoint'
+                    pathPt = '.' + 'pathPoint' 
                 }
 
                 if(pathCount >= 1) {
-                    pathPt = '.' + 'pathPoint' + pathCount
+                    pathPt = '.' + 'pathPoint' + pathCount 
                 }  
    
 
@@ -1957,6 +1962,7 @@ export class characterObject {
                     this.currIndex = state.index 
                     this.frameIndex = state.frameIndex
                      
+                    
                     $(pathPt).eq(state.index).append(srcGif)
                    
                     setTimeout(() => { 
@@ -1965,11 +1971,12 @@ export class characterObject {
                        
                 }
 
-                else {   
-
+                else {    
                     this.currIndex = state.index 
                     this.frameIndex = state.frameIndex 
-                    
+                    //June 20, 2023 : console.log the  X location of walking character 
+                    document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft 
+                    document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop
                     $(pathPt).eq(state.index).append(srcGif) 
                         setTimeout(() => { 
                             $(pathPt).eq(state.index).empty()   
@@ -1997,6 +2004,8 @@ export class characterObject {
         
     }
 
+    //Input state object returned from displayChar promise
+    //Append stop walking animation sequence image to each path point per state obj params
     stopDisplay(state, pathCount){ 
 
         let pathPt

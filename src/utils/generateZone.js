@@ -1,6 +1,12 @@
 
-export function generateZone(type, trigger, zone){
-     
+export function generateZone(arr){ 
+
+    arr.forEach((obj) => {
+        //console.log("switchScene : " + obj.switch2Scene)
+        obj.points.forEach((item) => {
+            console.log(item)
+        })
+    })
     //type : object, area, switchScene
     //trigger : click, character
         //click : on mouse enter of area make mouse active, otherwise make inactive

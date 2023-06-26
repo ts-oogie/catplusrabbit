@@ -2,7 +2,7 @@ import {cabbitGifs} from './gifs.js'
 import {characterObject} from './character.js'
 import {setCharSize} from './utils.js'
 
-export function generateCharacter(name, charPosition, win, screenPercent){
+export function generateCharacter(name, charPosition, win, screenPercent, ){
 
     let charSize = setCharSize(win.width, screenPercent)
     let frameDistance = win.width*.002604166666667 
@@ -25,7 +25,7 @@ export function generateCharacter(name, charPosition, win, screenPercent){
                 cabbit.endPt[0] = e.pageX
                 cabbit.endPt[1] = e.pageY  
                 
-                alert("X : " + win.width*(cabbit.endPt[0]/win.width) + "  Y : " + win.width*(cabbit.endPt[1]/win.height) )
+                alert("X : " + win.width*(cabbit.endPt[0]/win.width) + "  Y : " + win.height*(cabbit.endPt[1]/win.height) )
                 alert(" ScreenX : " + win.width + " ScreenY : " + win.height)
 
                 //If screen is clicked while cabbit is moving, path is being interrupted

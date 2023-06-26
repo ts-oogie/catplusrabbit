@@ -2,6 +2,7 @@
 import '../assets/bg/11-small.jpg'
 import '../assets/bg/braveNotice.gif'
 import '../assets/bg/fgFrame.gif'
+import '../assets/bg/deerwood.png'
 
 export function generateBackground(scene, size){ 
     const thisSize = size + '%'
@@ -17,7 +18,7 @@ export function generateBackground(scene, size){
     }
      
     else if(scene == 1){ 
-        thisBG.style.backgroundImage = "url(11-small.jpg)"
+        thisBG.style.backgroundImage = "url(deerwood.png)"
         thisBG.style.backgroundPosition = "center center"
         thisBG.style.backgroundSize = thisSize
         thisBG.style.zIndex = "-10" 

@@ -13,6 +13,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "characterObject": () => (/* binding */ characterObject)
 /* harmony export */ });
 /* harmony import */ var _divisor_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./divisor.js */ "./src/utils/divisor.js");
+/* harmony import */ var _generateZone_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateZone.js */ "./src/utils/generateZone.js");
 /* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20,6 +21,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+
 
 var characterObject = /*#__PURE__*/function () {
   function characterObject(startPt, endPt, frameDistance, gifs, w, h, name) {
@@ -66,8 +68,9 @@ var characterObject = /*#__PURE__*/function () {
     //separate path builder
   }, {
     key: "moveCharacter",
-    value: function moveCharacter() {
+    value: function moveCharacter(switchArr) {
       var _this = this;
+      (0,_generateZone_js__WEBPACK_IMPORTED_MODULE_1__.generateZone)(switchArr);
       this.calibration = this.frameDistance * 1.2;
       if (this.pathInterrupted == false) {
         this.classLabel = 'pathPoint';
@@ -1216,6 +1219,9 @@ var characterObject = /*#__PURE__*/function () {
         });
       }
     }
+
+    //initiate state object that contains data for each frame 
+    //Pause before frame is displayed then return a promise that resolves with the state object 
   }, {
     key: "pauseDisplay",
     value: function pauseDisplay(index, quad, angle, pivot, pathEnd) {
@@ -1333,6 +1339,9 @@ var characterObject = /*#__PURE__*/function () {
 
       return p;
     }
+
+    //Input state object returned from pauseDisplay promise
+    //Append walking animation image to each path point per state obj params
   }, {
     key: "displayChar",
     value: function displayChar(state, pathCount) {
@@ -1587,6 +1596,8 @@ var characterObject = /*#__PURE__*/function () {
           } else {
             _this4.currIndex = state.index;
             _this4.frameIndex = state.frameIndex;
+            //June 20, 2023 : console.log the  X location of walking character
+            console.log($(pathPt).eq(state.index)[0].offsetLeft);
             $(pathPt).eq(state.index).append(srcGif);
             setTimeout(function () {
               $(pathPt).eq(state.index).empty();
@@ -1606,6 +1617,9 @@ var characterObject = /*#__PURE__*/function () {
       });
       return p;
     }
+
+    //Input state object returned from displayChar promise
+    //Append stop walking animation sequence image to each path point per state obj params
   }, {
     key: "stopDisplay",
     value: function stopDisplay(state, pathCount) {
@@ -2019,7 +2033,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _assets_bg_11_small_jpg__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../assets/bg/11-small.jpg */ "./src/assets/bg/11-small.jpg");
 /* harmony import */ var _assets_bg_braveNotice_gif__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../assets/bg/braveNotice.gif */ "./src/assets/bg/braveNotice.gif");
 /* harmony import */ var _assets_bg_fgFrame_gif__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../assets/bg/fgFrame.gif */ "./src/assets/bg/fgFrame.gif");
+/* harmony import */ var _assets_bg_deerwood_png__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../assets/bg/deerwood.png */ "./src/assets/bg/deerwood.png");
 //import {fgGif} from './gifs.js' 
+
 
 
 
@@ -2033,13 +2049,14 @@ function generateBackground(scene, size) {
     thisBG.style.backgroundSize = thisSize;
     thisBG.style.zIndex = "-10";
   } else if (scene == 1) {
-    thisBG.style.backgroundImage = "url(11-small.jpg)";
+    thisBG.style.backgroundImage = "url(deerwood.png)";
     thisBG.style.backgroundPosition = "center center";
     thisBG.style.backgroundSize = thisSize;
     thisBG.style.zIndex = "-10";
+    var fgSize = size + 10 + "%";
     thisFG.style.backgroundImage = "url(fgFrame.gif)";
     thisBG.style.backgroundPosition = "center center";
-    thisFG.style.backgroundSize = thisSize;
+    thisFG.style.backgroundSize = fgSize;
     thisBG.style.zIndex = "0";
   }
 }
@@ -2064,7 +2081,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function generateCharacter(name, charPosition, win, screenPercent) {
+function generateCharacter(name, charPosition, win, screenPercent, switchArr) {
   var charSize = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.setCharSize)(win.width, screenPercent);
   var frameDistance = win.width * .002604166666667;
   switch (name) {
@@ -2079,7 +2096,7 @@ function generateCharacter(name, charPosition, win, screenPercent) {
         //set end points
         cabbit.endPt[0] = e.pageX;
         cabbit.endPt[1] = e.pageY;
-        alert("X : " + win.width * (cabbit.endPt[0] / win.width) + "  Y : " + win.width * (cabbit.endPt[1] / win.height));
+        alert("X : " + win.width * (cabbit.endPt[0] / win.width) + "  Y : " + win.height * (cabbit.endPt[1] / win.height));
         alert(" ScreenX : " + win.width + " ScreenY : " + win.height);
 
         //If screen is clicked while cabbit is moving, path is being interrupted
@@ -2212,7 +2229,7 @@ function generateCharacter(name, charPosition, win, screenPercent) {
           }
 
           cabbit.count = count;
-          cabbit.moveCharacter();
+          cabbit.moveCharacter(switchArr);
         }
 
         //IF character is not in motion, path 
@@ -2524,9 +2541,9 @@ function generateCharacter(name, charPosition, win, screenPercent) {
           //cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration)
 
           cabbit.count = count;
-          cabbit.moveCharacter();
+          cabbit.moveCharacter(switchArr);
         } else {
-          cabbit.moveCharacter();
+          cabbit.moveCharacter(switchArr);
         }
       });
   }
@@ -2568,10 +2585,16 @@ function generateScene(sceneNum, win) {
       return;
     case 1:
       //scene 11
-      screenPercent = 75;
+      screenPercent = 90;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(1, screenPercent);
-      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 5);
-      (0,_generateZone_js__WEBPACK_IMPORTED_MODULE_2__.generateZone)();
+      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 30, [{
+        switch2Scene: 2,
+        points: [1, 2, 3, 4]
+      }, {
+        switch2Scene: 3,
+        points: [4, 5, 6, 7]
+      }]);
+      //generateZone() 
       return;
   }
 }
@@ -2589,8 +2612,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "generateZone": () => (/* binding */ generateZone)
 /* harmony export */ });
-function generateZone(type, trigger, zone) {
-
+function generateZone(arr) {
+  arr.forEach(function (obj) {
+    //console.log("switchScene : " + obj.switch2Scene)
+    obj.points.forEach(function (item) {
+      console.log(item);
+    });
+  });
   //type : object, area, switchScene
   //trigger : click, character
   //click : on mouse enter of area make mouse active, otherwise make inactive
@@ -3822,7 +3850,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: red;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  background-repeat: no-repeat;\n  min-width: 300px;\n  height: 100%;\n  z-index: 10;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: red solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n.tempPoint {\n  border: blue solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,eAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,4BAAA;EACA,gBAAA;EACA,YAAA;EACA,WAAA;AADJ;;AAKA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AAFJ;;AAMA;EACI,qBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAHJ;;AAMA;EACI,sBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAMA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAHJ;;AAQA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AALJ;;AAQA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AALJ;;AAQA;EACI,aAAA;AALJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: red;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat;  \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain { \n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width: 100% !important;\n    background-repeat: no-repeat; \n    min-width: 300px;  \n    height: 100%;\n    z-index: 10;\n    \n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : red solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n.tempPoint {\n    border : blue solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: red;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n  overflow-y: hidden;\n  overflow-x: hidden;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  border: 1px solid yellow;\n  top: 0;\n  left: 0;\n  margin-top: 100px;\n  margin-left: 50%;\n  display: block;\n  position: absolute;\n  margin: auto;\n  width: 100% !important;\n  background-repeat: no-repeat;\n  min-width: 300px;\n  z-index: 20;\n  height: 100%;\n  background: center;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n#charPosition {\n  color: white;\n}\n\n.tempPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,eAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;EACA,kBAAA;EACA,kBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,wBAAA;EACA,MAAA;EACA,OAAA;EACA,iBAAA;EACA,gBAAA;EACA,cAAA;EACA,kBAAA;EACA,YAAA;EACA,sBAAA;EACA,4BAAA;EACA,gBAAA;EACA,WAAA;EACA,YAAA;EACA,kBAAA;AADJ;;AAIA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AADJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAFJ;;AAKA;EACI,YAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,aAAA;AAJJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: red;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto;\n    overflow-y: hidden;\n    overflow-x: hidden;\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat;  \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain {\n    border: 1px solid yellow;\n    top: 0;\n    left: 0;\n    margin-top: 100px;\n    margin-left: 50%;\n    display : block; \n    position : absolute;\n    margin:auto;\n    width: 100% !important;\n    background-repeat: no-repeat; \n    min-width: 300px;   \n    z-index: 20; \n    height: 100%;\n    background: center;\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : transparent solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n#charPosition{\n    color: white;\n}\n\n.tempPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -15343,6 +15371,17 @@ module.exports = __webpack_require__.p + "braveNotice.gif";
 
 /***/ }),
 
+/***/ "./src/assets/bg/deerwood.png":
+/*!************************************!*\
+  !*** ./src/assets/bg/deerwood.png ***!
+  \************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+module.exports = __webpack_require__.p + "deerwood.png";
+
+/***/ }),
+
 /***/ "./src/assets/bg/fgFrame.gif":
 /*!***********************************!*\
   !*** ./src/assets/bg/fgFrame.gif ***!
@@ -17846,6 +17885,7 @@ window.$ = jquery__WEBPACK_IMPORTED_MODULE_3__.$;
 window.jQuery = jquery__WEBPACK_IMPORTED_MODULE_3__.jQuery;
 var windowInst = new _utils_utils_js__WEBPACK_IMPORTED_MODULE_2__.win(window);
 var running = true;
+alert("HEIGHT : " + window.innerHeight);
 
 //Generate Scene
 //let scene = new sceneObject()

@@ -1,6 +1,7 @@
-import {generateBackground, generateForeground} from './generateBG.js'  
-import {generateCharacter} from './generateCharacter.js' 
-import {generateZone} from './generateZone.js'
+import {generateBackground} from './generateBG.js'  
+import {generateCharacter} from './generateCharacter.js'  
+import {updateLocation} from './utils.js'
+
 
 export function generateScene(sceneNum, win){ 
 
@@ -9,11 +10,9 @@ export function generateScene(sceneNum, win){
 
     let charPosition = {
         cabbit : [700, 400]
-    } 
-
-    document.getElementsByTagName('body')[0].addEventListener('click', (e)=>{
-
-    })  
+    }  
+    
+    let prevExit
 
     switch(sceneNum){  
         case 0:
@@ -24,12 +23,28 @@ export function generateScene(sceneNum, win){
             }, 3000) 
             return
         case 1: 
-            //scene 11
-            screenPercent = 75
+            //scene 11 
+            screenPercent = 90
             generateBackground(1, screenPercent)  
-            generateCharacter('cabbit', charPosition, win, screenPercent-5)
-            generateZone()
-            
+            generateCharacter(
+                'cabbit', 
+                charPosition, 
+                win, 
+                screenPercent-30 
+            ) 
+
+            document.getElementById('cabbitPositionX').innerText = charPosition.cabbit[0]
+            document.getElementById('cabbitPositionY').innerText = charPosition.cabbit[1]
+ 
+            setInterval(()=>{
+                charPosition.cabbit[0] = eval(document.getElementById('cabbitPositionX').innerText)  
+                charPosition.cabbit[1] = eval(document.getElementById('cabbitPositionY').innerText) 
+                console.log(charPosition.cabbit)
+                //if the x coordinates is less than 300, then set prevExit to left, generateScene 2
+                //if x coordinates is greater than 1400, then set prevExit to right, generate scene 3
+
+            }, 66.667) 
+
 
             return 
 
