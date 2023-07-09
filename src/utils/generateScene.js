@@ -9,7 +9,7 @@ export function generateScene(sceneNum, win){
     let sceneComplete = false   
 
     let charPosition = {
-        cabbit : [700, 400]
+        cabbit : [800, 400]
     }  
     
     let prevExit
@@ -20,7 +20,7 @@ export function generateScene(sceneNum, win){
             generateBackground(0, screenPercent)   
             setTimeout(() => { 
                 generateScene(1, win)  
-            }, 3000) 
+            }, 100) 
             return
         case 1: 
             //scene 11 
@@ -33,17 +33,17 @@ export function generateScene(sceneNum, win){
                 screenPercent-30 
             ) 
 
-            document.getElementById('cabbitPositionX').innerText = charPosition.cabbit[0]
-            document.getElementById('cabbitPositionY').innerText = charPosition.cabbit[1]
+           // document.getElementById('cabbitPositionX').innerText = charPosition.cabbit[0]
+           // document.getElementById('cabbitPositionY').innerText = charPosition.cabbit[1]
  
-            setInterval(()=>{
+           /* setInterval(()=>{
                 charPosition.cabbit[0] = eval(document.getElementById('cabbitPositionX').innerText)  
                 charPosition.cabbit[1] = eval(document.getElementById('cabbitPositionY').innerText) 
                 console.log(charPosition.cabbit)
                 //if the x coordinates is less than 300, then set prevExit to left, generateScene 2
                 //if x coordinates is greater than 1400, then set prevExit to right, generate scene 3
 
-            }, 66.667) 
+            }, 66.667) */
 
 
             return 

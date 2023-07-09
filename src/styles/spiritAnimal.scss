@@ -63,7 +63,7 @@ body {
 }
 
 #startPoint {
-    border : transparent solid 2px;
+    border : red solid 2px;
     width : 2px;
     height : 2px;
     position : relative; 
@@ -83,14 +83,14 @@ body {
 }
 
 .tempPoint {
-    border : transparent solid 2px; 
+    border : blue solid 2px; 
     width : 2px;
     height : 2px; 
     position : relative;  
 }
 
 .pathPoint {
-    border : transparent solid 2px; 
+    border : yellow solid 2px; 
     width : 2px;
     height : 2px; 
     position : relative;  
@@ -127,7 +127,7 @@ body {
  
 
 .cabbit {
-    left : -150px;
+    left : -100px;
     position : relative;
     top : -200px;
 }

@@ -1,6 +1,5 @@
 import {returnDivisor} from './divisor.js' 
-import {generateZone} from './generateZone.js'
-import {updateLocation} from './utils.js'
+import {win} from './utils.js'
 
 
 export class characterObject {
@@ -40,12 +39,12 @@ export class characterObject {
     }
     
     returnDivisor(x, y, z){
-       return  returnDivisor(x, y, z)
+       return returnDivisor(x, y, z)
     } 
 
     //separate path builder
-    moveCharacter(){   
-  
+    moveCharacter(){    
+ 
         this.calibration = this.frameDistance*1.2  
 
         if (this.pathInterrupted == false){
@@ -54,15 +53,18 @@ export class characterObject {
 
         else {
             this.classLabel = 'pathPoint' + this.pathCount
-        }
- 
-        this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1)
+        } 
+
+        this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1) 
         this.adj = Math.pow((this.endPt[1] - this.startPt[1]), 1)*(-1)
         this.angle = Math.abs(Math.atan(this.opp/this.adj) * 180/Math.PI)
         //char.hypo = Math.sqrt((char.opp*char.opp)+(char.adj*char.adj));   
          
         //QUAD 1 :
+        //if endPt Y is less than startPt Y && entPt X is greater than startPt X : 
         if (this.endPt[1] <= this.startPt[1] && this.endPt[0] >= this.startPt[0]){
+
+            this.endPt[0] = this.endPt[0] - (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
             console.log("quad 1 PIVOT")
             this.currQuad = 1//Define current quad number
@@ -74,26 +76,28 @@ export class characterObject {
             //if end point is between 0 and 38.5 degrees
             if ((this.angle >= 38.5) && (this.angle < 90)){
 
-                this.direction = 'pivot'
-                this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)) // divided
-                this.xDist = this.startPt[0]
-                this.yDist = this.startPt[1] - this.calibration
+                this.direction = 'pivot'    
 
+                this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)) // divided
+                this.xDist = this.startPt[0] - 15 //HACK 
+                this.yDist = this.startPt[1]  
+ 
                 //construct path diagonal until ....
+                //divisor calculates the number of points in the hypoteneuse
                 while (this.count < this.divisor){   
                     this.xDist += this.quadAdj
                     this.yDist -= this.quadOpp*4// if frame distance is 10, then multiply quadOpp by 2
                     //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     this.count++
-                    this.pivot++ 
+                    this.pivot++  
                 }  
                     
                 //construct horizontal line
                 while (this.xDist < this.endPt[0]){
                     this.count++;
                     this.xDist += this.frameDistance*2; // Multiply char.xDist x2 if horizontal
-                    this.yDist -= 6 //Previously -=6
+                    this.yDist -= 4.5 //Previously -=6
                     //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
@@ -107,7 +111,7 @@ export class characterObject {
                     this.count++;
                     this.xDist += this.frameDistance*k; // Multiply char.xDist x2 if horizontal
                     k = (k*.8);
-                    this.yDist -= 6 //Previously -=6
+                    this.yDist -= 4.5 //Previously -=6
                     this.startPt[0] = this.xDist;
                     this.startPt[1] = this.yDist;
                     //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
@@ -115,11 +119,9 @@ export class characterObject {
 
                 } 
 
-                //Reset start Points
-                //document.getElementById('startPoint').css('left', this.endPt[0] + 'px');
-                //document.getElementById('startPoint').css('top', this.endPt[1] + 'px');
+                //Reset start Points 
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
-                document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
+                document.getElementById('startPoint').style.top = this.endPt[1] - this.calibration  + 'px'
 
                 if (this.endAngle == undefined){ 
                     this.animateCharacterWalk(this.pathCount)
@@ -128,74 +130,89 @@ export class characterObject {
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
                 else {  
+
                      this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
             
             }
+
+            //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
             
             //If the end point angle is between 38.5 and 90
-            else if ((90-this.angle) >= 38.5 && (90-this.angle) < 90) {
-            
-                console.log("diagonal then up");
-                this.xDist = this.startPt[0];
-                this.yDist = this.startPt[1] - this.calibration;
-                this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-this.endPt[0],((this.startPt[0]-this.endPt[0])%this.quadAdj), this.quadAdj));
-
+            else if ((90-this.angle) >= 38.5 && (90-this.angle) < 90) { 
+                //this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1)
+                console.log("diagonal then up+" );
+                this.xDist = this.startPt[0]   
+                this.yDist = this.startPt[1]  
+                //Copy this to quad 2 diagonal then up July 2, 2023
+                this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-(this.endPt[0]+(window.innerWidth*.0277777777777)),((this.startPt[0]-(this.endPt[0]+(window.innerWidth*.0277777777777)))%this.quadAdj), this.quadAdj));
+                
                 //construct path diagonal until 
                 while (this.count < this.divisor*2){  
                     this.xDist += this.quadAdj;  
-                    this.yDist -= this.quadOpp*4; 
+                    this.yDist -= this.quadOpp*3.5; 
                     this.count++;
                     this.pivot++;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                }   
+                }    
+
+                this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
 
                 //construct vertical path
-                if (this.startPt[1]-this.endPt[1] <= (this.frameDistance*20)){
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*20)){
-                        this.yDist -= this.calibration;
-                        this.yDist -= 6
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+              
+                 if (this.startPt[1]-this.endPt[1] > (this.frameDistance*20) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*40) ){
+                    console.log("0-40") 
 
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*20) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*40) ){
                     while(this.yDist > this.endPt[1]-(this.frameDistance*30)){
                         this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.0067415
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
                 else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*40) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*60) ){
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*50)){
-                         this.count++;
+                    console.log("40-60")
+                    while(this.yDist > this.endPt[1]-(this.frameDistance*45)){
+                        this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.0067415
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
                 
                 else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*60) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*80) ){
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*70)){
+                    console.log("60-80")
+                    while(this.yDist > this.endPt[1]-(this.frameDistance*50)){
                          this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.0067415
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
                 else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*80) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*100) ){
+                    console.log("80-100")
                     while(this.yDist > this.endPt[1]-(this.frameDistance*90)){
                          this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.005
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 } 
+
+                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*100) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*120) ){ 
+                    console.log("if distance is between 100 and 120") 
+                    while(this.yDist > this.endPt[1]-(this.frameDistance*100)){
+                        this.count++;
+                        this.yDist -= this.calibration;
+                        this.yDist -= window.innerHeight*.005
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
                 
                 let j = 0;
                 let k = 2;
@@ -244,6 +261,9 @@ export class characterObject {
             if ((Math.abs(this.angle) > 38.5) && (Math.abs(this.angle) < 90)){
                 //pivot
                 console.log("PIVOT");
+
+                this.endPt[0] = this.endPt[0] + (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)); // divided
                 
                 this.xDist = this.startPt[0];
@@ -262,7 +282,7 @@ export class characterObject {
                 while (this.xDist > this.endPt[0]){
                     this.count++;
                     this.xDist -= this.frameDistance*2; // Multiply this.xDist x2 if horizontal
-                    this.yDist -= 6 //Previously -=6
+                    this.yDist -= 4.5 //Previously -=6
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
                 
@@ -275,7 +295,7 @@ export class characterObject {
                     this.count++;
                     this.xDist -= this.frameDistance*k; // Multiply this.xDist x2 if horizontal
                     k = (k*.8);
-                    this.yDist -= 6 //Previously -=6
+                    this.yDist -= 4.5 //Previously -=6
                     this.startPt[0] = this.xDist;
                     this.startPt[1] = this.yDist;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
@@ -301,74 +321,77 @@ export class characterObject {
             //If the end point angle is between  90 and 141.5
             else if ((90-(Math.abs(this.angle))) > 38.5 && (90-(Math.abs(this.angle))) < 90) {
                 //diagonal then up
-                console.log("diagonal then up");
-                this.xDist = this.startPt[0];
-                this.yDist = this.startPt[1] - this.calibration;
-                this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-this.endPt[0],((this.startPt[0]-this.endPt[0])%this.quadAdj), this.quadAdj));
+                console.log("diagonal then up + ") 
+
+                this.endPt[1] = this.endPt[1] - (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
+                this.xDist = this.startPt[0]    
+                this.yDist = this.startPt[1] - this.calibration
+                //this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-this.endPt[0],((this.startPt[0]-this.endPt[0])%this.quadAdj), this.quadAdj))
+                this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-(this.endPt[0]+(window.innerWidth*.0277777777777)),((this.startPt[0]-(this.endPt[0]+(window.innerWidth*.0277777777777)))%this.quadAdj), this.quadAdj));
 
                 //construct path diagonal until 
                 while (this.xDist >= this.endPt[0]){   
                     this.xDist -= this.quadAdj;  
-                    this.yDist -= this.quadOpp*4;
+                    this.yDist -= this.quadOpp*3.5;
                     this.count++;
                     this.pivot++;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                }   
+                }    
 
-                //construct vertical path
-                if (this.startPt[1]-this.endPt[1] <= (this.frameDistance*20)){
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*20)){
-                        this.yDist -= this.calibration;
-                        this.yDist -= 6
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+                //construct vertical path 
+                this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
-                if (this.startPt[1]-this.endPt[1] <= (this.frameDistance*20)){ 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*10)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= 6
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
 
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*10) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*40) ){ 
+                if (this.startPt[1]-this.endPt[1] > (this.frameDistance) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*40) ){
+                    console.log("0 and 40") 
                     while(this.yDist > this.endPt[1]-(this.frameDistance*30)){
                         this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.005
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
                 else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*40) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*60) ){ 
+                    console.log("40 and 60") 
                     while(this.yDist > this.endPt[1]-(this.frameDistance*50)){
                         this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.005
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
-                }
-                
+                } 
                 
                 else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*60) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*80) ){ 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*70)){
+                    console.log("60 and 80") 
+                    while(this.yDist > this.endPt[1]-(this.frameDistance*60)){
                         this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.005
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
                 else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*80) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*100) ){ 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*90)){
+                    console.log(" 80 and 100") 
+                    while(this.yDist > this.endPt[1]-(this.frameDistance*80)){
                         this.count++;
                         this.yDist -= this.calibration;
-                        this.yDist -= 6
+                        this.yDist -= window.innerHeight*.005
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
+
+                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*100) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*120) ){ 
+                    console.log("if distance is between 100 and 120") 
+                    while(this.yDist > this.endPt[1]-(this.frameDistance*100)){
+                        this.count++;
+                        this.yDist -= this.calibration;
+                        this.yDist -= window.innerHeight*.005
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                } 
 
                 let j = 0;
                 let k = 2;
@@ -419,6 +442,8 @@ export class characterObject {
             if ((this.angle > 38.5) && (this.angle < 90) ){
                 //pivot 
 
+                this.endPt[0] = this.endPt[0] + (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp))   // divided
                 this.xDist = this.startPt[0]  
                 this.yDist = this.startPt[1] - this.calibration    
@@ -435,7 +460,7 @@ export class characterObject {
                 //construct horizontal line
                 while (this.xDist > this.endPt[0]){
                     this.xDist -= this.frameDistance*2  
-                    this.yDist -= 6           
+                    this.yDist -= 4.5     
                     this.count++  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     }  
@@ -449,7 +474,7 @@ export class characterObject {
                     this.count++
                     this.xDist -= this.frameDistance*k   // Multiply this.xDist x2 if horizontal
                     k = (k*.8)  
-                    this.yDist -= 6 //Previously -=6 
+                    this.yDist -= 4.5
                     this.startPt[0] = this.xDist  
                     this.startPt[1] = this.yDist  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
@@ -474,8 +499,10 @@ export class characterObject {
             }
 
             else if ((this.angle < 38.5) && (this.angle > 0)){
-                console.log("diagonal then down")  
+                console.log("diagonal then down - OK")  
 
+                 
+                
                 this.xDist = this.startPt[0]  
                 this.yDist = this.startPt[1] - this.calibration    
 
@@ -486,33 +513,24 @@ export class characterObject {
                     this.count++  
                     this.pivot++  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                } 
+                }   
 
+                
                 let difference = this.endPt[1]-this.startPt[1]
                  
 
                 //construct vertical path
-                if (difference > 0 && difference < (this.frameDistance*10)){
-                    
-                    
+                if (difference > 0 && difference < (this.frameDistance*10)){ 
+                    console.log("0-10")
                     while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
                         this.count++   
                         this.yDist += this.quadOpp   
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
-                }
-
-                else if ((difference > (this.frameDistance*10)) && (difference <= (this.frameDistance*20))){
-                    
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*15)){
-                        this.count++   
-                        this.yDist += this.quadOpp   
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                    } 
-                }
+                } 
 
                 else if ((difference > (this.frameDistance*10)) && (difference <= (this.frameDistance*25))){
-                     
+                    console.log("10-25") 
                     while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
                         this.count++   
                         this.yDist += this.quadOpp  
@@ -521,7 +539,7 @@ export class characterObject {
                 }
 
                 else if ((difference > (this.frameDistance*25)) && (difference <= (this.frameDistance*30))){
-                     
+                    console.log("25-30")
                     while(this.yDist < this.endPt[1]-(this.frameDistance*22)){
                         this.count++; 
                         this.yDist += this.quadOpp;
@@ -529,9 +547,8 @@ export class characterObject {
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){
-                    
-                    
+                else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){ 
+                    console.log("30-35")
                     while(this.yDist < this.endPt[1]-(this.frameDistance*25)){
                         this.count++; 
                         this.yDist += this.quadOpp;
@@ -539,17 +556,8 @@ export class characterObject {
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*40))){
-                     
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*30)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*40)) && (difference <= (this.frameDistance*45))){
-                     
+                else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
+                    console.log("35-45")
                     while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
                         this.count++; 
                         this.yDist += this.quadOpp;
@@ -557,51 +565,68 @@ export class characterObject {
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*50))){
-                     
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*40)){
+                else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
+                    console.log("45-55")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*36)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*50)) && (difference <= (this.frameDistance*55))){
-                     
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*44)){
+                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*65))){
+                    console.log("55-65")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*42)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*60))){
-                     
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*47)){
+                else if ((difference > (this.frameDistance*65)) && (difference <= (this.frameDistance*75))){
+                    console.log("65-75")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*60)) && (difference <= (this.frameDistance*65))){
-                     
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*51)){
+                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*85))){
+                    console.log("75-85")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*58)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
-                else if ((difference > (this.frameDistance*65)) && (difference <= (this.frameDistance*70))){
-                     
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*55)){
+                else if ((difference > (this.frameDistance*85)) && (difference <= (this.frameDistance*95))){
+                    console.log("85-95")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
 
+                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*105))){
+                    console.log("95-105")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*74)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
+
+                else if ((difference > (this.frameDistance*105)) && (difference <= (this.frameDistance*115))){
+                    console.log("95-105")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                } 
 
                 let j = 0;
                 let k = 2;
@@ -654,7 +679,9 @@ export class characterObject {
             //if end point is between 180 and 141.5 degrees
             if ((this.angle > 38.5) && (this.angle < 90)){
                 //pivot
-                console.log("Pivot"); 
+                console.log("Pivot 4");  
+
+                this.endPt[0] = this.endPt[0] - (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)); // divided
                 
@@ -672,11 +699,12 @@ export class characterObject {
             
                 //construct horizontal line
                 while (this.xDist < this.endPt[0]){
-                    this.xDist += this.frameDistance*2;
-                    this.yDist -= 6
                     this.count++;
+                    this.xDist += this.frameDistance*2; // Multiply char.xDist x2 if horizontal
+                    this.yDist -= 4.5 //Previously -=6
+                    //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                }  
+                } 
 
                 let j = 0;
                 let k = 2; 
@@ -687,7 +715,7 @@ export class characterObject {
                     this.count++;
                     this.xDist += this.frameDistance*k; // Multiply this.xDist x2 if horizontal
                     k = (k*.8);
-                    this.yDist -= 6//Previously -=6
+                    this.yDist -= 4.5//Previously -=6
                     this.startPt[0] = this.xDist;
                     this.startPt[1] = this.yDist;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
@@ -723,103 +751,12 @@ export class characterObject {
                     })
                     
                 }
-            }  
+            }   
 
-            else if(this.angle > 25 && this.angle < 30){
-                console.log("pivot") 
-                
-                this.xDist = this.startPt[0]  
-                this.yDist = this.startPt[1] - this.calibration    
-    
-                //diagonal
-                while (this.xDist <= this.endPt[0]){   
-                    this.xDist += this.quadAdj    
-                    this.yDist += this.quadOpp/5  
-                    this.count++  
-                    this.pivot++  
-                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                } 
+            else if ((this.angle < 38.5) && (this.angle > 0)){ 
+                console.log("diagonal then down --")  
 
-                let j = 0;
-                let k = 2;  
-
-                while (j<12){
-                    j++;
-                    this.count++;
-                    this.xDist += this.frameDistance*k; // Multiply this.xDist x2 if horizontal
-                    k = (k*.8);
-                    this.yDist -= 6//Previously -=6
-                    this.startPt[0] = this.xDist;
-                    this.startPt[1] = this.yDist;
-                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                } 
-
-                //Reset start Points
-                document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
-                document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
-                
-                if (this.endAngle == undefined){
-                    this.animateCharacterWalk(this.pathCount)
-                }
-    
-                //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
-                    
-                else {  
-                     this.rotateCharacter().then(()=>{   
-                        this.animateCharacterWalk(this.pathCount); 
-                    }); 
-                } 
-            }
-
-            else if(this.angle > 30 && this.angle < 38.5){
-                console.log("pivot") 
-                
-                this.xDist = this.startPt[0]  
-                this.yDist = this.startPt[1] - this.calibration  
-           
-                //diagonal
-                while (this.xDist <= this.endPt[0]*.95){   
-                    this.xDist += this.quadAdj    
-                    this.yDist += this.quadOpp/5  
-                    this.count++  
-                    this.pivot++  
-                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                } 
-
-                let j = 0;
-                let k = 2; 
-              
-                //stop path cycle VERTICAL
-                while (j<12){
-                    j++;
-                    this.count++;
-                    this.xDist += this.frameDistance*k; // Multiply this.xDist x2 if horizontal
-                    k = (k*.8);
-                    this.yDist -= 6//Previously -=6
-                    this.startPt[0] = this.xDist;
-                    this.startPt[1] = this.yDist;
-                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                } 
-
-                //Reset start Points
-                document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
-                document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
-                
-                if (this.endAngle == undefined){
-                    this.animateCharacterWalk(this.pathCount)
-                }
-    
-                //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
-                    
-                else {  
-                     this.rotateCharacter().then(()=>{   
-                        this.animateCharacterWalk(this.pathCount); 
-                    }); 
-                } 
-            }
-
-            else if ((this.angle < 25) && (this.angle > 0)){
-                console.log("diagonal then down")  
+                //this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
     
                 this.xDist = this.startPt[0]  
                 this.yDist = this.startPt[1] - this.calibration    
@@ -832,91 +769,111 @@ export class characterObject {
                     this.pivot++  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                 } 
-    
+
                 let difference = this.endPt[1]-this.startPt[1] 
-    
-                if (difference > 0 && difference < (this.frameDistance*10)){
-                   
-                    console.log("1")
-                    console.log("frameDistance * 10 = " + 5.56*10)
+
+                if (difference > 0 && difference < (this.frameDistance*10)){ 
+                    console.log("0-10")
                     while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
                         this.count++   
                         this.yDist += this.quadOpp   
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
-                }
-    
-                else if ((difference > (this.frameDistance*10)) && (difference <= (this.frameDistance*20))){
-                    
-                    console.log("2")
-                    console.log("frameDistance * 10 = " + 5.56*15)
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*15)){
-                        this.count++   
-                        this.yDist += this.quadOpp   
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                    } 
-                }
-    
+                } 
+
                 else if ((difference > (this.frameDistance*10)) && (difference <= (this.frameDistance*25))){
-                     
-                    console.log("3")
-                    console.log("frameDistance * 10 = " + 5.56*25)
+                    console.log("10-25") 
                     while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
                         this.count++   
                         this.yDist += this.quadOpp  
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
                 }
-    
+
                 else if ((difference > (this.frameDistance*25)) && (difference <= (this.frameDistance*30))){
-                     
-                    console.log("4")
-                    console.log("frameDistance * 10 = " + 5.56*30)
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
+                    console.log("25-30")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*22)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
-    
-                else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){
-                    
-                    console.log("5")
-                    console.log("frameDistance * 10 = " + 5.56*35)
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*35)){
+
+                else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){ 
+                    console.log("30-35")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*25)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
-    
-                else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*40))){
-                    
-                    console.log("6")
-                    console.log("frameDistance * 10 = " + 5.56*40)
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*40)){
+
+                else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
+                    console.log("35-45")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
-    
-                else if ((difference > (this.frameDistance*40)) && (difference <= (this.frameDistance*45))){
-                    
-                    console.log("7")
-                    console.log("frameDistance * 10 = " + 5.56*45)
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*40)){
+
+                else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
+                    console.log("45-55")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*36)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     } 
                 }
-    
-                else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*50))){
-                    
-                    console.log("8")
-                    console.log("frameDistance * 10 = " + 5.56*50)
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*40)){
+
+                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*65))){
+                    console.log("55-65")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*42)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
+
+                else if ((difference > (this.frameDistance*65)) && (difference <= (this.frameDistance*75))){
+                    console.log("65-75")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
+
+                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*85))){
+                    console.log("75-85")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*58)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
+
+                else if ((difference > (this.frameDistance*85)) && (difference <= (this.frameDistance*95))){
+                    console.log("85-95")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
+
+                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*105))){
+                    console.log("95-105")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*74)){
+                        this.count++; 
+                        this.yDist += this.quadOpp;
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    } 
+                }
+
+                else if ((difference > (this.frameDistance*105)) && (difference <= (this.frameDistance*115))){
+                    console.log("95-105")
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
                         this.count++; 
                         this.yDist += this.quadOpp;
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
@@ -940,7 +897,8 @@ export class characterObject {
     
                 //Reset start Points
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
-                document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
+                document.getElementById('startPoint').style.top = this.endPt[1] + 'px' 
+                 
                 
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
@@ -956,6 +914,25 @@ export class characterObject {
             } 
         }  
     }
+
+    animateCharacterWalk(pathCount){   
+        
+        this.inMotion = true   
+        for(let i=1; i<=this.count; i++){ 
+            this.preDisplay(i, this.currQuad, this.angle, this.pivot, (this.count - 6)) 
+            .then((result) => { //****** 12-8-22 *** previously  this.count-7
+                this.endAngle = result.angle 
+                return this.displayChar(result, pathCount)
+            })
+            .then((result) => {
+                return this.stopDisplay(result, pathCount) 
+            })
+            .catch((err) => { 
+                console.log(err)
+            })
+        } 
+
+    } 
  
     rotateCharacter(){  
 
@@ -973,7 +950,8 @@ export class characterObject {
             thisEl = $('.pathPoint')  
             thisEl[0].classList.add('tempPoint')
             thisEl[0].classList.remove('pathPoint') 
-        } 
+            //rotate gifs are attached to tempPoint
+        }  
        
         /*
         let rotate0q1 = [this.gif.r0q1x1, this.gif.r0q1x2, this.gif.r0q1x3, this.gif.r0q1x4]
@@ -1496,28 +1474,11 @@ export class characterObject {
         return p  
     }
 
-    animateCharacterWalk(pathCount){   
-        
-        this.inMotion = true   
-        for(let i=1; i<=this.count; i++){ 
-            this.pauseDisplay(i, this.currQuad, this.angle, this.pivot, (this.count - 6))
-            .then((result) => { //****** 12-8-22 *** previously  this.count-7
-                this.endAngle = result.angle 
-                return this.displayChar(result, pathCount)
-            })
-            .then((result) => {
-                return this.stopDisplay(result, pathCount) 
-            })
-            .catch((err) => { 
-                console.log(err)
-            })
-        } 
-
-    } 
+    
 
     //initiate state object that contains data for each frame 
     //Pause before frame is displayed then return a promise that resolves with the state object 
-    pauseDisplay(index, quad, angle, pivot, pathEnd){
+    preDisplay(index, quad, angle, pivot, pathEnd){
          
         let state = {}  
         state.index 
@@ -1646,9 +1607,9 @@ export class characterObject {
     
     }
 
-    //Input state object returned from pauseDisplay promise
+    //Input state object returned from preDisplay promise
     //Append walking animation image to each path point per state obj params
-    displayChar(state, pathCount){ 
+    displayChar(state, pathCount){   
          
         let p = new Promise((resolve, reject) => {
     
@@ -1666,8 +1627,7 @@ export class characterObject {
                 } 
             }
 
-            let thisIndex = ((state.frameIndex)-1)  
-
+            let thisIndex = ((state.frameIndex)-1)   
 
             if(this.angle == 0){
                 switch(thisIndex){
@@ -1711,14 +1671,15 @@ export class characterObject {
             }
  
             
-            let walk0 = []
+            let walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3, this.gif.w0x4, this.gif.w0x5, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x9, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12]
             let walk45 = [this.gif.w45x1, this.gif.w45x2, this.gif.w45x3, this.gif.w45x4, this.gif.w45x5,  this.gif.w45x6, this.gif.w45x7, this.gif.w45x8, this.gif.w45x9, this.gif.w45x10, this.gif.w45x11, this.gif.w45x12] 
             let walk90 = []
             let walk135 = [this.gif.w135x1, this.gif.w135x2, this.gif.w135x3, this.gif.w135x4, this.gif.w135x5,  this.gif.w135x6, this.gif.w135x7, this.gif.w135x8, this.gif.w135x9, this.gif.w135x10, this.gif.w135x11, this.gif.w135x12] 
-            let walk180 = []
+            let walk180 = [this.gif.w180x1, this.gif.w180x2, this.gif.w180x3, this.gif.w180x4, this.gif.w180x5, this.gif.w180x6, this.gif.w180x7, this.gif.w180x8, this.gif.w180x9, this.gif.w180x10, this.gif.w180x11, this.gif.w180x12]
             let walk225 = [this.gif.w225x1, this.gif.w225x2, this.gif.w225x3, this.gif.w225x4, this.gif.w225x5,  this.gif.w225x6, this.gif.w225x7, this.gif.w225x8, this.gif.w225x9, this.gif.w225x10, this.gif.w225x11, this.gif.w225x12] 
             let walk270 = [this.gif.w270x1, this.gif.w270x2, this.gif.w270x3, this.gif.w270x4, this.gif.w270x5,  this.gif.w270x6, this.gif.w270x7, this.gif.w270x8, this.gif.w270x9, this.gif.w270x10, this.gif.w270x11, this.gif.w270x12] 
             let walk292 = [this.gif.w292x1,  this.gif.w292x2,  this.gif.w292x3,  this.gif.w292x4,  this.gif.w292x5,   this.gif.w292x6,  this.gif.w292x7,  this.gif.w292x8,  this.gif.w292x9,  this.gif.w292x10,  this.gif.w292x11,  this.gif.w292x12] 
+            
             
             if (state.angle == 0) {
  
@@ -1785,69 +1746,67 @@ export class characterObject {
                 walk0.push(temp0)  
             }
 
-            else if(state.angle == 90){
- 
-                let temp90
+            else if(state.angle == 90){ 
 
-                temp90 = new Image(this.width, this.height)  
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-1.gif'   
-                walk90.push(temp90)
+                let temp90x1 = new Image(this.width, this.height)  
+                temp90x1.classList.add('cabbit')  
+                temp90x1.src = './cabbit-walk-90-1.gif'  
+                walk90.push(temp90x1)
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-2.gif'  
-                walk90.push(temp90)
+                let temp90x2 = new Image(this.width, this.height)   
+                temp90x2.classList.add('cabbit')  
+                temp90x2.src =  './cabbit-walk-90-2.gif'   
+                walk90.push(temp90x2)
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-3.gif'  
-                walk90.push(temp90) 
+                let temp90x3 = new Image(this.width, this.height)   
+                temp90x3.classList.add('cabbit')  
+                temp90x3.src =  './cabbit-walk-90-3.gif'   
+                walk90.push(temp90x3) 
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-4.gif'    
-                walk90.push(temp90)
+                let temp90x4 = new Image(this.width, this.height)   
+                temp90x4.classList.add('cabbit')  
+                temp90x4.src = './cabbit-walk-90-4.gif'    
+                walk90.push(temp90x4)  
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-5.gif'   
-                walk90.push(temp90)
+                let temp90x5 = new Image(this.width, this.height)   
+                temp90x5.classList.add('cabbit')  
+                temp90x5.src =  './cabbit-walk-90-5.gif'    
+                walk90.push(temp90x5)
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-6.gif'  
-                walk90.push(temp90)
+                let temp90x6 = new Image(this.width, this.height)   
+                temp90x6.classList.add('cabbit')  
+                temp90x6.src =  './cabbit-walk-90-6.gif'  
+                walk90.push(temp90x6)
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-7.gif'   
-                walk90.push(temp90)
+                let temp90x7 = new Image(this.width, this.height)   
+                temp90x7.classList.add('cabbit')  
+                temp90x7.src =  './cabbit-walk-90-7.gif'  
+                walk90.push(temp90x7)   
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-8.gif'   
-                walk90.push(temp90)
+                let temp90x8 = new Image(this.width, this.height)   
+                temp90x8.classList.add('cabbit')  
+                temp90x8.src =  './cabbit-walk-90-8.gif'   
+                walk90.push(temp90x8) 
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-9.gif'   
-                walk90.push(temp90)
+                let temp90x9 = new Image(this.width, this.height)   
+                temp90x9.classList.add('cabbit')  
+                temp90x9.src =  './cabbit-walk-90-9.gif'    
+                walk90.push(temp90x9)
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-10.gif'   
-                walk90.push(temp90)
+                let temp90x10 = new Image(this.width, this.height)   
+                temp90x10.classList.add('cabbit')  
+                temp90x10.src =  './cabbit-walk-90-10.gif'    
+                walk90.push(temp90x10)
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-11.gif'   
-                walk90.push(temp90)
+                let temp90x11 = new Image(this.width, this.height)   
+                temp90x11.classList.add('cabbit')  
+                temp90x11.src =  './cabbit-walk-90-11.gif'  
+                walk90.push(temp90x11)   
 
-                temp90 = new Image(this.width, this.height)   
-                temp90.classList.add('cabbit')  
-                temp90.src = './cabbit-walk-90-12.gif'   
-                walk90.push(temp90) 
+                let temp90x12 = new Image(this.width, this.height)   
+                temp90x12.classList.add('cabbit')  
+                temp90x12.src =  './cabbit-walk-90-12.gif'    
+                walk90.push(temp90x12) 
             }
 
             else if (state.angle == 180){
@@ -1921,7 +1880,7 @@ export class characterObject {
             else if (state.angle == 38.5) { 
                 srcGif = walk45[thisIndex]  
             } 
-            else if (state.angle == 90){
+            else if (state.angle == 90){ 
                 srcGif = walk90[thisIndex] 
             } 
             else if (state.angle == 141.5){
@@ -1951,40 +1910,42 @@ export class characterObject {
                 if(pathCount >= 1) {
                     pathPt = '.' + 'pathPoint' + pathCount 
                 }  
-   
+               
 
+                this.currIndex = state.index 
+                this.frameIndex = state.frameIndex  
+                
                 if (this.pathInterrupted == true){ 
 
                     if(state.index == 1){
                         $('.tempPoint').remove() 
-                    }
-
-                    this.currIndex = state.index 
-                    this.frameIndex = state.frameIndex
-                     
+                    } 
                     
-                    $(pathPt).eq(state.index).append(srcGif)
-                   
+                    $(pathPt).eq(state.index).append(srcGif) //select the path point of the current state index
+                    
                     setTimeout(() => { 
-                           $(pathPt).eq(state.index).empty()   
+                            $(pathPt).eq(state.index).empty()   //after 1/15 of a second, clear the current frame
                     }, 70 )   
-                       
+                        
                 }
 
-                else {    
-                    this.currIndex = state.index 
-                    this.frameIndex = state.frameIndex 
+                else {     
                     //June 20, 2023 : console.log the  X location of walking character 
-                    document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft 
-                    document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop
-                    $(pathPt).eq(state.index).append(srcGif) 
+                    document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft //prints to x pos on screen
+                    document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop //prints y pos to screen
+                    //console.log("SRCGIF : " )
+                    //console.log( srcGif)
+
+                    $('.tempPoint').remove()//this removes the temp point being used as the rotation axis
+
+                    $(pathPt).eq(state.index).append(srcGif) //append gif to path point of current frame index number
                         setTimeout(() => { 
-                            $(pathPt).eq(state.index).empty()   
+                            $(pathPt).eq(state.index).empty()   //then reset the frame after 1/15 of a second
                     }, 70 )   
                 }
                 
                 if (this.pathInterrupted == false){
-                    $('.tempPoint').remove()
+                    $('.tempPoint').remove()//this removes the temp point being used as the rotation axis
                 } 
                 
            }  
@@ -1995,7 +1956,8 @@ export class characterObject {
     
            if (state.pathEnd == true){
                 $('body').css('pointer-events','none')    
-                resolve(state) 
+                resolve(state) //when resolved, it means this cycle for this particular animation frame from display to clear was completed
+                                 
            }
             
         }) 
@@ -2018,7 +1980,7 @@ export class characterObject {
         if(pathCount >= 1) {
             pathPt = '.' + 'pathPoint' + pathCount
         }   
-
+/*
         //let walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3,  this.gif.w0x4, this.gif.w0x4a, this.gif.w0x5, this.gif.w0x5a, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x8a,  this.gif.w0x9, this.gif.w0x9a, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12];
         let walk45 = [this.gif.w45x1, this.gif.w45x2, this.gif.w45x3,  this.gif.w45x4, this.gif.w45x4a, this.gif.w45x5, this.gif.w45x5a,  this.gif.w45x6, this.gif.w45x7, this.gif.w45x8, this.gif.w45x8a, this.gif.w45x9, this.gif.w45x9a, this.gif.w45x10, this.gif.w45x11, this.gif.w45x12];
         let walk90 = [this.gif.w90x1, this.gif.w90x2, this.gif.w90x3,   this.gif.w90x4, this.gif.w90x4a, this.gif.w90x5, this.gif.w90x5a, this.gif.w90x6, this.gif.w90x7, this.gif.w90x8, this.gif.w90x8a, this.gif.w90x9, this.gif.w90x9a, this.gif.w90x10, this.gif.w90x11, this.gif.w90x12];
@@ -2027,9 +1989,8 @@ export class characterObject {
         let walk225 = [this.gif.w225x1, this.gif.w225x2, this.gif.w225x3,   this.gif.w225x4, this.gif.w225x4a, this.gif.w225x5, this.gif.w225x5a,  this.gif.w225x6, this.gif.w225x7, this.gif.w225x8, this.gif.w225x8a, this.gif.w225x9, this.gif.w225x9a, this.gif.w225x10, this.gif.w225x11, this.gif.w225x12];
         let walk270 = [this.gif.w270x1, this.gif.w270x2, this.gif.w270x3,   this.gif.w270x4, this.gif.w270x4a,  this.gif.w270x5, this.gif.w270x5a,   this.gif.w270x6, this.gif.w270x7, this.gif.w270x8, this.gif.w270x8a, this.gif.w270x9, this.gif.w270x9a, this.gif.w270x10, this.gif.w270x11, this.gif.w270x12];
         let walk292 = [ this.gif.w292x1,  this.gif.w292x2, this.gif.w292x3,  this.gif.w292x4, this.gif.w292x4a,  this.gif.w292x5, this.gif.w292x5a,  this.gif.w292x6,  this.gif.w292x7,  this.gif.w292x8, this.gif.w292x8a, this.gif.w292x9, this.gif.w292x9a, this.gif.w292x10,  this.gif.w292x11,  this.gif.w292x12];
-
-        let stop0 = []
-        
+*/
+        let stop0 = [] 
 
         if (state.angle == 0){
             let charGif = new Image(this.width, this.height)  
@@ -2113,6 +2074,93 @@ export class characterObject {
             stop0.push(charGif12)  
 
         }
+
+        let stop90 = [] 
+        //July 8, 2023 : Add cabbit-walk-90 to stop90 array
+        if(state.angle == 90) {
+
+            let charGif1 = new Image(this.width, this.height)  
+            charGif1.classList.add('cabbit')  
+            charGif1.src = './cabbit-walk-90-1.gif'   
+            stop90.push(charGif1)
+
+            let charGif2 = new Image(this.width, this.height)  
+            charGif2.classList.add('cabbit')  
+            charGif2.src = './cabbit-walk-90-2.gif'   
+            stop90.push(charGif2)
+
+            let charGif3 = new Image(this.width, this.height)  
+            charGif3.classList.add('cabbit')  
+            charGif3.src = './cabbit-walk-90-3.gif'   
+            stop90.push(charGif3)
+
+            let charGif4 = new Image(this.width, this.height)  
+            charGif4.classList.add('cabbit')  
+            charGif4.src = './cabbit-walk-90-4.gif'   
+            stop90.push(charGif4)
+
+            let charGif4a = new Image(this.width, this.height)  
+            charGif4a.classList.add('cabbit')  
+            charGif4a.src = './cabbit-walk-90-4a.gif'   
+            stop90.push(charGif4a)
+
+            let charGif5 = new Image(this.width, this.height)  
+            charGif5.classList.add('cabbit')  
+            charGif5.src = './cabbit-walk-90-5.gif'   
+            stop90.push(charGif5)
+
+            let charGif5a = new Image(this.width, this.height)  
+            charGif5a.classList.add('cabbit')  
+            charGif5a.src = './cabbit-walk-90-5a.gif'   
+            stop90.push(charGif5a)
+
+            let charGif6 = new Image(this.width, this.height)  
+            charGif6.classList.add('cabbit')  
+            charGif6.src = './cabbit-walk-90-6.gif'   
+            stop90.push(charGif6)
+
+            let charGif7= new Image(this.width, this.height)  
+            charGif7.classList.add('cabbit')  
+            charGif7.src = './cabbit-walk-90-7.gif'   
+            stop90.push(charGif7)
+
+            let charGif8 = new Image(this.width, this.height)  
+            charGif8.classList.add('cabbit')  
+            charGif8.src = './cabbit-walk-90-8.gif'   
+            stop90.push(charGif8)
+
+            let charGif8a = new Image(this.width, this.height)  
+            charGif8a.classList.add('cabbit')  
+            charGif8a.src = './cabbit-walk-90-8a.gif'   
+            stop90.push(charGif8a)
+
+            let charGif9 = new Image(this.width, this.height)  
+            charGif9.classList.add('cabbit')  
+            charGif9.src = './cabbit-walk-90-9.gif'   
+            stop90.push(charGif9)
+
+            let charGif9a = new Image(this.width, this.height)  
+            charGif9a.classList.add('cabbit')  
+            charGif9a.src = './cabbit-walk-90-9a.gif'   
+            stop90.push(charGif9a)
+
+            let charGif10 = new Image(this.width, this.height)  
+            charGif10.classList.add('cabbit')  
+            charGif10.src = './cabbit-walk-90-10.gif'   
+            stop90.push(charGif10)
+
+            let charGif11 = new Image(this.width, this.height)  
+            charGif11.classList.add('cabbit')  
+            charGif11.src = './cabbit-walk-90-11.gif'   
+            stop90.push(charGif11)
+
+            let charGif12 = new Image(this.width, this.height)  
+            charGif12.classList.add('cabbit')  
+            charGif12.src = './cabbit-walk-90-12.gif'   
+            stop90.push(charGif12)
+
+        } 
+
 
         let stop180 = []
 
@@ -2198,42 +2246,114 @@ export class characterObject {
             stop180.push(charGif12)  
 
         }
+
+        let stop270 = []
+
+        if (state.angle == 270){
+            let charGif = new Image(this.width, this.height)  
+            charGif.classList.add('cabbit')  
+            charGif.src = './cabbit-walk-270-1.gif'   
+            stop270.push(charGif)
+
+            let charGif1 = new Image(this.width, this.height)   
+            charGif1.classList.add('cabbit')  
+            charGif1.src = './cabbit-walk-270-2.gif'  
+            stop270.push(charGif1)
+
+            let charGif2 = new Image(this.width, this.height)   
+            charGif2.classList.add('cabbit')  
+            charGif2.src = './cabbit-walk-270-3.gif'  
+            stop270.push(charGif2) 
+
+            let charGif4 = new Image(this.width, this.height)   
+            charGif4.classList.add('cabbit')  
+            charGif4.src = './cabbit-walk-270-4.gif'    
+            stop270.push(charGif4)
+
+            let charGif4a = new Image(this.width, this.height)   
+            charGif4a.classList.add('cabbit')  
+            charGif4a.src = './cabbit-walk-270-4a.gif'    
+            stop270.push(charGif4a)
+
+            let charGif5 = new Image(this.width, this.height)   
+            charGif5.classList.add('cabbit')  
+            charGif5.src = './cabbit-walk-270-5.gif'   
+            stop270.push(charGif5)
+
+            let charGif5a = new Image(this.width, this.height)   
+            charGif5a.classList.add('cabbit')  
+            charGif5a.src = './cabbit-walk-270-5a.gif'    
+            stop270.push(charGif5a)
+
+            let charGif6 = new Image(this.width, this.height)   
+            charGif6.classList.add('cabbit')  
+            charGif6.src = './cabbit-walk-270-6.gif'  
+            stop270.push(charGif6)
+
+            let charGif7 = new Image(this.width, this.height)   
+            charGif7.classList.add('cabbit')  
+            charGif7.src = './cabbit-walk-270-7.gif'   
+            stop270.push(charGif7)
+
+            let charGif8 = new Image(this.width, this.height)   
+            charGif8.classList.add('cabbit')  
+            charGif8.src = './cabbit-walk-270-8.gif'   
+            stop270.push(charGif8)
+
+            let charGif8a = new Image(this.width, this.height)   
+            charGif8a.classList.add('cabbit')  
+            charGif8a.src = './cabbit-walk-270-8a.gif'   
+            stop270.push(charGif8a)
+
+            let charGif9 = new Image(this.width, this.height)   
+            charGif9.classList.add('cabbit')  
+            charGif9.src = './cabbit-walk-270-9.gif'   
+            stop270.push(charGif9)
+
+            let charGif9a = new Image(this.width, this.height)   
+            charGif9a.classList.add('cabbit')  
+            charGif9a.src = './cabbit-walk-270-9a.gif'   
+            stop270.push(charGif9a) 
+
+            let charGif10 = new Image(this.width, this.height)   
+            charGif10.classList.add('cabbit')  
+            charGif10.src = './cabbit-walk-270-10.gif'   
+            stop270.push(charGif10)
+
+            let charGif11 = new Image(this.width, this.height)   
+            charGif11.classList.add('cabbit')  
+            charGif11.src = './cabbit-walk-270-11.gif'   
+            stop270.push(charGif11)
+
+            let charGif12 = new Image(this.width, this.height)   
+            charGif12.classList.add('cabbit')  
+            charGif12.src = './cabbit-walk-270-12.gif'   
+            stop270.push(charGif12)  
+
+        }
         
-        if (state.angle == 38.5) {
-            gifSrc = walk45
-        } 
-        else if (state.angle == 0){
+        
+        if (state.angle == 0){
             gifSrc = stop0
         }
         else if (state.angle == 90){
-            gifSrc = walk90
-        } 
-        else if (state.angle == 141.5){
-            gifSrc = walk135
-        }
+            gifSrc = stop90
+        }  
         else if (state.angle == 180){
             gifSrc = stop180
-        }
-        else if (state.angle == 225){
-            gifSrc = walk225
-        }
+        } 
         else if (state.angle == 270){
-            gifSrc = walk270
-        }
-        else if (state.angle == 292){
-            gifSrc = walk292
+            gifSrc = stop270
         } 
      
-        if (state.index == state.pathEndFrame){ 
-            
+        if (state.index == state.pathEndFrame){  
             $(pathPt).eq(state.index).append(gifSrc[state.frameIndex-1])
             //document.getElementsByClassName('pathPoint')[state.index].innerHTML += gifSrc[state.frameIndex-1]
             //$('.pathPoint').eq(state.index).html('<img src=' + gifSrc + state.frameIndex + '.gif' + ' style="position : relative; height : 350px; width : 262.5px; left : -150px; top : -200px;">');      
             setTimeout(() => {
                 //document.getElementsByClassName('pathPoint')[state.index].empty();  
                 $(pathPt).eq(state.index).empty();  
-            }, 76 ); 
-            
+            }, 76 );  
         }
     
         else if (state.index > state.pathEndFrame){ 
