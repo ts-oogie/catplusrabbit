@@ -12,7 +12,7 @@ module.exports = {
     entry: {
         bundle: path.resolve(__dirname, 'src/index.js'),
     },
-    output: {
+     output: {
         path: path.resolve(__dirname, 'dist'),  
         //if multiple entry points where set in the ehtry using bundle
         //you can write the below as filename: '[name].js' and it will be named the first key under entry i.e. bundle

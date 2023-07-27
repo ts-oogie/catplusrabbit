@@ -63,7 +63,7 @@ body {
 }
 
 #startPoint {
-    border : red solid 2px;
+    border : transparent solid 2px;
     width : 2px;
     height : 2px;
     position : relative; 
@@ -87,6 +87,7 @@ body {
     width : 2px;
     height : 2px; 
     position : relative;  
+    z-index : 1000
 }
 
 .pathPoint {
@@ -97,7 +98,7 @@ body {
 }
 
 .pathPoint1 {
-    border : transparent solid 2px; 
+    border : yellow solid 2px; 
     width : 2px;
     height : 2px; 
     position : relative;  

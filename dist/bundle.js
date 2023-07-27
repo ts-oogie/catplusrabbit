@@ -13,8 +13,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "characterObject": () => (/* binding */ characterObject)
 /* harmony export */ });
 /* harmony import */ var _divisor_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./divisor.js */ "./src/utils/divisor.js");
-/* harmony import */ var _generateZone_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateZone.js */ "./src/utils/generateZone.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./src/utils/utils.js");
 /* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23,10 +21,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 
-
-
 var characterObject = /*#__PURE__*/function () {
-  function characterObject(startPt, endPt, frameDistance, gifs, w, h, name) {
+  function characterObject(startPt, endPt, frameDistance, gifs, w, h, name, currIndex) {
     _classCallCheck(this, characterObject);
     this.adj;
     this.angle;
@@ -38,8 +34,10 @@ var characterObject = /*#__PURE__*/function () {
     this.divisorMultiplier;
     this.gif = gifs;
     this.height = h;
-    this.currIndex;
+    this.currIndex = currIndex;
     this.currQuad;
+    this.currXPt;
+    this.currYPt;
     this.endPt = endPt;
     this.endAngle = undefined;
     this.frameDistance = frameDistance;
@@ -84,8 +82,11 @@ var characterObject = /*#__PURE__*/function () {
       //char.hypo = Math.sqrt((char.opp*char.opp)+(char.adj*char.adj));   
 
       //QUAD 1 :
+      //if endPt Y is less than startPt Y && entPt X is greater than startPt X : 
       if (this.endPt[1] <= this.startPt[1] && this.endPt[0] >= this.startPt[0]) {
-        console.log("quad 1 PIVOT");
+        this.endPt[0] = this.endPt[0] - window.innerWidth * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
+        console.log("quad 1  ");
         this.currQuad = 1; //Define current quad number
         this.pivot = 0;
         this.quadAngle = 38.5;
@@ -94,12 +95,15 @@ var characterObject = /*#__PURE__*/function () {
 
         //if end point is between 0 and 38.5 degrees
         if (this.angle >= 38.5 && this.angle < 90) {
+          console.log("pivot ");
+          console.log("angle : " + this.angle);
           this.direction = 'pivot';
           this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
-          this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - this.calibration;
+          this.xDist = this.startPt[0]; //- 15 //HACK 
+          this.yDist = this.startPt[1] - this.calibration * 1.1;
 
           //construct path diagonal until ....
+          //divisor calculates the number of points in the hypoteneuse
           while (this.count < this.divisor) {
             this.xDist += this.quadAdj;
             this.yDist -= this.quadOpp * 4; // if frame distance is 10, then multiply quadOpp by 2
@@ -113,7 +117,7 @@ var characterObject = /*#__PURE__*/function () {
           while (this.xDist < this.endPt[0]) {
             this.count++;
             this.xDist += this.frameDistance * 2; // Multiply char.xDist x2 if horizontal
-            this.yDist -= 6; //Previously -=6
+            this.yDist -= .005039193729003 * window.innerHeight; //Previously -=6
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
@@ -126,18 +130,16 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.xDist += this.frameDistance * k; // Multiply char.xDist x2 if horizontal
             k = k * .8;
-            this.yDist -= 6; //Previously -=6
+            this.yDist -= .005039193729003 * window.innerHeight; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
             //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
-          //Reset start Points
-          //document.getElementById('startPoint').css('left', this.endPt[0] + 'px');
-          //document.getElementById('startPoint').css('top', this.endPt[1] + 'px');
+          //Reset start Points  
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
-          document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
+          document.getElementById('startPoint').style.top = this.endPt[1] - this.calibration + 'px';
           if (this.endAngle == undefined) {
             this.animateCharacterWalk(this.pathCount);
           }
@@ -150,56 +152,181 @@ var characterObject = /*#__PURE__*/function () {
           }
         }
 
+        //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
+
         //If the end point angle is between 38.5 and 90
         else if (90 - this.angle >= 38.5 && 90 - this.angle < 90) {
-          console.log("diagonal then up");
+          //this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1)
+          console.log("diagonal then up+");
+          console.log("angle : " + this.angle);
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - this.calibration;
-          this.divisor = Math.abs(this.returnDivisor(this.startPt[0] - this.endPt[0], (this.startPt[0] - this.endPt[0]) % this.quadAdj, this.quadAdj));
+          this.yDist = this.startPt[1];
+          //Copy this to quad 2 diagonal then up July 2, 2023
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[0] - (this.endPt[0] + window.innerWidth * .0277777777777), (this.startPt[0] - (this.endPt[0] + window.innerWidth * .0277777777777)) % this.quadAdj, this.quadAdj));
 
           //construct path diagonal until 
           while (this.count < this.divisor * 2) {
             this.xDist += this.quadAdj;
-            this.yDist -= this.quadOpp * 4;
+            this.yDist -= this.quadOpp * 3.5;
             this.count++;
             this.pivot++;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //construct vertical path
-          if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 20) {
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
+          var difference = this.startPt[1] - this.endPt[1];
+          this.endPt[1] = this.endPt[1] - window.innerHeight * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
+          if (difference > this.frameDistance * 0 && difference <= this.frameDistance * 20) {
+            console.log("0-20");
+            while (this.yDist < this.endPt[1] - this.frameDistance * 20) {
+              this.count++;
+              this.yDist -= this.calibration * 1.3;
+              this.yDist -= window.innerHeight * .0067415;
               $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 20 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 40) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (difference > this.frameDistance * 20 && difference <= this.frameDistance * 35) {
+            console.log("20-35");
+            //this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
+            //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+            if (this.endPt[0] - this.startPt[0] < .0464 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 40 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 60) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (difference > this.frameDistance * 35 && difference <= this.frameDistance * 45) {
+            console.log("35-45");
+            //if x/winWidth < .685*winWidth: 
+            //this.endPt[1] = this.endPt[1] - (window.innerHeight*.05)//subtract calibration July 3, 2023 This worked!!!!!
+
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              console.log("X Diff : " + (this.endPt[0] - this.startPt[0]));
+              console.log("X Dist Max 1 : " + .04 * window.innerWidth);
+              console.log("X Dist Max 2 : " + .67 * window.innerWidth);
+              while (this.yDist < this.endPt[1] - this.frameDistance * 34) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 60 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 80) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (difference > this.frameDistance * 45 && difference <= this.frameDistance * 55) {
+            console.log("45-55");
+            //this.endPt[1] = this.endPt[1] + (window.innerHeight*.01)
+            console.log("X Diff : " + this.endPt[0] - this.startPt[0]);
+            console.log(".04*window.innerWidth : " + .04 * window.innerWidth);
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 43) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 47) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 80 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 100) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (difference > this.frameDistance * 55 && difference <= this.frameDistance * 75) {
+            console.log("55-75");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 50) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 53) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 55) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (difference > this.frameDistance * 75 && difference <= this.frameDistance * 95) {
+            console.log("75-95");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 63) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 66) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 70) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .095 * window.innerWidth && this.endPt[0] - this.startPt[0] < .125 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 76) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (difference > this.frameDistance * 95 && difference <= this.frameDistance * 120) {
+            console.log("95-120");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 75) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 78) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 82) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .095 * window.innerWidth && this.endPt[0] - this.startPt[0] < .125 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 85) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .125 * window.innerWidth && this.endPt[0] - this.startPt[0] < .152 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 90) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .152 * window.innerWidth && this.endPt[0] - this.startPt[0] < .174 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 95) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
           }
           var _j = 0;
@@ -244,10 +371,12 @@ var characterObject = /*#__PURE__*/function () {
         if (Math.abs(this.angle) > 38.5 && Math.abs(this.angle) < 90) {
           //pivot
           console.log("PIVOT");
+          this.endPt[0] = this.endPt[0] + window.innerWidth * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
           this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
 
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - this.calibration;
+          this.yDist = this.startPt[1] + this.calibration * 1.2;
 
           //construct path diagonal until  
           while (this.count < this.divisor) {
@@ -262,7 +391,7 @@ var characterObject = /*#__PURE__*/function () {
           while (this.xDist > this.endPt[0]) {
             this.count++;
             this.xDist -= this.frameDistance * 2; // Multiply this.xDist x2 if horizontal
-            this.yDist -= 6; //Previously -=6
+            this.yDist -= 4.5; //Previously -=6
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j2 = 0;
@@ -274,13 +403,14 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.xDist -= this.frameDistance * _k2; // Multiply this.xDist x2 if horizontal
             _k2 = _k2 * .8;
-            this.yDist -= 6; //Previously -=6
+            this.yDist -= 4.5; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points
+          alert("Start Points set to End Pt");
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
@@ -294,65 +424,175 @@ var characterObject = /*#__PURE__*/function () {
             });
           }
         }
-        //If the end point angle is between  90 and 141.5
+        //If the end point angle is between  90 and 141.5 
         else if (90 - Math.abs(this.angle) > 38.5 && 90 - Math.abs(this.angle) < 90) {
           //diagonal then up
-          console.log("diagonal then up");
+          console.log("diagonal then up + ");
+
+          //this.endPt[1] = this.endPt[1] - (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
           this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - this.calibration;
-          this.divisor = Math.abs(this.returnDivisor(this.startPt[0] - this.endPt[0], (this.startPt[0] - this.endPt[0]) % this.quadAdj, this.quadAdj));
+          this.yDist = this.startPt[1]; //- this.calibration
+          //this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-this.endPt[0],((this.startPt[0]-this.endPt[0])%this.quadAdj), this.quadAdj))
+          this.divisor = Math.abs(this.returnDivisor(this.startPt[0] - (this.endPt[0] + window.innerWidth * .0277777777777), (this.startPt[0] - (this.endPt[0] + window.innerWidth * .0277777777777)) % this.quadAdj, this.quadAdj));
 
           //construct path diagonal until 
           while (this.xDist >= this.endPt[0]) {
             this.xDist -= this.quadAdj;
-            this.yDist -= this.quadOpp * 4;
+            this.yDist -= this.quadOpp * 3.5;
             this.count++;
             this.pivot++;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
-          //construct vertical path
-          if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 20) {
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
+          //construct vertical path 
+          var _difference = this.startPt[1] - this.endPt[1];
+          this.endPt[1] = this.endPt[1] + window.innerHeight * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
+          if (_difference > this.frameDistance * 0 && _difference <= this.frameDistance * 20) {
+            console.log("0-20");
+            while (this.yDist < this.endPt[1] - this.frameDistance * 20) {
+              this.count++;
+              this.yDist -= window.innerHeight * .0067415;
               $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
-          }
-          if (this.startPt[1] - this.endPt[1] <= this.frameDistance * 20) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference > this.frameDistance * 20 && _difference <= this.frameDistance * 35) {
+            console.log("20-35");
+            //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+            if (this.endPt[0] - this.startPt[0] < .0464 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
+                this.count++;
+                this.yDist -= this.calibration;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 10 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 40) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 30) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference > this.frameDistance * 35 && _difference <= this.frameDistance * 45) {
+            console.log("35-45!");
+            //if x/winWidth < .685*winWidth:  
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 40) {
+                console.log("While");
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 40 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 60) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference > this.frameDistance * 45 && _difference <= this.frameDistance * 55) {
+            console.log("45-55");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 45) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 47) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 60 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 80) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference > this.frameDistance * 55 && _difference <= this.frameDistance * 75) {
+            console.log("55-75");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 50) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 53) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 55) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (this.startPt[1] - this.endPt[1] > this.frameDistance * 80 && this.startPt[1] - this.endPt[1] <= this.frameDistance * 100) {
-            while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
-              this.count++;
-              this.yDist -= this.calibration;
-              this.yDist -= 6;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference > this.frameDistance * 75 && _difference <= this.frameDistance * 95) {
+            console.log("75-95");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 63) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 66) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 70) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .095 * window.innerWidth && this.endPt[0] - this.startPt[0] < .125 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 76) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (_difference > this.frameDistance * 95 && _difference <= this.frameDistance * 120) {
+            console.log("95-120");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 80) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 83) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 86) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .095 * window.innerWidth && this.endPt[0] - this.startPt[0] < .125 * window.innerWidth) {
+              while (this.yDist > this.endPt[1] - this.frameDistance * 90) {
+                this.count++;
+                this.yDist -= this.calibration * 1.3;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .125 * window.innerWidth && this.endPt[0] - this.startPt[0] < .152 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 90) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .152 * window.innerWidth && this.endPt[0] - this.startPt[0] < .174 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 95) {
+                this.count++;
+                this.yDist -= this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
           }
           var _j3 = 0;
@@ -396,7 +636,8 @@ var characterObject = /*#__PURE__*/function () {
         this.quadAdj = Math.round(this.frameDistance * Math.cos(this.quadAngle / (180 / Math.PI))); //10px
 
         if (this.angle > 38.5 && this.angle < 90) {
-          //pivot 
+          //pivot  
+          //this.endPt[1] = this.endPt[1] + (window.innerHeight*.0577777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
           this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
           this.xDist = this.startPt[0];
@@ -414,7 +655,7 @@ var characterObject = /*#__PURE__*/function () {
           //construct horizontal line
           while (this.xDist > this.endPt[0]) {
             this.xDist -= this.frameDistance * 2;
-            this.yDist -= 6;
+            this.yDist -= .005039193729003 * window.innerHeight; //Previously -=6 
             this.count++;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
@@ -427,7 +668,7 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.xDist -= this.frameDistance * _k4; // Multiply this.xDist x2 if horizontal
             _k4 = _k4 * .8;
-            this.yDist -= 6; //Previously -=6 
+            this.yDist -= .005039193729003 * window.innerHeight; //Previously -=6 
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
@@ -447,7 +688,7 @@ var characterObject = /*#__PURE__*/function () {
             });
           }
         } else if (this.angle < 38.5 && this.angle > 0) {
-          console.log("diagonal then down");
+          console.log("diagonal then down - OK");
           this.xDist = this.startPt[0];
           this.yDist = this.startPt[1] - this.calibration;
 
@@ -459,82 +700,234 @@ var characterObject = /*#__PURE__*/function () {
             this.pivot++;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
-          var difference = this.endPt[1] - this.startPt[1];
+          var _difference2 = this.endPt[1] - this.startPt[1];
 
           //construct vertical path
-          if (difference > 0 && difference < this.frameDistance * 10) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
+
+          this.endPt[1] = this.endPt[1] + window.innerHeight * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
+          if (_difference2 > this.frameDistance * 0 && _difference2 <= this.frameDistance * 20) {
+            console.log("0-20");
+            while (this.yDist < this.endPt[1] - this.frameDistance * 20) {
               this.count++;
-              this.yDist += this.quadOpp;
+              this.yDist += window.innerHeight * .0067415;
               $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
             }
-          } else if (difference > this.frameDistance * 10 && difference <= this.frameDistance * 20) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference2 > this.frameDistance * 20 && _difference2 <= this.frameDistance * 35) {
+            console.log("20-35");
+            //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+            if (this.startPt[0] - this.endPt[0] < .0464 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (difference > this.frameDistance * 10 && difference <= this.frameDistance * 25) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference2 > this.frameDistance * 35 && _difference2 <= this.frameDistance * 45) {
+            console.log("35-45");
+            //if x/winWidth < .685*winWidth: 
+            if (this.startPt[0] - this.endPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 34) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] / window.innerWidth >= .67) {
+              //skip vertical and build stop path
             }
-          } else if (difference > this.frameDistance * 25 && difference <= this.frameDistance * 30) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 22) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference2 > this.frameDistance * 45 && _difference2 <= this.frameDistance * 55) {
+            console.log("45-55");
+            if (this.startPt[0] - this.endPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 45) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .04 * window.innerWidth && this.startPt[0] - this.endPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 47) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (difference > this.frameDistance * 30 && difference <= this.frameDistance * 35) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 25) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference2 > this.frameDistance * 55 && _difference2 <= this.frameDistance * 75) {
+            console.log("55-75");
+            if (this.startPt[0] - this.endPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 50) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .04 * window.innerWidth && this.startPt[0] - this.endPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 53) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .067 * window.innerWidth && this.startPt[0] - this.endPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 55) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (difference > this.frameDistance * 35 && difference <= this.frameDistance * 40) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference2 > this.frameDistance * 75 && _difference2 <= this.frameDistance * 95) {
+            console.log("75-95");
+            if (this.startPt[0] - this.endPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 63) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .04 * window.innerWidth && this.startPt[0] - this.endPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 66) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .067 * window.innerWidth && this.startPt[0] - this.endPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 70) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .095 * window.innerWidth && this.startPt[0] - this.endPt[0] < .125 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 76) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
-          } else if (difference > this.frameDistance * 40 && difference <= this.frameDistance * 45) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 34) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (difference > this.frameDistance * 45 && difference <= this.frameDistance * 50) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (difference > this.frameDistance * 50 && difference <= this.frameDistance * 55) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 44) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (difference > this.frameDistance * 55 && difference <= this.frameDistance * 60) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 47) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (difference > this.frameDistance * 60 && difference <= this.frameDistance * 65) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 51) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (difference > this.frameDistance * 65 && difference <= this.frameDistance * 70) {
-            while (this.yDist < this.endPt[1] - this.frameDistance * 55) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          } else if (_difference2 > this.frameDistance * 95 && _difference2 <= this.frameDistance * 120) {
+            console.log("95-120");
+            if (this.startPt[0] - this.endPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 75) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .04 * window.innerWidth && this.startPt[0] - this.endPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 78) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .067 * window.innerWidth && this.startPt[0] - this.endPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 82) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .095 * window.innerWidth && this.startPt[0] - this.endPt[0] < .125 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 85) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .125 * window.innerWidth && this.startPt[0] - this.endPt[0] < .152 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 90) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.startPt[0] - this.endPt[0] > .152 * window.innerWidth && this.endPt[0] - this.startPt[0] < .174 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 95) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
             }
           }
+          /*
+          if ((difference > (this.frameDistance*0)) && (difference <= (this.frameDistance*25))){
+              console.log("10-25") 
+              while(this.yDist < this.endPt[1]-(this.frameDistance*25)){ 
+                  this.count++   
+                  this.yDist += window.innerHeight*.0067415
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
+              } 
+          }
+               else if ((difference > (this.frameDistance*25)) && (difference <= (this.frameDistance*30))){
+              console.log("25-30")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*22)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){ 
+              console.log("30-35")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*25)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
+              console.log("35-45")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
+              console.log("45-55")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*36)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*65))){
+              console.log("55-65")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*42)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*65)) && (difference <= (this.frameDistance*75))){
+              console.log("65-75")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*85))){
+              console.log("75-85")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*58)){
+                  this.count++; 
+                  this.yDist += this.quadOpp*1.3
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*85)) && (difference <= (this.frameDistance*95))){
+              console.log("85-95")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
+                  this.count++; 
+                  this.yDist += this.quadOpp*1.3
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*105))){
+              console.log("95-105")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*74)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          }
+               else if ((difference > (this.frameDistance*105)) && (difference <= (this.frameDistance*120))){
+              console.log("105-120")
+              while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
+                  this.count++; 
+                  this.yDist += this.quadOpp;
+                  $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              } 
+          } */
+
           var _j5 = 0;
           var _k5 = 2;
 
@@ -551,6 +944,7 @@ var characterObject = /*#__PURE__*/function () {
           }
 
           //Reset start Points
+          alert("Start Points set to End Pt");
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
@@ -581,7 +975,9 @@ var characterObject = /*#__PURE__*/function () {
         //if end point is between 180 and 141.5 degrees
         if (this.angle > 38.5 && this.angle < 90) {
           //pivot
-          console.log("Pivot");
+          console.log("Pivot 4");
+          this.endPt[0] = this.endPt[0] - window.innerWidth * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
           this.divisor = Math.abs(this.returnDivisor(this.startPt[1] - this.endPt[1], (this.startPt[1] - this.endPt[1]) % this.quadOpp, this.quadOpp)); // divided
 
           this.xDist = this.startPt[0];
@@ -598,9 +994,9 @@ var characterObject = /*#__PURE__*/function () {
 
           //construct horizontal line
           while (this.xDist < this.endPt[0]) {
-            this.xDist += this.frameDistance * 2;
-            this.yDist -= 6;
             this.count++;
+            this.xDist += this.frameDistance * 2; // Multiply char.xDist x2 if horizontal
+            this.yDist -= .005039193729003 * window.innerHeight; //Previously -=6 
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
           var _j6 = 0;
@@ -612,13 +1008,14 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.xDist += this.frameDistance * _k6; // Multiply this.xDist x2 if horizontal
             _k6 = _k6 * .8;
-            this.yDist -= 6; //Previously -=6
+            this.yDist -= .005039193729003 * window.innerHeight; //Previously -=6 
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
           }
 
           //Reset start Points change to .style.left = 
+          alert("Start Points set to End Pt");
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
@@ -642,8 +1039,8 @@ var characterObject = /*#__PURE__*/function () {
               _this.animateCharacterWalk(_this.pathCount);
             });
           }
-        } else if (this.angle > 25 && this.angle < 30) {
-          console.log("pivot");
+        } else if (this.angle < 38.5 && this.angle > 0) {
+          console.log("diagonal then down --");
           this.xDist = this.startPt[0];
           this.yDist = this.startPt[1] - this.calibration;
 
@@ -654,162 +1051,151 @@ var characterObject = /*#__PURE__*/function () {
             this.count++;
             this.pivot++;
             $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+          }
+          var _difference3 = this.endPt[1] - this.startPt[1];
+          this.endPt[1] = this.endPt[1] + window.innerHeight * .0277777777777; //subtract calibration July 3, 2023 This worked!!!!!
+
+          if (_difference3 > this.frameDistance * 0 && _difference3 <= this.frameDistance * 20) {
+            console.log("0-20");
+            while (this.yDist < this.endPt[1] - this.frameDistance * 20) {
+              this.count++;
+              this.yDist += window.innerHeight * .0067415;
+              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+            }
+          } else if (_difference3 > this.frameDistance * 20 && _difference3 <= this.frameDistance * 35) {
+            console.log("20-35");
+            //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+            if (this.endPt[0] - this.startPt[0] < .0464 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 30) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (_difference3 > this.frameDistance * 35 && _difference3 <= this.frameDistance * 45) {
+            console.log("35-45");
+            //if x/winWidth < .685*winWidth: 
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 34) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] / window.innerWidth >= .67) {
+              //skip vertical and build stop path
+            }
+          } else if (_difference3 > this.frameDistance * 45 && _difference3 <= this.frameDistance * 55) {
+            console.log("45-55");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 45) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 47) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (_difference3 > this.frameDistance * 55 && _difference3 <= this.frameDistance * 75) {
+            console.log("55-75");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 50) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 53) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 55) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (_difference3 > this.frameDistance * 75 && _difference3 <= this.frameDistance * 95) {
+            console.log("75-95");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 63) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 66) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 70) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .095 * window.innerWidth && this.endPt[0] - this.startPt[0] < .125 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 76) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
+          } else if (_difference3 > this.frameDistance * 95 && _difference3 <= this.frameDistance * 120) {
+            console.log("95-120");
+            if (this.endPt[0] - this.startPt[0] < .04 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 75) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .04 * window.innerWidth && this.endPt[0] - this.startPt[0] < .067 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 78) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .067 * window.innerWidth && this.endPt[0] - this.startPt[0] < .095 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 82) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .095 * window.innerWidth && this.endPt[0] - this.startPt[0] < .125 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 85) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .125 * window.innerWidth && this.endPt[0] - this.startPt[0] < .152 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 90) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            } else if (this.endPt[0] - this.startPt[0] > .152 * window.innerWidth && this.endPt[0] - this.startPt[0] < .174 * window.innerWidth) {
+              while (this.yDist < this.endPt[1] - this.frameDistance * 95) {
+                this.count++;
+                this.yDist += this.quadOpp;
+                $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+              }
+            }
           }
           var _j7 = 0;
           var _k7 = 2;
+
+          //stop path cycle 
           while (_j7 < 12) {
             _j7++;
             this.count++;
-            this.xDist += this.frameDistance * _k7; // Multiply this.xDist x2 if horizontal
+            this.yDist += this.frameDistance * _k7; // Multiply this.xDist x2 if horizontal
             _k7 = _k7 * .8;
-            this.yDist -= 6; //Previously -=6
-            this.startPt[0] = this.xDist;
-            this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-          }
-
-          //Reset start Points
-          document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
-          document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
-          if (this.endAngle == undefined) {
-            this.animateCharacterWalk(this.pathCount);
-          }
-
-          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
-          else {
-            this.rotateCharacter().then(function () {
-              _this.animateCharacterWalk(_this.pathCount);
-            });
-          }
-        } else if (this.angle > 30 && this.angle < 38.5) {
-          console.log("pivot");
-          this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - this.calibration;
-
-          //diagonal
-          while (this.xDist <= this.endPt[0] * .95) {
-            this.xDist += this.quadAdj;
-            this.yDist += this.quadOpp / 5;
-            this.count++;
-            this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-          }
-          var _j8 = 0;
-          var _k8 = 2;
-
-          //stop path cycle VERTICAL
-          while (_j8 < 12) {
-            _j8++;
-            this.count++;
-            this.xDist += this.frameDistance * _k8; // Multiply this.xDist x2 if horizontal
-            _k8 = _k8 * .8;
-            this.yDist -= 6; //Previously -=6
-            this.startPt[0] = this.xDist;
-            this.startPt[1] = this.yDist;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-          }
-
-          //Reset start Points
-          document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
-          document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
-          if (this.endAngle == undefined) {
-            this.animateCharacterWalk(this.pathCount);
-          }
-
-          //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
-          else {
-            this.rotateCharacter().then(function () {
-              _this.animateCharacterWalk(_this.pathCount);
-            });
-          }
-        } else if (this.angle < 25 && this.angle > 0) {
-          console.log("diagonal then down");
-          this.xDist = this.startPt[0];
-          this.yDist = this.startPt[1] - this.calibration;
-
-          //diagonal
-          while (this.xDist <= this.endPt[0]) {
-            this.xDist += this.quadAdj;
-            this.yDist += this.quadOpp / 5;
-            this.count++;
-            this.pivot++;
-            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-          }
-          var _difference = this.endPt[1] - this.startPt[1];
-          if (_difference > 0 && _difference < this.frameDistance * 10) {
-            console.log("1");
-            console.log("frameDistance * 10 = " + 5.56 * 10);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 20) {
-            console.log("2");
-            console.log("frameDistance * 10 = " + 5.56 * 15);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 15) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 10 && _difference <= this.frameDistance * 25) {
-            console.log("3");
-            console.log("frameDistance * 10 = " + 5.56 * 25);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 25 && _difference <= this.frameDistance * 30) {
-            console.log("4");
-            console.log("frameDistance * 10 = " + 5.56 * 30);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 10) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 30 && _difference <= this.frameDistance * 35) {
-            console.log("5");
-            console.log("frameDistance * 10 = " + 5.56 * 35);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 35) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 35 && _difference <= this.frameDistance * 40) {
-            console.log("6");
-            console.log("frameDistance * 10 = " + 5.56 * 40);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 40 && _difference <= this.frameDistance * 45) {
-            console.log("7");
-            console.log("frameDistance * 10 = " + 5.56 * 45);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          } else if (_difference > this.frameDistance * 45 && _difference <= this.frameDistance * 50) {
-            console.log("8");
-            console.log("frameDistance * 10 = " + 5.56 * 50);
-            while (this.yDist < this.endPt[1] - this.frameDistance * 40) {
-              this.count++;
-              this.yDist += this.quadOpp;
-              $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-            }
-          }
-          var _j9 = 0;
-          var _k9 = 2;
-
-          //stop path cycle 
-          while (_j9 < 12) {
-            _j9++;
-            this.count++;
-            this.yDist += this.frameDistance * _k9; // Multiply this.xDist x2 if horizontal
-            _k9 = _k9 * .8;
             this.yDist -= this.frameDistance * 1.2; //Previously -=6
             this.startPt[0] = this.xDist;
             this.startPt[1] = this.yDist;
@@ -817,6 +1203,7 @@ var characterObject = /*#__PURE__*/function () {
           }
 
           //Reset start Points
+          alert("Start Points set to End Pt");
           document.getElementById('startPoint').style.left = this.endPt[0] + 'px';
           document.getElementById('startPoint').style.top = this.endPt[1] + 'px';
           if (this.endAngle == undefined) {
@@ -832,10 +1219,31 @@ var characterObject = /*#__PURE__*/function () {
         }
       }
     }
+    //call preDisplay -> displayChar -> stopDisplay promise sequence
+  }, {
+    key: "animateCharacterWalk",
+    value: function animateCharacterWalk(pathCount) {
+      var _this2 = this;
+      //add scaling
+      this.inMotion = true;
+      for (var i = 1; i <= this.count; i++) {
+        this.preDisplay(i, this.currQuad, this.angle, this.pivot, this.count - 6).then(function (result) {
+          //****** 12-8-22 *** previously  this.count-7
+          _this2.endAngle = result.angle;
+          return _this2.displayChar(result, pathCount);
+        }).then(function (result) {
+          return _this2.stopDisplay(result, pathCount);
+        })["catch"](function (err) {
+          console.log(err);
+        });
+      }
+    }
+
+    //Rotate
   }, {
     key: "rotateCharacter",
     value: function rotateCharacter() {
-      var _this2 = this;
+      var _this3 = this;
       var thisEl;
       if (this.pathInterrupted == true) {
         var itemClass = '.' + 'pathPoint' + this.pathCount;
@@ -847,6 +1255,7 @@ var characterObject = /*#__PURE__*/function () {
         thisEl = $('.pathPoint');
         thisEl[0].classList.add('tempPoint');
         thisEl[0].classList.remove('pathPoint');
+        //rotate gifs are attached to tempPoint
       }
 
       /*
@@ -857,7 +1266,7 @@ var characterObject = /*#__PURE__*/function () {
 
       var p = new Promise(function (resolve, reject) {
         //rotate 0 to quad 1
-        if (_this2.endAngle == 0 && _this2.currQuad == 1) {
+        if (_this3.endAngle == 0 && _this3.currQuad == 1) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad1-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -869,11 +1278,11 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 2);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-0-quad1-4.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 3);
         }
         //rotate 0 to quad 2
-        else if (_this2.endAngle == 0 && _this2.currQuad == 2) {
+        else if (_this3.endAngle == 0 && _this3.currQuad == 2) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad2-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
@@ -896,7 +1305,7 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 5);
         }
         //rotate 0 to quad 3
-        else if (_this2.endAngle == 0 && _this2.currQuad == 3) {
+        else if (_this3.endAngle == 0 && _this3.currQuad == 3) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad3-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -918,7 +1327,7 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 5);
         }
         //rotate 0 to quad 4
-        else if (_this2.endAngle == 0 && _this2.currQuad == 4) {
+        else if (_this3.endAngle == 0 && _this3.currQuad == 4) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -930,9 +1339,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 2);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-4.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 3);
-        } else if (_this2.endAngle == 90 && _this2.currQuad == 1) {
+        } else if (_this3.endAngle == 90 && _this3.currQuad == 1) {
           thisEl[0].firstChild.src = './cabbit-rotate-90-quad1-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -944,9 +1353,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 2);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-90-quad1-4.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 3);
-        } else if (_this2.endAngle == 90 && _this2.currQuad == 2) {
+        } else if (_this3.endAngle == 90 && _this3.currQuad == 2) {
           thisEl[0].firstChild.src = './cabbit-rotate-90-quad2-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -958,9 +1367,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 2);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-90-quad2-4.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 3);
-        } else if (_this2.endAngle == 90 && _this2.currQuad == 3) {
+        } else if (_this3.endAngle == 90 && _this3.currQuad == 3) {
           thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -993,9 +1402,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 9);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-90-quad3-10.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 10);
-        } else if (_this2.endAngle == 90 && _this2.currQuad == 4) {
+        } else if (_this3.endAngle == 90 && _this3.currQuad == 4) {
           thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -1025,9 +1434,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 8);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-90-quad4-10.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 9);
-        } else if (_this2.endAngle == 180 && _this2.currQuad == 1) {
+        } else if (_this3.endAngle == 180 && _this3.currQuad == 1) {
           thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-1.gif';
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-2.gif';
@@ -1049,9 +1458,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 6);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-180-quad1-8.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 7);
-        } else if (_this2.endAngle == 180 && _this2.currQuad == 2) {
+        } else if (_this3.endAngle == 180 && _this3.currQuad == 2) {
           thisEl[0].firstChild.src = './cabbit-rotate-180-quad2-1.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -1063,9 +1472,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 2);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-180-quad2-4.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 3);
-        } else if (_this2.endAngle == 180 && _this2.currQuad == 3) {
+        } else if (_this3.endAngle == 180 && _this3.currQuad == 3) {
           thisEl[0].firstChild.src = './cabbit-rotate-180-quad3-2.gif';
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
@@ -1074,9 +1483,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-180-quad3-3.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 2);
-        } else if (_this2.endAngle == 180 && _this2.currQuad == 4) {
+        } else if (_this3.endAngle == 180 && _this3.currQuad == 4) {
           thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
@@ -1098,12 +1507,12 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 5);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-180-quad4-7.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 6);
         }
 
         //rotate 38.5 to quad 4
-        else if (_this2.endAngle == 38.5 && _this2.currQuad == 4) {
+        else if (_this3.endAngle == 38.5 && _this3.currQuad == 4) {
           thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative  height : 400px  width : 300px  left : -150px  top : -200px ">') 
@@ -1116,9 +1525,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 2);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-0-quad4-4.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 3);
-        } else if (_this2.endAngle == 270 && _this2.currQuad == 1) {
+        } else if (_this3.endAngle == 270 && _this3.currQuad == 1) {
           thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
@@ -1143,39 +1552,39 @@ var characterObject = /*#__PURE__*/function () {
           }, 76 * 6);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-8.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 7);
-        } else if (_this2.endAngle == 270 && _this2.currQuad == 2) {
+        } else if (_this3.endAngle == 270 && _this3.currQuad == 2) {
           thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
 
           setTimeout(function () {
-            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-2.gif';
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-1.gif';
           }, 76);
           setTimeout(function () {
-            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-3.gif';
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-2.gif';
           }, 76 * 2);
           setTimeout(function () {
-            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-4.gif';
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-3.gif';
           }, 76 * 3);
           setTimeout(function () {
-            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-5.gif';
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-4.gif';
           }, 76 * 4);
           setTimeout(function () {
-            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-6.gif';
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-5.gif';
           }, 76 * 5);
           setTimeout(function () {
-            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-7.gif';
+            thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-6.gif';
           }, 76 * 6);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-8.gif';
           }, 76 * 7);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-9.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 8);
-        } else if (_this2.endAngle == 270 && _this2.currQuad == 3) {
+        } else if (_this3.endAngle == 270 && _this3.currQuad == 3) {
           thisEl[0].firstChild.src = './cabbit-rotate-270-quad3-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative  height : 400px  width : 300px  left : -150px  top : -200px ">') 
@@ -1185,9 +1594,9 @@ var characterObject = /*#__PURE__*/function () {
           }, 76);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-270-quad3-3.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 2);
-        } else if (_this2.endAngle == 270 && _this2.currQuad == 4) {
+        } else if (_this3.endAngle == 270 && _this3.currQuad == 4) {
           thisEl[0].firstChild.src = './cabbit-rotate-270-quad4-1.gif';
 
           //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative  height : 400px  width : 300px  left : -150px  top : -200px ">') 
@@ -1197,35 +1606,18 @@ var characterObject = /*#__PURE__*/function () {
           }, 76);
           setTimeout(function () {
             thisEl[0].firstChild.src = './cabbit-rotate-270-quad4-3.gif';
-            resolve(_this2);
+            resolve(_this3);
           }, 76 * 2);
         }
       });
       return p;
     }
-  }, {
-    key: "animateCharacterWalk",
-    value: function animateCharacterWalk(pathCount) {
-      var _this3 = this;
-      this.inMotion = true;
-      for (var i = 1; i <= this.count; i++) {
-        this.pauseDisplay(i, this.currQuad, this.angle, this.pivot, this.count - 6).then(function (result) {
-          //****** 12-8-22 *** previously  this.count-7
-          _this3.endAngle = result.angle;
-          return _this3.displayChar(result, pathCount);
-        }).then(function (result) {
-          return _this3.stopDisplay(result, pathCount);
-        })["catch"](function (err) {
-          console.log(err);
-        });
-      }
-    }
 
     //initiate state object that contains data for each frame 
     //Pause before frame is displayed then return a promise that resolves with the state object 
   }, {
-    key: "pauseDisplay",
-    value: function pauseDisplay(index, quad, angle, pivot, pathEnd) {
+    key: "preDisplay",
+    value: function preDisplay(index, quad, angle, pivot, pathEnd) {
       var state = {};
       state.index;
       state.angle; // 0, 38.5, 90, 128.5, 180, 240, 270, 300
@@ -1310,10 +1702,11 @@ var characterObject = /*#__PURE__*/function () {
       }
 
       //QUAD 4
+
       if (quad == 4 && angle > 38.5 && index <= pivot) {
         state.index = index;
         state.angle = 292;
-      } else if (quad == 4 && angle > 25 && index > pivot) {
+      } else if (quad == 4 && angle > 38.5 && index > pivot) {
         state.index = index;
         state.angle = 0;
       } else if (quad == 4 && angle <= 38.5 && index <= pivot) {
@@ -1335,13 +1728,14 @@ var characterObject = /*#__PURE__*/function () {
       var p = new Promise(function (resolve, reject) {
         setTimeout(function () {
           resolve(state);
+          console.log("index: " + state.index); //July 18, 2023
         }, index * 66.667); //  1/15 of a second = 66.667
       });
 
       return p;
     }
 
-    //Input state object returned from pauseDisplay promise
+    //Input state object returned from preDisplay promise
     //Append walking animation image to each path point per state obj params
   }, {
     key: "displayChar",
@@ -1400,11 +1794,11 @@ var characterObject = /*#__PURE__*/function () {
               break;
           }
         }
-        var walk0 = [];
+        var walk0 = [_this4.gif.w0x1, _this4.gif.w0x2, _this4.gif.w0x3, _this4.gif.w0x4, _this4.gif.w0x5, _this4.gif.w0x6, _this4.gif.w0x7, _this4.gif.w0x8, _this4.gif.w0x9, _this4.gif.w0x10, _this4.gif.w0x11, _this4.gif.w0x12];
         var walk45 = [_this4.gif.w45x1, _this4.gif.w45x2, _this4.gif.w45x3, _this4.gif.w45x4, _this4.gif.w45x5, _this4.gif.w45x6, _this4.gif.w45x7, _this4.gif.w45x8, _this4.gif.w45x9, _this4.gif.w45x10, _this4.gif.w45x11, _this4.gif.w45x12];
         var walk90 = [];
         var walk135 = [_this4.gif.w135x1, _this4.gif.w135x2, _this4.gif.w135x3, _this4.gif.w135x4, _this4.gif.w135x5, _this4.gif.w135x6, _this4.gif.w135x7, _this4.gif.w135x8, _this4.gif.w135x9, _this4.gif.w135x10, _this4.gif.w135x11, _this4.gif.w135x12];
-        var walk180 = [];
+        var walk180 = [_this4.gif.w180x1, _this4.gif.w180x2, _this4.gif.w180x3, _this4.gif.w180x4, _this4.gif.w180x5, _this4.gif.w180x6, _this4.gif.w180x7, _this4.gif.w180x8, _this4.gif.w180x9, _this4.gif.w180x10, _this4.gif.w180x11, _this4.gif.w180x12];
         var walk225 = [_this4.gif.w225x1, _this4.gif.w225x2, _this4.gif.w225x3, _this4.gif.w225x4, _this4.gif.w225x5, _this4.gif.w225x6, _this4.gif.w225x7, _this4.gif.w225x8, _this4.gif.w225x9, _this4.gif.w225x10, _this4.gif.w225x11, _this4.gif.w225x12];
         var walk270 = [_this4.gif.w270x1, _this4.gif.w270x2, _this4.gif.w270x3, _this4.gif.w270x4, _this4.gif.w270x5, _this4.gif.w270x6, _this4.gif.w270x7, _this4.gif.w270x8, _this4.gif.w270x9, _this4.gif.w270x10, _this4.gif.w270x11, _this4.gif.w270x12];
         var walk292 = [_this4.gif.w292x1, _this4.gif.w292x2, _this4.gif.w292x3, _this4.gif.w292x4, _this4.gif.w292x5, _this4.gif.w292x6, _this4.gif.w292x7, _this4.gif.w292x8, _this4.gif.w292x9, _this4.gif.w292x10, _this4.gif.w292x11, _this4.gif.w292x12];
@@ -1459,55 +1853,54 @@ var characterObject = /*#__PURE__*/function () {
           temp0.src = './cabbit-walk-0-12.gif';
           walk0.push(temp0);
         } else if (state.angle == 90) {
-          var temp90;
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-1.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-2.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-3.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-4.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-5.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-6.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-7.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-8.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-9.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-10.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-11.gif';
-          walk90.push(temp90);
-          temp90 = new Image(_this4.width, _this4.height);
-          temp90.classList.add('cabbit');
-          temp90.src = './cabbit-walk-90-12.gif';
-          walk90.push(temp90);
+          var temp90x1 = new Image(_this4.width, _this4.height);
+          temp90x1.classList.add('cabbit');
+          temp90x1.src = './cabbit-walk-90-1.gif';
+          walk90.push(temp90x1);
+          var temp90x2 = new Image(_this4.width, _this4.height);
+          temp90x2.classList.add('cabbit');
+          temp90x2.src = './cabbit-walk-90-2.gif';
+          walk90.push(temp90x2);
+          var temp90x3 = new Image(_this4.width, _this4.height);
+          temp90x3.classList.add('cabbit');
+          temp90x3.src = './cabbit-walk-90-3.gif';
+          walk90.push(temp90x3);
+          var temp90x4 = new Image(_this4.width, _this4.height);
+          temp90x4.classList.add('cabbit');
+          temp90x4.src = './cabbit-walk-90-4.gif';
+          walk90.push(temp90x4);
+          var temp90x5 = new Image(_this4.width, _this4.height);
+          temp90x5.classList.add('cabbit');
+          temp90x5.src = './cabbit-walk-90-5.gif';
+          walk90.push(temp90x5);
+          var temp90x6 = new Image(_this4.width, _this4.height);
+          temp90x6.classList.add('cabbit');
+          temp90x6.src = './cabbit-walk-90-6.gif';
+          walk90.push(temp90x6);
+          var temp90x7 = new Image(_this4.width, _this4.height);
+          temp90x7.classList.add('cabbit');
+          temp90x7.src = './cabbit-walk-90-7.gif';
+          walk90.push(temp90x7);
+          var temp90x8 = new Image(_this4.width, _this4.height);
+          temp90x8.classList.add('cabbit');
+          temp90x8.src = './cabbit-walk-90-8.gif';
+          walk90.push(temp90x8);
+          var temp90x9 = new Image(_this4.width, _this4.height);
+          temp90x9.classList.add('cabbit');
+          temp90x9.src = './cabbit-walk-90-9.gif';
+          walk90.push(temp90x9);
+          var temp90x10 = new Image(_this4.width, _this4.height);
+          temp90x10.classList.add('cabbit');
+          temp90x10.src = './cabbit-walk-90-10.gif';
+          walk90.push(temp90x10);
+          var temp90x11 = new Image(_this4.width, _this4.height);
+          temp90x11.classList.add('cabbit');
+          temp90x11.src = './cabbit-walk-90-11.gif';
+          walk90.push(temp90x11);
+          var temp90x12 = new Image(_this4.width, _this4.height);
+          temp90x12.classList.add('cabbit');
+          temp90x12.src = './cabbit-walk-90-12.gif';
+          walk90.push(temp90x12);
         } else if (state.angle == 180) {
           var temp180;
           temp180 = new Image(_this4.width, _this4.height);
@@ -1584,39 +1977,47 @@ var characterObject = /*#__PURE__*/function () {
           if (pathCount >= 1) {
             pathPt = '.' + 'pathPoint' + pathCount;
           }
+          _this4.currIndex = state.index;
+          _this4.frameIndex = state.frameIndex;
           if (_this4.pathInterrupted == true) {
             if (state.index == 1) {
               $('.tempPoint').remove();
             }
-            _this4.currIndex = state.index;
-            _this4.frameIndex = state.frameIndex;
-            $(pathPt).eq(state.index).append(srcGif);
+            $(pathPt).eq(state.index).append(srcGif); //select the path point of the current state index
+
             setTimeout(function () {
-              $(pathPt).eq(state.index).empty();
+              $(pathPt).eq(state.index).empty(); //after 1/15 of a second, clear the current frame
             }, 70);
           } else {
-            _this4.currIndex = state.index;
-            _this4.frameIndex = state.frameIndex;
             //June 20, 2023 : console.log the  X location of walking character 
-            document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft;
-            document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop;
-            $(pathPt).eq(state.index).append(srcGif);
+
+            $('.tempPoint').remove(); //this removes the temp point being used as the rotation axis
+
+            $(pathPt).eq(state.index).append(srcGif); //append gif to path point of current frame index number
+            document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft; //prints to x pos on screen
+            document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop; //prints y pos to screen
+
             setTimeout(function () {
-              $(pathPt).eq(state.index).empty();
+              $(pathPt).eq(state.index).empty(); //then reset the frame after 1/15 of a second
             }, 70);
           }
           if (_this4.pathInterrupted == false) {
-            $('.tempPoint').remove();
+            $('.tempPoint').remove(); //this removes the temp point being used as the rotation axis
           }
         }
+
         if (state.index == state.pathEndFrame) {
           state.stopFrameIndex = state.frameIndex;
+          //this.currIndex = 0 //changed July 22, 2023
+          console.log("pathend : " + state.pathEndFrame); //July 18, 2023
         }
+
         if (state.pathEnd == true) {
           $('body').css('pointer-events', 'none');
-          resolve(state);
+          resolve(state); //when resolved, it means this cycle for this particular animation frame from display to clear was completed
         }
       });
+
       return p;
     }
 
@@ -1633,15 +2034,16 @@ var characterObject = /*#__PURE__*/function () {
       if (pathCount >= 1) {
         pathPt = '.' + 'pathPoint' + pathCount;
       }
-
-      //let walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3,  this.gif.w0x4, this.gif.w0x4a, this.gif.w0x5, this.gif.w0x5a, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x8a,  this.gif.w0x9, this.gif.w0x9a, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12];
-      var walk45 = [this.gif.w45x1, this.gif.w45x2, this.gif.w45x3, this.gif.w45x4, this.gif.w45x4a, this.gif.w45x5, this.gif.w45x5a, this.gif.w45x6, this.gif.w45x7, this.gif.w45x8, this.gif.w45x8a, this.gif.w45x9, this.gif.w45x9a, this.gif.w45x10, this.gif.w45x11, this.gif.w45x12];
-      var walk90 = [this.gif.w90x1, this.gif.w90x2, this.gif.w90x3, this.gif.w90x4, this.gif.w90x4a, this.gif.w90x5, this.gif.w90x5a, this.gif.w90x6, this.gif.w90x7, this.gif.w90x8, this.gif.w90x8a, this.gif.w90x9, this.gif.w90x9a, this.gif.w90x10, this.gif.w90x11, this.gif.w90x12];
-      var walk135 = [this.gif.w135x1, this.gif.w135x2, this.gif.w135x3, this.gif.w135x4, this.gif.w135x4a, this.gif.w135x5, this.gif.w135x5a, this.gif.w135x6, this.gif.w135x7, this.gif.w135x8, this.gif.w135x8a, this.gif.w135x9, this.gif.w135x9a, this.gif.w135x10, this.gif.w135x11, this.gif.w135x12];
-      //let walk180 = [this.gif.w180x1, this.gif.w180x2, this.gif.w180x3,  this.gif.w180x4, this.gif.w180x4a, this.gif.w180x5, this.gif.w180x5a,  this.gif.w180x6, this.gif.w180x7, this.gif.w180x8, this.gif.w180x8a,  this.gif.w180x9, this.gif.w180x9a, this.gif.w180x10, this.gif.w180x11, this.gif.w180x12];
-      var walk225 = [this.gif.w225x1, this.gif.w225x2, this.gif.w225x3, this.gif.w225x4, this.gif.w225x4a, this.gif.w225x5, this.gif.w225x5a, this.gif.w225x6, this.gif.w225x7, this.gif.w225x8, this.gif.w225x8a, this.gif.w225x9, this.gif.w225x9a, this.gif.w225x10, this.gif.w225x11, this.gif.w225x12];
-      var walk270 = [this.gif.w270x1, this.gif.w270x2, this.gif.w270x3, this.gif.w270x4, this.gif.w270x4a, this.gif.w270x5, this.gif.w270x5a, this.gif.w270x6, this.gif.w270x7, this.gif.w270x8, this.gif.w270x8a, this.gif.w270x9, this.gif.w270x9a, this.gif.w270x10, this.gif.w270x11, this.gif.w270x12];
-      var walk292 = [this.gif.w292x1, this.gif.w292x2, this.gif.w292x3, this.gif.w292x4, this.gif.w292x4a, this.gif.w292x5, this.gif.w292x5a, this.gif.w292x6, this.gif.w292x7, this.gif.w292x8, this.gif.w292x8a, this.gif.w292x9, this.gif.w292x9a, this.gif.w292x10, this.gif.w292x11, this.gif.w292x12];
+      /*
+              //let walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3,  this.gif.w0x4, this.gif.w0x4a, this.gif.w0x5, this.gif.w0x5a, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x8a,  this.gif.w0x9, this.gif.w0x9a, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12];
+              let walk45 = [this.gif.w45x1, this.gif.w45x2, this.gif.w45x3,  this.gif.w45x4, this.gif.w45x4a, this.gif.w45x5, this.gif.w45x5a,  this.gif.w45x6, this.gif.w45x7, this.gif.w45x8, this.gif.w45x8a, this.gif.w45x9, this.gif.w45x9a, this.gif.w45x10, this.gif.w45x11, this.gif.w45x12];
+              let walk90 = [this.gif.w90x1, this.gif.w90x2, this.gif.w90x3,   this.gif.w90x4, this.gif.w90x4a, this.gif.w90x5, this.gif.w90x5a, this.gif.w90x6, this.gif.w90x7, this.gif.w90x8, this.gif.w90x8a, this.gif.w90x9, this.gif.w90x9a, this.gif.w90x10, this.gif.w90x11, this.gif.w90x12];
+              let walk135 = [this.gif.w135x1, this.gif.w135x2, this.gif.w135x3,   this.gif.w135x4, this.gif.w135x4a, this.gif.w135x5, this.gif.w135x5a, this.gif.w135x6, this.gif.w135x7, this.gif.w135x8, this.gif.w135x8a, this.gif.w135x9, this.gif.w135x9a, this.gif.w135x10, this.gif.w135x11, this.gif.w135x12];
+              //let walk180 = [this.gif.w180x1, this.gif.w180x2, this.gif.w180x3,  this.gif.w180x4, this.gif.w180x4a, this.gif.w180x5, this.gif.w180x5a,  this.gif.w180x6, this.gif.w180x7, this.gif.w180x8, this.gif.w180x8a,  this.gif.w180x9, this.gif.w180x9a, this.gif.w180x10, this.gif.w180x11, this.gif.w180x12];
+              let walk225 = [this.gif.w225x1, this.gif.w225x2, this.gif.w225x3,   this.gif.w225x4, this.gif.w225x4a, this.gif.w225x5, this.gif.w225x5a,  this.gif.w225x6, this.gif.w225x7, this.gif.w225x8, this.gif.w225x8a, this.gif.w225x9, this.gif.w225x9a, this.gif.w225x10, this.gif.w225x11, this.gif.w225x12];
+              let walk270 = [this.gif.w270x1, this.gif.w270x2, this.gif.w270x3,   this.gif.w270x4, this.gif.w270x4a,  this.gif.w270x5, this.gif.w270x5a,   this.gif.w270x6, this.gif.w270x7, this.gif.w270x8, this.gif.w270x8a, this.gif.w270x9, this.gif.w270x9a, this.gif.w270x10, this.gif.w270x11, this.gif.w270x12];
+              let walk292 = [ this.gif.w292x1,  this.gif.w292x2, this.gif.w292x3,  this.gif.w292x4, this.gif.w292x4a,  this.gif.w292x5, this.gif.w292x5a,  this.gif.w292x6,  this.gif.w292x7,  this.gif.w292x8, this.gif.w292x8a, this.gif.w292x9, this.gif.w292x9a, this.gif.w292x10,  this.gif.w292x11,  this.gif.w292x12];
+      */
       var stop0 = [];
       if (state.angle == 0) {
         var charGif = new Image(this.width, this.height);
@@ -1709,89 +2111,216 @@ var characterObject = /*#__PURE__*/function () {
         charGif12.src = './cabbit-walk-0-12.gif';
         stop0.push(charGif12);
       }
-      var stop180 = [];
-      if (state.angle == 180) {
+      var stop90 = [];
+      //July 8, 2023 : Add cabbit-walk-90 to stop90 array
+      if (state.angle == 90) {
         var _charGif = new Image(this.width, this.height);
         _charGif.classList.add('cabbit');
-        _charGif.src = './cabbit-walk-180-1.gif';
-        stop180.push(_charGif);
+        _charGif.src = './cabbit-walk-90-1.gif';
+        stop90.push(_charGif);
         var _charGif2 = new Image(this.width, this.height);
         _charGif2.classList.add('cabbit');
-        _charGif2.src = './cabbit-walk-180-2.gif';
-        stop180.push(_charGif2);
+        _charGif2.src = './cabbit-walk-90-2.gif';
+        stop90.push(_charGif2);
+        var charGif3 = new Image(this.width, this.height);
+        charGif3.classList.add('cabbit');
+        charGif3.src = './cabbit-walk-90-3.gif';
+        stop90.push(charGif3);
         var _charGif3 = new Image(this.width, this.height);
         _charGif3.classList.add('cabbit');
-        _charGif3.src = './cabbit-walk-180-3.gif';
-        stop180.push(_charGif3);
-        var _charGif4 = new Image(this.width, this.height);
-        _charGif4.classList.add('cabbit');
-        _charGif4.src = './cabbit-walk-180-4.gif';
-        stop180.push(_charGif4);
+        _charGif3.src = './cabbit-walk-90-4.gif';
+        stop90.push(_charGif3);
         var _charGif4a = new Image(this.width, this.height);
         _charGif4a.classList.add('cabbit');
-        _charGif4a.src = './cabbit-walk-180-4a.gif';
-        stop180.push(_charGif4a);
-        var _charGif5 = new Image(this.width, this.height);
-        _charGif5.classList.add('cabbit');
-        _charGif5.src = './cabbit-walk-180-5.gif';
-        stop180.push(_charGif5);
+        _charGif4a.src = './cabbit-walk-90-4a.gif';
+        stop90.push(_charGif4a);
+        var _charGif4 = new Image(this.width, this.height);
+        _charGif4.classList.add('cabbit');
+        _charGif4.src = './cabbit-walk-90-5.gif';
+        stop90.push(_charGif4);
         var _charGif5a = new Image(this.width, this.height);
         _charGif5a.classList.add('cabbit');
-        _charGif5a.src = './cabbit-walk-180-5a.gif';
-        stop180.push(_charGif5a);
+        _charGif5a.src = './cabbit-walk-90-5a.gif';
+        stop90.push(_charGif5a);
+        var _charGif5 = new Image(this.width, this.height);
+        _charGif5.classList.add('cabbit');
+        _charGif5.src = './cabbit-walk-90-6.gif';
+        stop90.push(_charGif5);
         var _charGif6 = new Image(this.width, this.height);
         _charGif6.classList.add('cabbit');
-        _charGif6.src = './cabbit-walk-180-6.gif';
-        stop180.push(_charGif6);
+        _charGif6.src = './cabbit-walk-90-7.gif';
+        stop90.push(_charGif6);
         var _charGif7 = new Image(this.width, this.height);
         _charGif7.classList.add('cabbit');
-        _charGif7.src = './cabbit-walk-180-7.gif';
-        stop180.push(_charGif7);
-        var _charGif8 = new Image(this.width, this.height);
-        _charGif8.classList.add('cabbit');
-        _charGif8.src = './cabbit-walk-180-8.gif';
-        stop180.push(_charGif8);
+        _charGif7.src = './cabbit-walk-90-8.gif';
+        stop90.push(_charGif7);
         var _charGif8a = new Image(this.width, this.height);
         _charGif8a.classList.add('cabbit');
-        _charGif8a.src = './cabbit-walk-180-8a.gif';
-        stop180.push(_charGif8a);
-        var _charGif9 = new Image(this.width, this.height);
-        _charGif9.classList.add('cabbit');
-        _charGif9.src = './cabbit-walk-180-9.gif';
-        stop180.push(_charGif9);
+        _charGif8a.src = './cabbit-walk-90-8a.gif';
+        stop90.push(_charGif8a);
+        var _charGif8 = new Image(this.width, this.height);
+        _charGif8.classList.add('cabbit');
+        _charGif8.src = './cabbit-walk-90-9.gif';
+        stop90.push(_charGif8);
         var _charGif9a = new Image(this.width, this.height);
         _charGif9a.classList.add('cabbit');
-        _charGif9a.src = './cabbit-walk-180-9a.gif';
-        stop180.push(_charGif9a);
+        _charGif9a.src = './cabbit-walk-90-9a.gif';
+        stop90.push(_charGif9a);
+        var _charGif9 = new Image(this.width, this.height);
+        _charGif9.classList.add('cabbit');
+        _charGif9.src = './cabbit-walk-90-10.gif';
+        stop90.push(_charGif9);
         var _charGif10 = new Image(this.width, this.height);
         _charGif10.classList.add('cabbit');
-        _charGif10.src = './cabbit-walk-180-10.gif';
-        stop180.push(_charGif10);
+        _charGif10.src = './cabbit-walk-90-11.gif';
+        stop90.push(_charGif10);
         var _charGif11 = new Image(this.width, this.height);
         _charGif11.classList.add('cabbit');
-        _charGif11.src = './cabbit-walk-180-11.gif';
-        stop180.push(_charGif11);
+        _charGif11.src = './cabbit-walk-90-12.gif';
+        stop90.push(_charGif11);
+      }
+      var stop180 = [];
+      if (state.angle == 180) {
         var _charGif12 = new Image(this.width, this.height);
         _charGif12.classList.add('cabbit');
-        _charGif12.src = './cabbit-walk-180-12.gif';
+        _charGif12.src = './cabbit-walk-180-1.gif';
         stop180.push(_charGif12);
+        var _charGif13 = new Image(this.width, this.height);
+        _charGif13.classList.add('cabbit');
+        _charGif13.src = './cabbit-walk-180-2.gif';
+        stop180.push(_charGif13);
+        var _charGif14 = new Image(this.width, this.height);
+        _charGif14.classList.add('cabbit');
+        _charGif14.src = './cabbit-walk-180-3.gif';
+        stop180.push(_charGif14);
+        var _charGif15 = new Image(this.width, this.height);
+        _charGif15.classList.add('cabbit');
+        _charGif15.src = './cabbit-walk-180-4.gif';
+        stop180.push(_charGif15);
+        var _charGif4a2 = new Image(this.width, this.height);
+        _charGif4a2.classList.add('cabbit');
+        _charGif4a2.src = './cabbit-walk-180-4a.gif';
+        stop180.push(_charGif4a2);
+        var _charGif16 = new Image(this.width, this.height);
+        _charGif16.classList.add('cabbit');
+        _charGif16.src = './cabbit-walk-180-5.gif';
+        stop180.push(_charGif16);
+        var _charGif5a2 = new Image(this.width, this.height);
+        _charGif5a2.classList.add('cabbit');
+        _charGif5a2.src = './cabbit-walk-180-5a.gif';
+        stop180.push(_charGif5a2);
+        var _charGif17 = new Image(this.width, this.height);
+        _charGif17.classList.add('cabbit');
+        _charGif17.src = './cabbit-walk-180-6.gif';
+        stop180.push(_charGif17);
+        var _charGif18 = new Image(this.width, this.height);
+        _charGif18.classList.add('cabbit');
+        _charGif18.src = './cabbit-walk-180-7.gif';
+        stop180.push(_charGif18);
+        var _charGif19 = new Image(this.width, this.height);
+        _charGif19.classList.add('cabbit');
+        _charGif19.src = './cabbit-walk-180-8.gif';
+        stop180.push(_charGif19);
+        var _charGif8a2 = new Image(this.width, this.height);
+        _charGif8a2.classList.add('cabbit');
+        _charGif8a2.src = './cabbit-walk-180-8a.gif';
+        stop180.push(_charGif8a2);
+        var _charGif20 = new Image(this.width, this.height);
+        _charGif20.classList.add('cabbit');
+        _charGif20.src = './cabbit-walk-180-9.gif';
+        stop180.push(_charGif20);
+        var _charGif9a2 = new Image(this.width, this.height);
+        _charGif9a2.classList.add('cabbit');
+        _charGif9a2.src = './cabbit-walk-180-9a.gif';
+        stop180.push(_charGif9a2);
+        var _charGif21 = new Image(this.width, this.height);
+        _charGif21.classList.add('cabbit');
+        _charGif21.src = './cabbit-walk-180-10.gif';
+        stop180.push(_charGif21);
+        var _charGif22 = new Image(this.width, this.height);
+        _charGif22.classList.add('cabbit');
+        _charGif22.src = './cabbit-walk-180-11.gif';
+        stop180.push(_charGif22);
+        var _charGif23 = new Image(this.width, this.height);
+        _charGif23.classList.add('cabbit');
+        _charGif23.src = './cabbit-walk-180-12.gif';
+        stop180.push(_charGif23);
       }
-      if (state.angle == 38.5) {
-        gifSrc = walk45;
-      } else if (state.angle == 0) {
+      var stop270 = [];
+      if (state.angle == 270) {
+        var _charGif24 = new Image(this.width, this.height);
+        _charGif24.classList.add('cabbit');
+        _charGif24.src = './cabbit-walk-270-1.gif';
+        stop270.push(_charGif24);
+        var _charGif25 = new Image(this.width, this.height);
+        _charGif25.classList.add('cabbit');
+        _charGif25.src = './cabbit-walk-270-2.gif';
+        stop270.push(_charGif25);
+        var _charGif26 = new Image(this.width, this.height);
+        _charGif26.classList.add('cabbit');
+        _charGif26.src = './cabbit-walk-270-3.gif';
+        stop270.push(_charGif26);
+        var _charGif27 = new Image(this.width, this.height);
+        _charGif27.classList.add('cabbit');
+        _charGif27.src = './cabbit-walk-270-4.gif';
+        stop270.push(_charGif27);
+        var _charGif4a3 = new Image(this.width, this.height);
+        _charGif4a3.classList.add('cabbit');
+        _charGif4a3.src = './cabbit-walk-270-4a.gif';
+        stop270.push(_charGif4a3);
+        var _charGif28 = new Image(this.width, this.height);
+        _charGif28.classList.add('cabbit');
+        _charGif28.src = './cabbit-walk-270-5.gif';
+        stop270.push(_charGif28);
+        var _charGif5a3 = new Image(this.width, this.height);
+        _charGif5a3.classList.add('cabbit');
+        _charGif5a3.src = './cabbit-walk-270-5a.gif';
+        stop270.push(_charGif5a3);
+        var _charGif29 = new Image(this.width, this.height);
+        _charGif29.classList.add('cabbit');
+        _charGif29.src = './cabbit-walk-270-6.gif';
+        stop270.push(_charGif29);
+        var _charGif30 = new Image(this.width, this.height);
+        _charGif30.classList.add('cabbit');
+        _charGif30.src = './cabbit-walk-270-7.gif';
+        stop270.push(_charGif30);
+        var _charGif31 = new Image(this.width, this.height);
+        _charGif31.classList.add('cabbit');
+        _charGif31.src = './cabbit-walk-270-8.gif';
+        stop270.push(_charGif31);
+        var _charGif8a3 = new Image(this.width, this.height);
+        _charGif8a3.classList.add('cabbit');
+        _charGif8a3.src = './cabbit-walk-270-8a.gif';
+        stop270.push(_charGif8a3);
+        var _charGif32 = new Image(this.width, this.height);
+        _charGif32.classList.add('cabbit');
+        _charGif32.src = './cabbit-walk-270-9.gif';
+        stop270.push(_charGif32);
+        var _charGif9a3 = new Image(this.width, this.height);
+        _charGif9a3.classList.add('cabbit');
+        _charGif9a3.src = './cabbit-walk-270-9a.gif';
+        stop270.push(_charGif9a3);
+        var _charGif33 = new Image(this.width, this.height);
+        _charGif33.classList.add('cabbit');
+        _charGif33.src = './cabbit-walk-270-10.gif';
+        stop270.push(_charGif33);
+        var _charGif34 = new Image(this.width, this.height);
+        _charGif34.classList.add('cabbit');
+        _charGif34.src = './cabbit-walk-270-11.gif';
+        stop270.push(_charGif34);
+        var _charGif35 = new Image(this.width, this.height);
+        _charGif35.classList.add('cabbit');
+        _charGif35.src = './cabbit-walk-270-12.gif';
+        stop270.push(_charGif35);
+      }
+      if (state.angle == 0) {
         gifSrc = stop0;
       } else if (state.angle == 90) {
-        gifSrc = walk90;
-      } else if (state.angle == 141.5) {
-        gifSrc = walk135;
+        gifSrc = stop90;
       } else if (state.angle == 180) {
         gifSrc = stop180;
-      } else if (state.angle == 225) {
-        gifSrc = walk225;
       } else if (state.angle == 270) {
-        gifSrc = walk270;
-      } else if (state.angle == 292) {
-        gifSrc = walk292;
+        gifSrc = stop270;
       }
       if (state.index == state.pathEndFrame) {
         $(pathPt).eq(state.index).append(gifSrc[state.frameIndex - 1]);
@@ -2016,6 +2545,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "returnDivisor": () => (/* binding */ returnDivisor)
 /* harmony export */ });
 function returnDivisor(x, y, z) {
+  //divides the path into number of points
   return (x - y) / z / 2; // if frame distance is 10, then return (x-y)/z
 }
 
@@ -2036,7 +2566,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _assets_bg_braveNotice_gif__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../assets/bg/braveNotice.gif */ "./src/assets/bg/braveNotice.gif");
 /* harmony import */ var _assets_bg_fgFrame_gif__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../assets/bg/fgFrame.gif */ "./src/assets/bg/fgFrame.gif");
 /* harmony import */ var _assets_bg_deerwood_png__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../assets/bg/deerwood.png */ "./src/assets/bg/deerwood.png");
+/* harmony import */ var _assets_bg_cabbitValley_jpg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../assets/bg/cabbitValley.jpg */ "./src/assets/bg/cabbitValley.jpg");
 //import {fgGif} from './gifs.js' 
+
 
 
 
@@ -2060,6 +2592,26 @@ function generateBackground(scene, size) {
     thisBG.style.backgroundPosition = "center center";
     thisFG.style.backgroundSize = fgSize;
     thisBG.style.zIndex = "0";
+  } else if (scene == 2) {
+    thisBG.style.backgroundImage = "url(cabbitValley.jpg)";
+    thisBG.style.backgroundPosition = "center center";
+    thisBG.style.backgroundSize = thisSize;
+    thisBG.style.zIndex = "-10";
+    var _fgSize = size + 10 + "%";
+    thisFG.style.backgroundImage = "url(fgFrame.gif)";
+    thisBG.style.backgroundPosition = "center center";
+    thisFG.style.backgroundSize = _fgSize;
+    thisBG.style.zIndex = "0";
+  } else if (scene == 3) {
+    thisBG.style.backgroundImage = "url(deerwood.png)";
+    thisBG.style.backgroundPosition = "center center";
+    thisBG.style.backgroundSize = thisSize;
+    thisBG.style.zIndex = "-10";
+    var _fgSize2 = size + 10 + "%";
+    thisFG.style.backgroundImage = "url(fgFrame.gif)";
+    thisBG.style.backgroundPosition = "center center";
+    thisFG.style.backgroundSize = _fgSize2;
+    thisBG.style.zIndex = "0";
   }
 }
 
@@ -2079,475 +2631,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _gifs_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gifs.js */ "./src/utils/gifs.js");
 /* harmony import */ var _character_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./character.js */ "./src/utils/character.js");
 /* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./src/utils/utils.js");
-/* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 
 
 
-function generateCharacter(name, charPosition, win, screenPercent) {
+function generateCharacter(name, charPosition, win, screenPercent, currIndex) {
   var charSize = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.setCharSize)(win.width, screenPercent);
-  var frameDistance = win.width * .002604166666667;
+  var frameDistance = win.width * (screenPercent / 100) * .004339622; //(win.width*.002604166666667)//(screenPercent/100)  
+
   switch (name) {
     case 'cabbit':
+      //When character is generated... it is watching the body listening to any clicks
+      //when body is clicked, the cabbit.endPts are set
+      //it analyzes the currQuad and endQuad, clears old path points, and sets startpoint (which is the start of the stop walking cycle - yes its a confusing name)
+
       var cabbitGIFs = (0,_gifs_js__WEBPACK_IMPORTED_MODULE_0__.cabbitGifs)('cabbit', charSize[0], charSize[1]);
-      var cabbit = new _character_js__WEBPACK_IMPORTED_MODULE_1__.characterObject(charPosition.cabbit, [], frameDistance, cabbitGIFs, charSize[0], charSize[1], name);
-      document.getElementsByTagName('body')[0].addEventListener('click', function (e) {
-        var itemClass;
-        var count = 0;
-        $('body').css('pointer-events', 'none');
-
-        //set end points
-        cabbit.endPt[0] = e.pageX;
-        cabbit.endPt[1] = e.pageY;
-        alert("X : " + win.width * (cabbit.endPt[0] / win.width) + "  Y : " + win.height * (cabbit.endPt[1] / win.height));
-        alert(" ScreenX : " + win.width + " ScreenY : " + win.height);
-
-        //If screen is clicked while cabbit is moving, path is being interrupted
-        if (cabbit.count > 1 && cabbit.inMotion == true) {
-          cabbit.pathInterrupted = true;
-          cabbit.pathCount++;
-          if (cabbit.pathCount - 1 == 0) {
-            itemClass = '.pathPoint';
-          } else {
-            itemClass = '.pathPoint' + (cabbit.pathCount - 1);
-          }
-          var offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
-          var str1 = $('#' + cabbit.currIndex)[0].style.left;
-          var str2 = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
-          str1 = eval(str1.substring(0, str1.length - 2));
-          str2 = eval(str2.substring(0, str2.length - 2));
-
-          //on click, reset start points
-          cabbit.startPt[0] = str1;
-          cabbit.startPt[1] = str2;
-          $('#endPoint').css('left', cabbit.endPt[0]);
-          $('#endPoint').css('top', cabbit.endPt[1]);
-          var points = $(itemClass);
-          if (cabbit.endAngle == 0) {
-            //selected quad == 1
-            if (cabbit.endPt[0] >= cabbit.startPt[0] && cabbit.endPt[1] <= cabbit.startPt[1]) {
-              for (var j = 0; j < cabbit.count - 1; j++) {
-                points[j].remove();
-              }
-              count--;
-            }
-
-            //selected quad == 2
-            else if (cabbit.endPt[1] <= cabbit.startPt[1] && cabbit.endPt[0] <= cabbit.startPt[0]) {
-              for (var _j = 0; _j < cabbit.count - 1; _j++) {
-                points[_j].remove();
-              }
-              count--;
-            }
-
-            //selected quad == 3
-            else if (cabbit.endPt[1] >= cabbit.startPt[1] && cabbit.endPt[0] <= cabbit.startPt[0]) {
-              for (var _j2 = 0; _j2 < cabbit.count - 1; _j2++) {
-                points[_j2].remove();
-              }
-              count--;
-            }
-
-            //selected quad == 4 
-            else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1] && cabbit.currIndex >= cabbit.pivot) {
-              for (var _j3 = 0; _j3 < cabbit.count - 1; _j3++) {
-                points[_j3].remove();
-              }
-            }
-          }
-
-          //if cabbit is moving diagonally at 292  
-          else if (cabbit.endAngle == 292) {
-            var src;
-            /*
-            console.log("start pt x : " + cabbit.startPt[0])
-            console.log("end pt x : " + cabbit.endPt[0])
-             console.log("start pt y : " + cabbit.startPt[1])
-            console.log("end pt y : " + cabbit.endPt[1]) */
-
-            switch (cabbit.frameIndex) {
-              case 1:
-                src = 'w292x2';
-                break;
-              case 2:
-                src = 'w292x3';
-                break;
-              case 3:
-                src = 'w292x4';
-                break;
-              case 4:
-                src = 'w292x5';
-                break;
-              case 5:
-                src = 'w292x6';
-                break;
-              case 6:
-                src = 'w292x7';
-                break;
-              case 7:
-                src = 'w292x8';
-                break;
-              case 8:
-                src = 'w292x9';
-                break;
-              case 9:
-                src = 'w292x10';
-                break;
-              case 10:
-                src = 'w292x11';
-                break;
-              case 11:
-                src = 'w292x12';
-                break;
-              case 12:
-                src = 'w292x1';
-                break;
-            }
-
-            //selected quad 4, pivot
-            if (cabbit.endPt[1] >= cabbit.startPt[1] && cabbit.endPt[0] >= cabbit.startPt[0]) {
-              for (var _j4 = 0; _j4 < cabbit.count - 1; _j4++) {
-                points[_j4].remove();
-              }
-              $('#bgMain').append('<div class="' + 'tempPoint' + '" style="left:' + cabbit.startPt[0] + 'px; top:' + cabbit.startPt[1] + 'px;"></div>');
-              $('.tempPoint').append('<img width="' + cabbit.width + '" height="' + cabbit.height + '" class="' + 'cabbit' + '" />');
-              $('.cabbit')[0].src = cabbitGIFs[src].src;
-              count++;
-            }
-            /*
-            //selected quad 4, diagonal then down
-            else if(){}
-             //selected quad 1, pivot
-            else if(){}
-             //selected quad 1, diagonal up
-            else if(){}
-             //selected quad 2, pivot
-            else if(){}
-             //selected quad 2, diagonal up
-            else if(){}
-             //selected quad 3, pivot
-            else if(){}
-             //selected quad 3, diagonal down
-            else if(){}*/
-          }
-
-          cabbit.count = count;
-          cabbit.moveCharacter();
-        }
-
-        //IF character is not in motion, path 
-        else if (cabbit.count > 1 && cabbit.inMotion == false) {
-          var _offsetTop; // ******change to percent percentage  
-          var calibration = win.height / 18.32;
-          if (cabbit.pathCount == 0) {
-            itemClass = '.pathPoint';
-          } else {
-            itemClass = '.pathPoint' + cabbit.pathCount;
-          }
-          var points = $(itemClass);
-          console.log("end angle : " + cabbit.endAngle);
-
-          //cabbit.pathCount = 0
-
-          //endAngle = 0; pathCount = 0
-          if (cabbit.endAngle == 0) {
-            _offsetTop = $('#startPoint')[0].offsetTop + "px";
-            cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
-
-            //CURRENT QUAD == 1
-            if (cabbit.currQuad == 1) {
-              //selected quad == 1  
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j5 = 0; _j5 < cabbit.count - 1; _j5++) {
-                  points[_j5].remove();
-                }
-              }
-              //selected quad == 2
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j6 = 0; _j6 < cabbit.count - 1; _j6++) {
-                  points[_j6].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
-                for (var _j7 = 0; _j7 < cabbit.count - 1; _j7++) {
-                  points[_j7].remove();
-                }
-              }
-              //selected quad == 4
-              else {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j8 = 0; _j8 < cabbit.count - 1; _j8++) {
-                  points[_j8].remove();
-                }
-              }
-            } else if (cabbit.currQuad == 4) {
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j9 = 0; _j9 < cabbit.count - 1; _j9++) {
-                  points[_j9].remove();
-                }
-              }
-              //selected quad == 2
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
-                for (var _j10 = 0; _j10 < cabbit.count - 1; _j10++) {
-                  points[_j10].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j11 = 0; _j11 < cabbit.count - 1; _j11++) {
-                  points[_j11].remove();
-                }
-              }
-              //selected quad == 4
-              else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j12 = 0; _j12 < cabbit.count - 1; _j12++) {
-                  points[_j12].remove();
-                }
-              }
-            }
-          }
-
-          //endAngle == 90; pathCount = 0
-          else if (cabbit.endAngle == 90) {
-            _offsetTop = $('#startPoint')[0].offsetTop + "px";
-            cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
-            //if currQuad == 1 
-            if (cabbit.currQuad == 1) {
-              //selected quad == 1 
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
-                for (var _j13 = 0; _j13 < cabbit.count - 1; _j13++) {
-                  points[_j13].remove();
-                }
-              }
-              //selected quad == 2
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration * 2; // MINUS CALIBRATION
-                for (var _j14 = 0; _j14 < cabbit.count - 1; _j14++) {
-                  points[_j14].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
-                for (var _j15 = 0; _j15 < cabbit.count - 1; _j15++) {
-                  points[_j15].remove();
-                }
-              }
-              //selected quad == 4
-              else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j16 = 0; _j16 < cabbit.count - 1; _j16++) {
-                  points[_j16].remove();
-                }
-              }
-            }
-            //if currQuad == 2
-            else if (cabbit.currQuad == 2) {
-              //selected quad == 1  
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j17 = 0; _j17 < cabbit.count - 1; _j17++) {
-                  points[_j17].remove();
-                }
-              }
-              //selected quad == 2
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j18 = 0; _j18 < cabbit.count - 1; _j18++) {
-                  points[_j18].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration; // MINUS CALIBRATION
-                for (var _j19 = 0; _j19 < cabbit.count - 1; _j19++) {
-                  points[_j19].remove();
-                }
-              }
-              //selected quad == 4
-              else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j20 = 0; _j20 < cabbit.count - 1; _j20++) {
-                  points[_j20].remove();
-                }
-              }
-            }
-          } else if (cabbit.endAngle == 180) {
-            //currQuad == 2
-            if (cabbit.currQuad == 2) {
-              //selected quad == 1
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 4; // MINUS CALIBRATION
-                for (var _j21 = 0; _j21 < cabbit.count - 1; _j21++) {
-                  points[_j21].remove();
-                }
-              }
-              //selected quad == 2, pivot
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j22 = 0; _j22 < cabbit.count - 1; _j22++) {
-                  points[_j22].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j23 = 0; _j23 < cabbit.count - 1; _j23++) {
-                  points[_j23].remove();
-                }
-              }
-              //selected quad == 4
-              else {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j24 = 0; _j24 < cabbit.count - 1; _j24++) {
-                  points[_j24].remove();
-                }
-              }
-            }
-
-            //currQuad == 3
-            else if (cabbit.currQuad == 3) {
-              //selected quad == 1
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 4; // MINUS CALIBRATION
-                for (var _j25 = 0; _j25 < cabbit.count - 1; _j25++) {
-                  points[_j25].remove();
-                }
-              }
-              //selected quad == 2, pivot
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j26 = 0; _j26 < cabbit.count - 1; _j26++) {
-                  points[_j26].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 4 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
-                for (var _j27 = 0; _j27 < cabbit.count - 1; _j27++) {
-                  points[_j27].remove();
-                }
-              }
-              //selected quad == 4
-              else {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j28 = 0; _j28 < cabbit.count - 1; _j28++) {
-                  points[_j28].remove();
-                }
-              }
-            }
-          } else if (cabbit.endAngle == 270) {
-            if (cabbit.currQuad == 3) {
-              //selected quad == 1
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j29 = 0; _j29 < cabbit.count - 1; _j29++) {
-                  points[_j29].remove();
-                }
-              }
-              //selected quad == 2, pivot
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j30 = 0; _j30 < cabbit.count - 1; _j30++) {
-                  points[_j30].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 2; // MINUS CALIBRATION
-                for (var _j31 = 0; _j31 < cabbit.count - 1; _j31++) {
-                  points[_j31].remove();
-                }
-              }
-              //selected quad == 4
-              else {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
-                for (var _j32 = 0; _j32 < cabbit.count - 1; _j32++) {
-                  points[_j32].remove();
-                }
-              }
-            } else if (cabbit.currQuad == 4) {
-              //QUAD 1
-              if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + calibration / 2 + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 2; // MINUS CALIBRATION
-                for (var _j33 = 0; _j33 < cabbit.count - 1; _j33++) {
-                  points[_j33].remove();
-                }
-              }
-              //selected quad == 2, pivot
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
-                for (var _j34 = 0; _j34 < cabbit.count - 1; _j34++) {
-                  points[_j34].remove();
-                }
-              }
-              //selected quad == 3
-              else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
-                for (var _j35 = 0; _j35 < cabbit.count - 1; _j35++) {
-                  points[_j35].remove();
-                }
-              }
-              //selected quad == 4
-              else {
-                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
-                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + calibration / 4; // MINUS CALIBRATION
-                for (var _j36 = 0; _j36 < cabbit.count - 1; _j36++) {
-                  points[_j36].remove();
-                }
-              }
-            }
-          }
-          $(itemClass).css('top', _offsetTop);
-
-          //MAKE SURE TO ADD THIS TO EVERY CASE
-          //cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration)
-
-          cabbit.count = count;
-          cabbit.moveCharacter();
-        } else {
-          cabbit.moveCharacter();
-        }
-      });
+      var cabbit = new _character_js__WEBPACK_IMPORTED_MODULE_1__.characterObject(charPosition.cabbit, [], frameDistance, cabbitGIFs, charSize[0], charSize[1], name, currIndex);
+      return cabbit;
   }
 }
 
@@ -2566,73 +2665,721 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _generateBG_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./generateBG.js */ "./src/utils/generateBG.js");
 /* harmony import */ var _generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./generateCharacter.js */ "./src/utils/generateCharacter.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./src/utils/utils.js");
+/* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 
 
+//import {checkInterval} from './utils.js'   
 
 function generateScene(sceneNum, win) {
   var screenPercent;
   var sceneComplete = false;
   var charPosition = {
-    cabbit: [700, 400]
+    cabbit: [800, 400]
   };
-  var prevExit;
+  var newLoc = {
+    cabbit: [0, 0]
+  };
+  var cabbit;
+  function bodyEventListener(cabbit) {
+    document.getElementsByTagName('body')[0].addEventListener('click', function (e) {
+      var itemClass;
+      var count = 0;
+
+      // 1. SET POINTER to none
+      $('body').css('pointer-events', 'none');
+
+      // 2. END POINTS ARE SET
+      cabbit.endPt[0] = e.pageX;
+      cabbit.endPt[1] = e.pageY;
+      console.log("_____");
+      console.log(cabbit);
+
+      // 3. CALCULATE ANGLE
+      cabbit.opp = Math.pow(cabbit.endPt[0] - cabbit.startPt[0], 1);
+      cabbit.adj = Math.pow(cabbit.endPt[1] - cabbit.startPt[1], 1);
+      cabbit.angle = Math.abs(Math.atan(cabbit.opp / cabbit.adj) * 180 / Math.PI);
+
+      //alert("X : " + win.width*(cabbit.endPt[0]/win.width) + "  Y : " + win.height*(cabbit.endPt[1]/win.height) )
+      //alert(" ScreenX : " + win.width + " ScreenY : " + win.height)
+
+      // 4A. If screen is clicked while cabbit is moving, path is being interrupted
+      if (cabbit.count > 1 && cabbit.inMotion == true) {
+        cabbit.pathInterrupted = true;
+        cabbit.pathCount++;
+        if (cabbit.pathCount - 1 == 0) {
+          itemClass = '.pathPoint';
+        } else {
+          itemClass = '.pathPoint' + (cabbit.pathCount - 1);
+        }
+        var offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+        var str1 = $('#' + cabbit.currIndex)[0].style.left;
+        var str2 = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+        str1 = eval(str1.substring(0, str1.length - 2));
+        str2 = eval(str2.substring(0, str2.length - 2));
+
+        //on click, reset start points  //Start point on body changed in character.js
+        cabbit.startPt[0] = str1;
+        cabbit.startPt[1] = str2;
+        $('#endPoint').css('left', cabbit.endPt[0]);
+        $('#endPoint').css('top', cabbit.endPt[1]);
+        var points = $(itemClass);
+        if (cabbit.endAngle == 0) {
+          //selected quad == 1
+          if (cabbit.endPt[0] >= cabbit.startPt[0] && cabbit.endPt[1] <= cabbit.startPt[1]) {
+            for (var j = 0; j < cabbit.count - 1; j++) {
+              points[j].remove();
+            }
+            count--;
+          }
+
+          //selected quad == 2
+          else if (cabbit.endPt[1] <= cabbit.startPt[1] && cabbit.endPt[0] <= cabbit.startPt[0]) {
+            cabbit.endPt[0] = cabbit.endPt[0] + 2(win.width * .0277777777777);
+            offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - calibration / 2 + 'px';
+            cabbit.startPt[1] = $('#startPoint')[0].offsetTop - calibration / 4;
+            for (var _j = 0; _j < cabbit.count - 1; _j++) {
+              points[_j].remove();
+            }
+            count--;
+          }
+
+          //selected quad == 3
+          else if (cabbit.endPt[1] >= cabbit.startPt[1] && cabbit.endPt[0] <= cabbit.startPt[0]) {
+            for (var _j2 = 0; _j2 < cabbit.count - 1; _j2++) {
+              points[_j2].remove();
+            }
+            count--;
+          }
+
+          //selected quad == 4 
+          else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1] && cabbit.currIndex >= cabbit.pivot) {
+            for (var _j3 = 0; _j3 < cabbit.count - 1; _j3++) {
+              points[_j3].remove();
+            }
+          }
+        }
+
+        //if cabbit is moving diagonally at 292  
+        else if (cabbit.endAngle == 292) {
+          var src;
+          /*
+          console.log("start pt x : " + cabbit.startPt[0])
+          console.log("end pt x : " + cabbit.endPt[0])
+               console.log("start pt y : " + cabbit.startPt[1])
+          console.log("end pt y : " + cabbit.endPt[1]) */
+
+          switch (cabbit.frameIndex) {
+            case 1:
+              src = 'w292x2';
+              break;
+            case 2:
+              src = 'w292x3';
+              break;
+            case 3:
+              src = 'w292x4';
+              break;
+            case 4:
+              src = 'w292x5';
+              break;
+            case 5:
+              src = 'w292x6';
+              break;
+            case 6:
+              src = 'w292x7';
+              break;
+            case 7:
+              src = 'w292x8';
+              break;
+            case 8:
+              src = 'w292x9';
+              break;
+            case 9:
+              src = 'w292x10';
+              break;
+            case 10:
+              src = 'w292x11';
+              break;
+            case 11:
+              src = 'w292x12';
+              break;
+            case 12:
+              src = 'w292x1';
+              break;
+          }
+
+          //selected quad 4, pivot
+          if (cabbit.endPt[1] >= cabbit.startPt[1] && cabbit.endPt[0] >= cabbit.startPt[0]) {
+            for (var _j4 = 0; _j4 < cabbit.count - 1; _j4++) {
+              points[_j4].remove();
+            }
+            $('#bgMain').append('<div class="' + 'tempPoint' + '" style="left:' + cabbit.startPt[0] + 'px; top:' + cabbit.startPt[1] + 'px;"></div>');
+            $('.tempPoint').append('<img width="' + cabbit.width + '" height="' + cabbit.height + '" class="' + 'cabbit' + '" />');
+            $('.cabbit')[0].src = cabbitGIFs[src].src;
+            count++;
+          }
+          /*
+          //selected quad 4, diagonal then down
+          else if(){}
+               //selected quad 1, pivot
+          else if(){}
+               //selected quad 1, diagonal up
+          else if(){}
+               //selected quad 2, pivot
+          else if(){}
+               //selected quad 2, diagonal up
+          else if(){}
+               //selected quad 3, pivot
+          else if(){}
+               //selected quad 3, diagonal down
+          else if(){}*/
+        }
+
+        cabbit.count = count;
+        cabbit.moveCharacter();
+      }
+
+      // 4B. IF character is not in motion, path not interrupted
+      else if (cabbit.count > 1 && cabbit.inMotion == false) {
+        //alert("cabbit count : " + cabbit.count)
+
+        //THIS IS WHERE WE TOGGLE START POINTS AND CALIBRATE THEM IF THEY ARE OFF
+
+        var _offsetTop; // ******change to percent percentage  
+        var _calibration = win.height / 18.32;
+        if (cabbit.pathCount == 0) {
+          itemClass = '.pathPoint';
+        } else {
+          itemClass = '.pathPoint' + cabbit.pathCount;
+        }
+        var points = $(itemClass);
+
+        //cabbit.pathCount = 0
+
+        //endAngle = 0; pathCount = 0
+        if (cabbit.endAngle == 0) {
+          console.log("_____________________");
+          console.log("end angle : 0");
+          cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
+          //alert("start Pt x : " + cabbit.startPt[0] + "start Pt y : " + cabbit.startPt[1])
+          //alert("$StartPoint[0].offsetTop : " + ($('#startPoint')[0].offsetTop))
+
+          //CURRENT QUAD == 1
+          if (cabbit.currQuad == 1) {
+            console.log("curr quad 1");
+            //selected quad == 1   
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
+              console.log("selected quad 1");
+              if (cabbit.angle >= 38.5 && cabbit.angle < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j5 = 0; _j5 < cabbit.count - 1; _j5++) {
+                  points[_j5].remove();
+                }
+              } else if (90 - cabbit.angle > 38.5 && 90 - cabbit.angle < 90) {
+                console.log("selected diagonal up!");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 3.3 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j6 = 0; _j6 < cabbit.count - 1; _j6++) {
+                  points[_j6].remove();
+                }
+              }
+            }
+            //selected quad == 2
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 2");
+              if (Math.abs(cabbit.angle) > 38.5 && Math.abs(cabbit.angle) < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 8.5 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j7 = 0; _j7 < cabbit.count - 1; _j7++) {
+                  points[_j7].remove();
+                }
+              } else if (90 - Math.abs(cabbit.angle) > 38.5 && 90 - Math.abs(cabbit.angle) < 90) {
+                console.log("selected diagonal up");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j8 = 0; _j8 < cabbit.count - 1; _j8++) {
+                  points[_j8].remove();
+                }
+              }
+              //cabbit.endPt[0] = cabbit.endPt[0] + (win.width*.0277777777777) 
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              //cabbit.endPt[0] = cabbit.endPt[0] + (win.width*.0277777777777)
+              console.log("selected quad 3");
+              if (cabbit.angle > 38.5 && cabbit.angle < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration; // MINUS CALIBRATION
+                for (var _j9 = 0; _j9 < cabbit.count - 1; _j9++) {
+                  points[_j9].remove();
+                }
+              } else if (cabbit.angle < 38.5 && cabbit.angle > 0) {
+                console.log("selected diagonal down");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration; // MINUS CALIBRATION
+                for (var _j10 = 0; _j10 < cabbit.count - 1; _j10++) {
+                  points[_j10].remove();
+                }
+              }
+            }
+            //selected quad == 4
+            else if (cabbit.endPt[1] > cabbit.startPt[1] && cabbit.endPt[0] >= cabbit.startPt[0]) {
+              //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
+              console.log("selected quad 4");
+              if (cabbit.angle > 38.5 && cabbit.angle < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+                for (var _j11 = 0; _j11 < cabbit.count - 1; _j11++) {
+                  points[_j11].remove();
+                }
+              } else if (cabbit.angle < 38.5 && cabbit.angle > 0) {
+                console.log("selected diagonal");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+                for (var _j12 = 0; _j12 < cabbit.count - 1; _j12++) {
+                  points[_j12].remove();
+                }
+              }
+            }
+          } else if (cabbit.currQuad == 4) {
+            console.log("curr quad 4");
+            //selected quad == 1
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777) 
+              console.log("selected quad 1");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 3 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j13 = 0; _j13 < cabbit.count - 1; _j13++) {
+                points[_j13].remove();
+              }
+            }
+            //selected quad == 2
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 2");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 10 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 4; // MINUS CALIBRATION 
+              for (var _j14 = 0; _j14 < cabbit.count - 1; _j14++) {
+                points[_j14].remove();
+              }
+            }
+
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 3");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j15 = 0; _j15 < cabbit.count - 1; _j15++) {
+                points[_j15].remove();
+              }
+            }
+
+            //selected quad == 4
+            else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j16 = 0; _j16 < cabbit.count - 1; _j16++) {
+                points[_j16].remove();
+              }
+            }
+          }
+        }
+
+        //endAngle == 90; pathCount = 0
+        else if (cabbit.endAngle == 90) {
+          console.log("_____________________");
+          console.log("End angle : 90");
+          _offsetTop = $('#startPoint')[0].offsetTop + "px";
+          cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
+          //if currQuad == 1 
+          if (cabbit.currQuad == 1) {
+            console.log("curr quad 1");
+            //selected quad == 1 
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 1");
+              //if pivot
+              if (cabbit.angle >= 38.5 && cabbit.angle < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 2; // MINUS CALIBRATION
+                for (var _j17 = 0; _j17 < cabbit.count - 1; _j17++) {
+                  points[_j17].remove();
+                }
+              }
+              //if diagonal up
+              else if (90 - cabbit.angle >= 38.5 && 90 - cabbit.angle < 90) {
+                console.log("selected diagonal angle");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration; // MINUS CALIBRATION
+                for (var _j18 = 0; _j18 < cabbit.count - 1; _j18++) {
+                  points[_j18].remove();
+                }
+              }
+            }
+            //selected quad == 2
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 2");
+              if (Math.abs(cabbit.angle) > 38.5 && Math.abs(cabbit.angle) < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration * .7 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 3; // MINUS CALIBRATION
+                for (var _j19 = 0; _j19 < cabbit.count - 1; _j19++) {
+                  points[_j19].remove();
+                }
+              } else if (90 - Math.abs(cabbit.angle) > 38.5 && 90 - Math.abs(cabbit.angle) < 90) {
+                console.log("selected diagonal up");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+                for (var _j20 = 0; _j20 < cabbit.count - 1; _j20++) {
+                  points[_j20].remove();
+                }
+              }
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 3");
+              if (cabbit.angle > 38.5 && cabbit.angle < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 1 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 10; // MINUS CALIBRATION
+                for (var _j21 = 0; _j21 < cabbit.count - 1; _j21++) {
+                  points[_j21].remove();
+                }
+              } else if (cabbit.angle < 38.5 && cabbit.angle > 0) {
+                console.log("selected diagonal");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 1 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 10; // MINUS CALIBRATION
+                for (var _j22 = 0; _j22 < cabbit.count - 1; _j22++) {
+                  points[_j22].remove();
+                }
+              }
+            }
+
+            //selected quad == 4
+            else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration * 1.1 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 10; // MINUS CALIBRATION
+              for (var _j23 = 0; _j23 < cabbit.count - 1; _j23++) {
+                points[_j23].remove();
+              }
+            }
+          }
+          //if currQuad == 2
+          else if (cabbit.currQuad == 2) {
+            //selected quad == 1  
+            console.log("curr quad 2");
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 1");
+              if (Math.abs(cabbit.angle) > 38.5 && Math.abs(cabbit.angle) < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+                for (var _j24 = 0; _j24 < cabbit.count - 1; _j24++) {
+                  points[_j24].remove();
+                }
+              } else if (90 - Math.abs(cabbit.angle) > 38.5 && 90 - Math.abs(cabbit.angle) < 90) {
+                console.log("selected diagonal up");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop / 2; // MINUS CALIBRATION
+                for (var _j25 = 0; _j25 < cabbit.count - 1; _j25++) {
+                  points[_j25].remove();
+                }
+              }
+            }
+            //selected quad == 2
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              if (Math.abs(cabbit.angle) > 38.5 && Math.abs(cabbit.angle) < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration; // MINUS CALIBRATION
+                for (var _j26 = 0; _j26 < cabbit.count - 1; _j26++) {
+                  points[_j26].remove();
+                }
+              } else if (90 - Math.abs(cabbit.angle) > 38.5 && 90 - Math.abs(cabbit.angle) < 90) {
+                console.log("selected diagonal up");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop / 2; // MINUS CALIBRATION
+                for (var _j27 = 0; _j27 < cabbit.count - 1; _j27++) {
+                  points[_j27].remove();
+                }
+              }
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 3");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration; // MINUS CALIBRATION
+              for (var _j28 = 0; _j28 < cabbit.count - 1; _j28++) {
+                points[_j28].remove();
+              }
+            }
+            //selected quad == 4
+            else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+              for (var _j29 = 0; _j29 < cabbit.count - 1; _j29++) {
+                points[_j29].remove();
+              }
+            }
+          }
+        } else if (cabbit.endAngle == 180) {
+          //currQuad == 2
+          console.log("_____________________");
+          console.log("end angle : 180");
+          _offsetTop = $('#startPoint')[0].offsetTop + "px";
+          cabbit.startPt[1] = $('#startPoint')[0].offsetTop;
+          if (cabbit.currQuad == 2) {
+            console.log("curr quad 2");
+            //selected quad == 1
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              if (Math.abs(cabbit.angle) > 38.5 && Math.abs(cabbit.angle) < 90) {
+                console.log("selected pivot");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+                for (var _j30 = 0; _j30 < cabbit.count - 1; _j30++) {
+                  points[_j30].remove();
+                }
+              } else if (90 - Math.abs(cabbit.angle) > 38.5 && 90 - Math.abs(cabbit.angle) < 90) {
+                console.log("selected diagonal up");
+                _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+                cabbit.startPt[1] = $('#startPoint')[0].offsetTop / 2; // MINUS CALIBRATION
+                for (var _j31 = 0; _j31 < cabbit.count - 1; _j31++) {
+                  points[_j31].remove();
+                }
+              }
+              console.log("selected quad 1");
+            }
+            //curr quad == 2, pivot
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 2");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 4 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+              for (var _j32 = 0; _j32 < cabbit.count - 1; _j32++) {
+                points[_j32].remove();
+              }
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 3");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 3 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+              for (var _j33 = 0; _j33 < cabbit.count - 1; _j33++) {
+                points[_j33].remove();
+              }
+            }
+            //selected quad == 4
+            else if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 4 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j34 = 0; _j34 < cabbit.count - 1; _j34++) {
+                points[_j34].remove();
+              }
+            }
+          }
+
+          //currQuad == 3  
+          else if (cabbit.currQuad == 3) {
+            //selected quad == 1
+            console.log("curr quad 3");
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              //June 29, 2023 : added calibration to shift endpt left when currquad is 3 and selected quad is 1 
+              //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
+              console.log("selected quad 1");
+              console.log("currIndex : " + cabbit.currIndex);
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+              console.log("offsetTop : ");
+              console.log(_offsetTop);
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j35 = 0; _j35 < cabbit.count - 1; _j35++) {
+                points[_j35].remove();
+              }
+            }
+            //selected quad == 2, pivot
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              //cabbit.endPt[0] = cabbit.endPt[0] + (win.width*.0277777777777) //JUNE 29, 2023
+              console.log("selected quad 2");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 4 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+              for (var _j36 = 0; _j36 < cabbit.count - 1; _j36++) {
+                points[_j36].remove();
+              }
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              //cabbit.endPt[0] = cabbit.endPt[0] + (win.width*.0277777777777) //JUNE 29, 2023 
+              console.log("selected quad 3");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 4 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop; // MINUS CALIBRATION
+              for (var _j37 = 0; _j37 < cabbit.count - 1; _j37++) {
+                points[_j37].remove();
+              }
+            }
+            //selected quad == 4
+            else {
+              //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop - _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j38 = 0; _j38 < cabbit.count - 1; _j38++) {
+                points[_j38].remove();
+              }
+            }
+          }
+        } else if (cabbit.endAngle == 270) {
+          console.log("_____________________");
+          console.log("end angle : 270");
+          if (cabbit.currQuad == 3) {
+            console.log("curr quad 3");
+            //selected quad == 1
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 1");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + _calibration / 4 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j39 = 0; _j39 < cabbit.count - 1; _j39++) {
+                points[_j39].remove();
+              }
+            }
+            //selected quad == 2, pivot
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 2");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + _calibration + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j40 = 0; _j40 < cabbit.count - 1; _j40++) {
+                points[_j40].remove();
+              }
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 3");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop - _calibration / 2; // MINUS CALIBRATION
+              for (var _j41 = 0; _j41 < cabbit.count - 1; _j41++) {
+                points[_j41].remove();
+              }
+            }
+            //selected quad == 4
+            else {
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 4; // MINUS CALIBRATION
+              for (var _j42 = 0; _j42 < cabbit.count - 1; _j42++) {
+                points[_j42].remove();
+              }
+            }
+          } else if (cabbit.currQuad == 4) {
+            //QUAD 1
+            console.log("curr quad 4");
+            if (cabbit.endPt[0] > cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 1");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + _calibration / 2 + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 2; // MINUS CALIBRATION
+              for (var _j43 = 0; _j43 < cabbit.count - 1; _j43++) {
+                points[_j43].remove();
+              }
+            }
+            //selected quad == 2, pivot
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] < cabbit.startPt[1]) {
+              console.log("selected quad 2");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 4; // MINUS CALIBRATION
+              for (var _j44 = 0; _j44 < cabbit.count - 1; _j44++) {
+                points[_j44].remove();
+              }
+            }
+            //selected quad == 3
+            else if (cabbit.endPt[0] < cabbit.startPt[0] && cabbit.endPt[1] > cabbit.startPt[1]) {
+              console.log("selected quad 3");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px';
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 4; // MINUS CALIBRATION
+              for (var _j45 = 0; _j45 < cabbit.count - 1; _j45++) {
+                points[_j45].remove();
+              }
+            }
+            //selected quad == 4
+            else {
+              console.log("selected quad 4");
+              _offsetTop = $('#' + cabbit.currIndex)[0].offsetTop + 'px'; //#1
+              cabbit.startPt[1] = $('#startPoint')[0].offsetTop + _calibration / 4; // MINUS CALIBRATION
+              for (var _j46 = 0; _j46 < cabbit.count - 1; _j46++) {
+                points[_j46].remove();
+              }
+            }
+          }
+        }
+        $(itemClass).css('top', _offsetTop);
+
+        //MAKE SURE TO ADD this TO EVERY CASE
+        //cabbit.startPt[1] = ($('#startPoint')[0].offsetTop-calibration)
+
+        cabbit.count = count;
+        cabbit.moveCharacter();
+      } else {
+        alert(cabbit.count);
+        cabbit.moveCharacter();
+      }
+    });
+  }
   switch (sceneNum) {
     case 0:
       screenPercent = 75;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(0, screenPercent);
       setTimeout(function () {
         generateScene(1, win);
-      }, 3000);
+      }, 100);
       return;
     case 1:
-      //scene 11 
+      //scene 11   
       screenPercent = 90;
       (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(1, screenPercent);
-      (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 30);
+      cabbit = (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 30, 0);
+      //alert('cabbit.currrIndex -> ' + cabbit.currIndex) 
+
+      //Listens for body click event : 
+      bodyEventListener(cabbit);
       document.getElementById('cabbitPositionX').innerText = charPosition.cabbit[0];
       document.getElementById('cabbitPositionY').innerText = charPosition.cabbit[1];
-      setInterval(function () {
-        charPosition.cabbit[0] = eval(document.getElementById('cabbitPositionX').innerText);
-        charPosition.cabbit[1] = eval(document.getElementById('cabbitPositionY').innerText);
-        console.log(charPosition.cabbit);
-        //if the x coordinates is less than 300, then set prevExit to left, generateScene 2
-        //if x coordinates is greater than 1400, then set prevExit to right, generate scene 3
-      }, 66.667);
+      var thisInterval = setInterval(function () {
+        //if char Position X is less than or equal to 370
+        var thisPos = document.getElementById('cabbitPositionX').innerText;
+        if (thisPos <= win.width * .21) {
+          stopInt();
+          setTimeout(function () {
+            generateScene(2, win);
+            cabbit = null;
+          }, 2000);
+        }
+      }, 66.67);
+      var stopInt = function stopInt() {
+        clearInterval(thisInterval);
+      };
+      return;
+    case 2:
+      charPosition.cabbit[0] = 1500;
+      charPosition.cabbit[1] = 650;
+      screenPercent = 90;
+
+      //alert('cabbit.currrIndex -> ' + cabbit.currIndex) 
+      cabbit = (0,_generateCharacter_js__WEBPACK_IMPORTED_MODULE_1__.generateCharacter)('cabbit', charPosition, win, screenPercent - 30, 0);
+      console.log("FrameIndex : ");
+      console.log(cabbit.frameIndex);
+      console.log("CurrIndex : ");
+      console.log(cabbit.currIndex);
+      var pathPts = $('.pathPoint');
+      pathPts.remove();
+      (0,_generateBG_js__WEBPACK_IMPORTED_MODULE_0__.generateBackground)(2, screenPercent);
+      bodyEventListener(cabbit);
+      document.getElementById('startPoint').style.left = cabbit.startPt[0] + 'px';
+      document.getElementById('startPoint').style.top = cabbit.startPt[1] + 'px';
       return;
   }
-}
-
-/***/ }),
-
-/***/ "./src/utils/generateZone.js":
-/*!***********************************!*\
-  !*** ./src/utils/generateZone.js ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "generateZone": () => (/* binding */ generateZone)
-/* harmony export */ });
-function generateZone(arr) {
-  arr.forEach(function (obj) {
-    //console.log("switchScene : " + obj.switch2Scene)
-    obj.points.forEach(function (item) {
-      console.log(item);
-    });
-  });
-  //type : object, area, switchScene
-  //trigger : click, character
-  //click : on mouse enter of area make mouse active, otherwise make inactive
-  //character : if location of character is within zone, then trigger
-  //zone :  array of points [ [[],[],[],[]], [[],[],[],[]], [[],[],[],[]] ]
-  //for each array, cycle through... 
-  //first array is the top left, second array is the top right, third is bottom right, fourth us bottom left
-
-  //Example : generateZone("switchScene", zone)
-  //if character location is within zone(s), then generateScene(1, win)
 }
 
 /***/ }),
@@ -3802,7 +4549,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "setCharSize": () => (/* binding */ setCharSize),
 /* harmony export */   "thisClick": () => (/* binding */ thisClick),
-/* harmony export */   "updateLocation": () => (/* binding */ updateLocation),
 /* harmony export */   "win": () => (/* binding */ win)
 /* harmony export */ });
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
@@ -3832,9 +4578,6 @@ var win = /*#__PURE__*/_createClass(function win(window) {
 function thisClick(status) {
   alert("Clicked");
 }
-function updateLocation(charName, x, y) {
-  console.log(x);
-}
 
 /***/ }),
 
@@ -3858,7 +4601,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: red;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n  overflow-y: hidden;\n  overflow-x: hidden;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  border: 1px solid yellow;\n  top: 0;\n  left: 0;\n  margin-top: 100px;\n  margin-left: 50%;\n  display: block;\n  position: absolute;\n  margin: auto;\n  width: 100% !important;\n  background-repeat: no-repeat;\n  min-width: 300px;\n  z-index: 20;\n  height: 100%;\n  background: center;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n#charPosition {\n  width: 100% !important;\n  color: white;\n  z-index: 30;\n  position: absolute;\n  display: block;\n  margin-top: -400px;\n  margin-left: 50px;\n}\n\n.tempPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,eAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;EACA,kBAAA;EACA,kBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,wBAAA;EACA,MAAA;EACA,OAAA;EACA,iBAAA;EACA,gBAAA;EACA,cAAA;EACA,kBAAA;EACA,YAAA;EACA,sBAAA;EACA,4BAAA;EACA,gBAAA;EACA,WAAA;EACA,YAAA;EACA,kBAAA;AADJ;;AAIA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AADJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAFJ;;AAKA;EACI,sBAAA;EACA,YAAA;EACA,WAAA;EACA,kBAAA;EACA,cAAA;EACA,kBAAA;EACA,iBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,aAAA;AAJJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: red;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto;\n    overflow-y: hidden;\n    overflow-x: hidden;\n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat;  \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain {\n    border: 1px solid yellow;\n    top: 0;\n    left: 0;\n    margin-top: 100px;\n    margin-left: 50%;\n    display : block; \n    position : absolute;\n    margin:auto;\n    width: 100% !important;\n    background-repeat: no-repeat; \n    min-width: 300px;   \n    z-index: 20; \n    height: 100%;\n    background: center;\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : transparent solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n#charPosition {\n    width: 100% !important;\n    color: white;\n    z-index: 30; \n    position : absolute;\n    display : block; \n    margin-top: -400px;\n    margin-left: 50px;\n}\n\n.tempPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html {\n  width: auto !important;\n  margin: 0 auto;\n  height: 100%;\n}\n\nbody {\n  z-index: 0;\n  background: red;\n  color: white;\n  text-decoration: none;\n  font-size: 14px;\n  line-height: 1;\n  background-position: center;\n  margin: auto 0px;\n  width: auto !important;\n  height: 100%;\n  pointer-events: auto;\n  overflow-y: hidden;\n  overflow-x: hidden;\n}\n\n#bgMain {\n  display: block;\n  position: relative;\n  margin-left: auto;\n  margin-right: auto;\n  width: 100% !important;\n  min-width: 300px;\n  height: 100%;\n  z-index: 0;\n  background-color: black;\n  background-repeat: no-repeat;\n  /**/\n  -webkit-transform: translate3d(0, 0, 0);\n}\n\n#fgMain {\n  border: 1px solid yellow;\n  top: 0;\n  left: 0;\n  margin-top: 100px;\n  margin-left: 50%;\n  display: block;\n  position: absolute;\n  margin: auto;\n  width: 100% !important;\n  background-repeat: no-repeat;\n  min-width: 300px;\n  z-index: 20;\n  height: 100%;\n  background: center;\n}\n\n#endPoint {\n  width: 2px;\n  height: 2px;\n  position: relative;\n  border: green solid 2px;\n}\n\n#startPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n  left: 0px;\n  top: 0px;\n  z-index: 10;\n}\n\n#charPosition {\n  width: 100% !important;\n  color: white;\n  z-index: 30;\n  position: absolute;\n  display: block;\n  margin-top: -400px;\n  margin-left: 50px;\n}\n\n.tempPoint {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint1 {\n  border: yellow solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint2 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint3 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.pathPoint4 {\n  border: transparent solid 2px;\n  width: 2px;\n  height: 2px;\n  position: relative;\n}\n\n.cabbit {\n  left: -100px;\n  position: relative;\n  top: -200px;\n}\n\n.cabbit2 {\n  left: -150px;\n  position: relative;\n  top: -200px;\n}\n\n.invisible {\n  display: none;\n}", "",{"version":3,"sources":["webpack://./src/styles/spiritAnimal.scss"],"names":[],"mappings":"AACA;EACI,sBAAA;EACA,cAAA;EACA,YAAA;AAAJ;;AAGA;EACI,UAAA;EACA,eAAA;EACA,YAAA;EACA,qBAAA;EACA,eAAA;EACA,cAAA;EACA,2BAAA;EACA,gBAAA;EACA,sBAAA;EACA,YAAA;EACA,oBAAA;EACA,kBAAA;EACA,kBAAA;AAAJ;;AAGA;EACI,cAAA;EACA,kBAAA;EACA,iBAAA;EACA,kBAAA;EACA,sBAAA;EACA,gBAAA;EACA,YAAA;EACA,UAAA;EACA,uBAAA;EACA,4BAAA;EAEA,GAAA;EACA,uCAAA;AADJ;;AAIA;EACI,wBAAA;EACA,MAAA;EACA,OAAA;EACA,iBAAA;EACA,gBAAA;EACA,cAAA;EACA,kBAAA;EACA,YAAA;EACA,sBAAA;EACA,4BAAA;EACA,gBAAA;EACA,WAAA;EACA,YAAA;EACA,kBAAA;AADJ;;AAIA;EACI,UAAA;EACA,WAAA;EACA,kBAAA;EACA,uBAAA;AADJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;AAFJ;;AAKA;EACI,sBAAA;EACA,YAAA;EACA,WAAA;EACA,kBAAA;EACA,cAAA;EACA,kBAAA;EACA,iBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,wBAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAKA;EACI,6BAAA;EACA,UAAA;EACA,WAAA;EACA,kBAAA;AAFJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,YAAA;EACA,kBAAA;EACA,WAAA;AAJJ;;AAOA;EACI,aAAA;AAJJ","sourcesContent":[" \nhtml {\n    width : auto!important; \n    margin : 0 auto;\n    height : 100%;\n} \n\nbody { \n    z-index : 0;\n    background: red;\n    color: white; \n    text-decoration: none;\n    font-size: 14px;\n    line-height: 1;\n    background-position: center;\n    margin: auto 0px;\n    width : auto!important; \n    height: 100%;\n    pointer-events: auto;\n    overflow-y: hidden;\n    overflow-x: hidden; \n}  \n\n#bgMain {\n    display : block; \n    position : relative;\n    margin-left : auto;\n    margin-right : auto; \n    width : 100% !important; \n    min-width: 300px;  \n    height : 100%;\n    z-index: 0;\n    background-color: black; \n    background-repeat: no-repeat;  \n    //background-size: 75%;\n    /**/\n    -webkit-transform: translate3d(0,0,0);\n}\n\n#fgMain {\n    border: 1px solid yellow;\n    top: 0;\n    left: 0;\n    margin-top: 100px;\n    margin-left: 50%;\n    display : block; \n    position : absolute;\n    margin:auto;\n    width: 100% !important;\n    background-repeat: no-repeat; \n    min-width: 300px;   \n    z-index: 20; \n    height: 100%;\n    background: center;\n}\n\n#endPoint { \n    width : 2px;\n    height : 2px;\n    position : relative; \n    border : green solid 2px;\n    \n}\n\n#startPoint {\n    border : transparent solid 2px;\n    width : 2px;\n    height : 2px;\n    position : relative; \n    left: 0px;\n    top : 0px;\n    z-index : 10;\n}\n\n#charPosition {\n    width: 100% !important;\n    color: white;\n    z-index: 30; \n    position : absolute;\n    display : block; \n    margin-top: -400px;\n    margin-left: 50px;\n}\n\n.tempPoint {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint1 {\n    border : yellow solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint2 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint3 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n.pathPoint4 {\n    border : transparent solid 2px; \n    width : 2px;\n    height : 2px; \n    position : relative;  \n}\n\n \n\n.cabbit {\n    left : -100px;\n    position : relative;\n    top : -200px;\n}\n\n.cabbit2 {\n    left : -150px;\n    position : relative;\n    top : -200px;\n}\n\n.invisible {\n    display : none\n}\n \n \n \n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -15379,6 +16122,17 @@ module.exports = __webpack_require__.p + "braveNotice.gif";
 
 /***/ }),
 
+/***/ "./src/assets/bg/cabbitValley.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/bg/cabbitValley.jpg ***!
+  \****************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+module.exports = __webpack_require__.p + "cabbitValley.jpg";
+
+/***/ }),
+
 /***/ "./src/assets/bg/deerwood.png":
 /*!************************************!*\
   !*** ./src/assets/bg/deerwood.png ***!
@@ -17895,7 +18649,8 @@ window.jQuery = jquery__WEBPACK_IMPORTED_MODULE_3__.jQuery;
 var windowInst = new _utils_utils_js__WEBPACK_IMPORTED_MODULE_2__.win(window);
 //let running = true  
 
-alert("HEIGHT : " + window.innerHeight);
+//alert("HEIGHT : " + window.innerHeight) 
+
 (0,_utils_generateScene_js__WEBPACK_IMPORTED_MODULE_1__.generateScene)(0, windowInst);
 })();
 

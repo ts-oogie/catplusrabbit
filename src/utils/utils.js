@@ -27,10 +27,7 @@ export function thisClick(status){
     alert("Clicked")
 }
 
-export function updateLocation(charName, x, y) {
-     
-    console.log(x) 
-}
+
  
 
 

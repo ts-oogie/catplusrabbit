@@ -3,6 +3,7 @@ import '../assets/bg/11-small.jpg'
 import '../assets/bg/braveNotice.gif'
 import '../assets/bg/fgFrame.gif'
 import '../assets/bg/deerwood.png'
+import '../assets/bg/cabbitValley.jpg'
 
 export function generateBackground(scene, size){ 
     const thisSize = size + '%'
@@ -18,7 +19,7 @@ export function generateBackground(scene, size){
     }
      
     else if(scene == 1){ 
-        thisBG.style.backgroundImage = "url(deerwood.png)"
+        thisBG.style.backgroundImage = "url(deerwood.png)" 
         thisBG.style.backgroundPosition = "center center"
         thisBG.style.backgroundSize = thisSize
         thisBG.style.zIndex = "-10" 
@@ -31,6 +32,33 @@ export function generateBackground(scene, size){
         thisBG.style.zIndex = "0"  
     } 
 
+    else if(scene == 2){
+        thisBG.style.backgroundImage = "url(cabbitValley.jpg)" 
+        thisBG.style.backgroundPosition = "center center"
+        thisBG.style.backgroundSize = thisSize
+        thisBG.style.zIndex = "-10" 
+
+        const fgSize = size + 10 + "%"
+
+        thisFG.style.backgroundImage = "url(fgFrame.gif)"
+        thisBG.style.backgroundPosition = "center center"
+        thisFG.style.backgroundSize = fgSize
+        thisBG.style.zIndex = "0"  
+    }
+
+    else if(scene == 3){
+        thisBG.style.backgroundImage = "url(deerwood.png)" 
+        thisBG.style.backgroundPosition = "center center"
+        thisBG.style.backgroundSize = thisSize
+        thisBG.style.zIndex = "-10" 
+
+        const fgSize = size + 10 + "%"
+
+        thisFG.style.backgroundImage = "url(fgFrame.gif)"
+        thisBG.style.backgroundPosition = "center center"
+        thisFG.style.backgroundSize = fgSize
+        thisBG.style.zIndex = "0"  
+    }
    
 }
 

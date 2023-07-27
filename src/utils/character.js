@@ -1,21 +1,20 @@
-import {returnDivisor} from './divisor.js' 
-import {win} from './utils.js'
-
+import {returnDivisor} from './divisor.js'    
 
 export class characterObject {
-    constructor(startPt, endPt, frameDistance, gifs, w, h, name) {
+    constructor(startPt, endPt, frameDistance, gifs, w, h, name, currIndex ) {
         this.adj
         this.angle  
         this.calibration
         this.count = 0
         this.classLabel
         this.direction
-        this.divisor
-        this.divisorMultiplier
+        this.divisor 
         this.gif = gifs 
         this.height = h
-        this.currIndex 
+        this.currIndex = currIndex
         this.currQuad
+        this.currXPt
+        this.currYPt
         this.endPt = endPt 
         this.endAngle = undefined
         this.frameDistance = frameDistance 
@@ -26,62 +25,68 @@ export class characterObject {
         this.pathCount = 0
         this.pathInterrupted = false 
         this.pivot = 0 
-        this.quadAdj
-        this.quadAdjMultiplier
-        this.quadAngle
-        this.quadAngleMultiplier
-        this.quadOpp
-        this.quadOppMultiplier
+        this.quadAdj 
+        this.quadAngle 
+        this.quadOpp 
         this.startPt = startPt   
+        this.stopPt
         this.width = w
         this.xDist 
         this.yDist  
+        this.yMin
+        this.yMax
     }
+
+  
     
     returnDivisor(x, y, z){
        return returnDivisor(x, y, z)
     } 
 
     //separate path builder
-    moveCharacter(){    
- 
+    moveCharacter(yMin, yMax){    
+
+        this.yMin = yMin
+        this.yMax = yMax
         this.calibration = this.frameDistance*1.2  
 
         if (this.pathInterrupted == false){
             this.classLabel = 'pathPoint'
         }
-
+    
         else {
             this.classLabel = 'pathPoint' + this.pathCount
         } 
-
+    
         this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1) 
         this.adj = Math.pow((this.endPt[1] - this.startPt[1]), 1)*(-1)
         this.angle = Math.abs(Math.atan(this.opp/this.adj) * 180/Math.PI)
         //char.hypo = Math.sqrt((char.opp*char.opp)+(char.adj*char.adj));   
-         
+        
         //QUAD 1 :
         //if endPt Y is less than startPt Y && entPt X is greater than startPt X : 
         if (this.endPt[1] <= this.startPt[1] && this.endPt[0] >= this.startPt[0]){
-
+    
             this.endPt[0] = this.endPt[0] - (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-
-            console.log("quad 1 PIVOT")
+    
+            console.log("quad 1  ")
+             
             this.currQuad = 1//Define current quad number
             this.pivot = 0
             this.quadAngle = 38.5
             this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)))//10px opp distance - 1 frame
             this.quadAdj = Math.round(this.frameDistance*Math.cos(this.quadAngle/(180/Math.PI)))//10px
-
+    
             //if end point is between 0 and 38.5 degrees
             if ((this.angle >= 38.5) && (this.angle < 90)){
-
+                console.log("pivot ")
+                console.log("angle : " + this.angle)
                 this.direction = 'pivot'    
-
+    
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)) // divided
-                this.xDist = this.startPt[0] - 15 //HACK 
-                this.yDist = this.startPt[1]  
- 
+                this.xDist = this.startPt[0] //- 15 //HACK 
+                this.yDist = this.startPt[1] - this.calibration*1.1;
+    
                 //construct path diagonal until ....
                 //divisor calculates the number of points in the hypoteneuse
                 while (this.count < this.divisor){   
@@ -97,7 +102,7 @@ export class characterObject {
                 while (this.xDist < this.endPt[0]){
                     this.count++;
                     this.xDist += this.frameDistance*2; // Multiply char.xDist x2 if horizontal
-                    this.yDist -= 4.5 //Previously -=6
+                    this.yDist -= .005039193729003*window.innerHeight//Previously -=6
                     //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
@@ -111,39 +116,41 @@ export class characterObject {
                     this.count++;
                     this.xDist += this.frameDistance*k; // Multiply char.xDist x2 if horizontal
                     k = (k*.8);
-                    this.yDist -= 4.5 //Previously -=6
+                    this.yDist -= .005039193729003*window.innerHeight//Previously -=6
                     this.startPt[0] = this.xDist;
                     this.startPt[1] = this.yDist;
                     //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-
+                    
                 } 
-
-                //Reset start Points 
+    
+                //Reset start Points  
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] - this.calibration  + 'px'
-
+                 
+    
                 if (this.endAngle == undefined){ 
                     this.animateCharacterWalk(this.pathCount)
                 }
-
+    
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
-                else {  
-
-                     this.rotateCharacter().then(()=>{   
+                else {   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
             
             }
-
+    
             //cabbit.endPt[0] = cabbit.endPt[0] - (win.width*.0277777777777)
             
             //If the end point angle is between 38.5 and 90
+             
             else if ((90-this.angle) >= 38.5 && (90-this.angle) < 90) { 
                 //this.opp = Math.pow((this.endPt[0] - this.startPt[0]), 1)
                 console.log("diagonal then up+" );
+                console.log("angle : " + this.angle)
                 this.xDist = this.startPt[0]   
                 this.yDist = this.startPt[1]  
                 //Copy this to quad 2 diagonal then up July 2, 2023
@@ -156,63 +163,192 @@ export class characterObject {
                     this.count++;
                     this.pivot++;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                }    
-
-                this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-
-
-                //construct vertical path
-              
-                 if (this.startPt[1]-this.endPt[1] > (this.frameDistance*20) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*40) ){
-                    console.log("0-40") 
-
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*30)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.0067415
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*40) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*60) ){
-                    console.log("40-60")
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*45)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.0067415
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+                }     
                 
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*60) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*80) ){
-                    console.log("60-80")
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*50)){
-                         this.count++;
-                        this.yDist -= this.calibration;
+                //construct vertical path
+                let difference = this.startPt[1]-this.endPt[1]   
+                this.endPt[1] = this.endPt[1] - (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+
+            
+                if ((difference > (this.frameDistance*0)) && (difference <= (this.frameDistance*20))){
+                    console.log("0-20") 
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*20)){ 
+                        this.count++   
+                        this.yDist -= this.calibration*1.3;
                         this.yDist -= window.innerHeight*.0067415
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
                 }
+    
+                else if ((difference > (this.frameDistance*20)) && (difference <= (this.frameDistance*35))){
+                    console.log("20-35")
+                    //this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*80) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*100) ){
-                    console.log("80-100")
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*90)){
-                         this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+                    if (this.endPt[0]-this.startPt[0] < .0464*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*30)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                     }   
+                } 
+    
+                else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
+                    console.log("35-45")
+                    //if x/winWidth < .685*winWidth: 
+                    //this.endPt[1] = this.endPt[1] - (window.innerHeight*.05)//subtract calibration July 3, 2023 This worked!!!!!
+
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                            console.log("X Diff : " + (this.endPt[0]-this.startPt[0]))
+                            console.log("X Dist Max 1 : " + (.04*window.innerWidth))
+                            console.log("X Dist Max 2 : " + (.67*window.innerWidth))
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
+
+                }
+    
+                else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
+                    console.log("45-55")
+                    //this.endPt[1] = this.endPt[1] + (window.innerHeight*.01)
+                    console.log("X Diff : " + this.endPt[0]-this.startPt[0])
+                    console.log(".04*window.innerWidth : " + (.04*window.innerWidth))
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*43)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*47)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
                 } 
 
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*100) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*120) ){ 
-                    console.log("if distance is between 100 and 120") 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*100)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*75))){
+                    console.log("55-75")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*53)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*55)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                 
+                } 
+    
+                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*95))){
+                    console.log("75-95")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*63)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
-                }
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*70)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .095*window.innerWidth && this.endPt[0]-this.startPt[0] < .125*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*76)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    
+                }  
+    
+                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*120))){
+                    console.log("95-120")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*75)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*78)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    } 
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .095*window.innerWidth && this.endPt[0]-this.startPt[0] < .125*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*85)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .125*window.innerWidth && this.endPt[0]-this.startPt[0] < .152*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*90)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .152*window.innerWidth && this.endPt[0]-this.startPt[0] < .174*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*95)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                } 
+    
                 
                 let j = 0;
                 let k = 2;
@@ -228,24 +364,24 @@ export class characterObject {
                     this.startPt[1] = this.yDist;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
-
+    
                 //Reset start Points
-                document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
+                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
                 
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
                 } 
-
+    
                 else {  
-                     this.rotateCharacter().then(()=>{   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
                 
             } 
         }
-
+    
         //QUAD TWO
         else if (this.endPt[1]<=this.startPt[1]&&this.endPt[0]<=this.startPt[0]){
             
@@ -255,20 +391,20 @@ export class characterObject {
             this.currQuad = 2;
             this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)));//10px opp distance - 1 frame
             this.quadAdj = Math.round(this.frameDistance*Math.cos(this.quadAngle/(180/Math.PI)));//10px
-
+    
             //if end point is between 38.5 and 0
             //this angle reference point is from 90 degrees
             if ((Math.abs(this.angle) > 38.5) && (Math.abs(this.angle) < 90)){
                 //pivot
                 console.log("PIVOT");
-
+    
                 this.endPt[0] = this.endPt[0] + (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-
+    
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)); // divided
                 
                 this.xDist = this.startPt[0];
-                this.yDist = this.startPt[1] - this.calibration;
-                    
+                this.yDist = this.startPt[1] + this.calibration*1.2;  
+
                 //construct path diagonal until  
                 while ( this.count < this.divisor){  
                     this.xDist -= this.quadAdj;  
@@ -300,36 +436,36 @@ export class characterObject {
                     this.startPt[1] = this.yDist;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
-
-                //Reset start Points
+    
+                //Reset start Points 
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
                 
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
                 }
-
+    
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
                 else {  
-                     this.rotateCharacter().then(()=>{   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
-
+    
             }
-            //If the end point angle is between  90 and 141.5
+            //If the end point angle is between  90 and 141.5 
             else if ((90-(Math.abs(this.angle))) > 38.5 && (90-(Math.abs(this.angle))) < 90) {
                 //diagonal then up
                 console.log("diagonal then up + ") 
-
-                this.endPt[1] = this.endPt[1] - (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-
+    
+                //this.endPt[1] = this.endPt[1] - (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+    
                 this.xDist = this.startPt[0]    
-                this.yDist = this.startPt[1] - this.calibration
+                this.yDist = this.startPt[1] //- this.calibration
                 //this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-this.endPt[0],((this.startPt[0]-this.endPt[0])%this.quadAdj), this.quadAdj))
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[0]-(this.endPt[0]+(window.innerWidth*.0277777777777)),((this.startPt[0]-(this.endPt[0]+(window.innerWidth*.0277777777777)))%this.quadAdj), this.quadAdj));
-
+    
                 //construct path diagonal until 
                 while (this.xDist >= this.endPt[0]){   
                     this.xDist -= this.quadAdj;  
@@ -338,61 +474,182 @@ export class characterObject {
                     this.pivot++;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 }    
-
+    
                 //construct vertical path 
+                let difference = this.startPt[1]-this.endPt[1]   
                 this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
-
-                if (this.startPt[1]-this.endPt[1] > (this.frameDistance) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*40) ){
-                    console.log("0 and 40") 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*30)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                if ((difference > (this.frameDistance*0)) && (difference <= (this.frameDistance*20))){
+                    console.log("0-20") 
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*20)){ 
+                        this.count++   
+                        this.yDist -= window.innerHeight*.0067415
+                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
+                }  
+    
+                else if ((difference > (this.frameDistance*20)) && (difference <= (this.frameDistance*35))){
+                    console.log("20-35")
+                    //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+                    if (this.endPt[0]-this.startPt[0] < .0464*window.innerWidth){ 
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*30)){
+                            this.count++; 
+                            this.yDist -= this.calibration;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                     }   
+                } 
+    
+                else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
+                    console.log("35-45!")
+                    //if x/winWidth < .685*winWidth:  
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*40)){
+                            console.log("While")
+                            this.count++;   
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        }  
+                    }
                 }
+    
+                else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
+                    console.log("45-55")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*45)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*47)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                } 
 
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*40) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*60) ){ 
-                    console.log("40 and 60") 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*50)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*75))){
+                    console.log("55-75")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*50)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*53)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*55)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
                 } 
-                
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*60) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*80) ){ 
-                    console.log("60 and 80") 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*60)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+    
+                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*95))){
+                    console.log("75-95")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*63)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*66)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
-                }
-
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*80) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*100) ){ 
-                    console.log(" 80 and 100") 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*80)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*70)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .095*window.innerWidth && this.endPt[0]-this.startPt[0] < .125*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*76)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    
+                }  
+    
+                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*120))){
+                    console.log("95-120")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*80)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*83)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
-                }
-
-                else if (this.startPt[1]-this.endPt[1] > (this.frameDistance*100) && this.startPt[1]-this.endPt[1] <= (this.frameDistance*120) ){ 
-                    console.log("if distance is between 100 and 120") 
-                    while(this.yDist > this.endPt[1]-(this.frameDistance*100)){
-                        this.count++;
-                        this.yDist -= this.calibration;
-                        this.yDist -= window.innerHeight*.005
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                } 
-
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*86)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .095*window.innerWidth && this.endPt[0]-this.startPt[0] < .125*window.innerWidth){
+                        while(this.yDist > this.endPt[1]-(this.frameDistance*90)){
+                            this.count++; 
+                            this.yDist -= this.calibration*1.3;
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .125*window.innerWidth && this.endPt[0]-this.startPt[0] < .152*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*90)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .152*window.innerWidth && this.endPt[0]-this.startPt[0] < .174*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*95)){
+                            this.count++; 
+                            this.yDist -= this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                }  
+    
                 let j = 0;
                 let k = 2;
                 
@@ -407,7 +664,7 @@ export class characterObject {
                     this.startPt[1] = this.yDist;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
-
+    
                 //Reset start Points
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
@@ -415,43 +672,42 @@ export class characterObject {
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
                 }
-
+    
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
                 else {  
-                     this.rotateCharacter().then(()=>{   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
                     
             } 
         }
-
+    
         //QUAD THREE
         else if (this.endPt[1]>=this.startPt[1]&&this.endPt[0]<=this.startPt[0]){
-
+    
             this.pivot = 0
-
+    
             console.log("quad 3")
             this.quadAngle = 38.5  
             this.currQuad = 3  
             this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)))  //10px opp distance - 1 frame
             this.quadAdj = Math.round(this.frameDistance*Math.cos(this.quadAngle/(180/Math.PI)))  //10px
-
+    
             
             if ((this.angle > 38.5) && (this.angle < 90) ){
-                //pivot 
-
-                this.endPt[0] = this.endPt[0] + (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-
+                //pivot  
+                //this.endPt[1] = this.endPt[1] + (window.innerHeight*.0577777777777)//subtract calibration July 3, 2023 This worked!!!!!
+                
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp))   // divided
                 this.xDist = this.startPt[0]  
-                this.yDist = this.startPt[1] - this.calibration    
+                this.yDist = this.startPt[1] - this.calibration   
                     
                 //construct path diagonal until 
                 while ( this.count < this.divisor){   
                     this.xDist -= this.quadAdj    
-                    this.yDist += this.quadOpp/5  
+                    this.yDist += this.quadOpp/5   
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')  
                     this.count++  
                     this.pivot++  
@@ -460,11 +716,11 @@ export class characterObject {
                 //construct horizontal line
                 while (this.xDist > this.endPt[0]){
                     this.xDist -= this.frameDistance*2  
-                    this.yDist -= 4.5     
+                    this.yDist -= .005039193729003*window.innerHeight//Previously -=6 
                     this.count++  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                     }  
-
+    
                 let j = 0
                 let k = 2 
                 
@@ -474,38 +730,35 @@ export class characterObject {
                     this.count++
                     this.xDist -= this.frameDistance*k   // Multiply this.xDist x2 if horizontal
                     k = (k*.8)  
-                    this.yDist -= 4.5
+                    this.yDist -= .005039193729003*window.innerHeight//Previously -=6 
                     this.startPt[0] = this.xDist  
-                    this.startPt[1] = this.yDist  
+                    this.startPt[1] = this.yDist    
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                 } 
-
+    
                 //Reset start Points
-                document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
+                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
-
+    
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
                 }
-
+    
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
                 else {  
-                     this.rotateCharacter().then(()=>{   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
                 
-            }
-
+            } 
             else if ((this.angle < 38.5) && (this.angle > 0)){
-                console.log("diagonal then down - OK")  
-
-                 
+                console.log("diagonal then down - OK")   
                 
                 this.xDist = this.startPt[0]  
                 this.yDist = this.startPt[1] - this.calibration    
-
+    
                 //diagonal
                 while (this.xDist >= this.endPt[0]){   
                     this.xDist -= this.quadAdj    
@@ -513,121 +766,180 @@ export class characterObject {
                     this.count++  
                     this.pivot++  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                }   
-
+                }    
                 
-                let difference = this.endPt[1]-this.startPt[1]
-                 
-
+                let difference = this.endPt[1]-this.startPt[1] 
+    
                 //construct vertical path
-                if (difference > 0 && difference < (this.frameDistance*10)){ 
-                    console.log("0-10")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
+
+                this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
+    
+
+                if ((difference > (this.frameDistance*0)) && (difference <= (this.frameDistance*20))){
+                    console.log("0-20") 
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*20)){ 
                         this.count++   
-                        this.yDist += this.quadOpp   
+                        this.yDist += window.innerHeight*.0067415
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
                 } 
-
-                else if ((difference > (this.frameDistance*10)) && (difference <= (this.frameDistance*25))){
-                    console.log("10-25") 
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
-                        this.count++   
-                        this.yDist += this.quadOpp  
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*25)) && (difference <= (this.frameDistance*30))){
-                    console.log("25-30")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*22)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){ 
-                    console.log("30-35")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*25)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+    
+                else if ((difference > (this.frameDistance*20)) && (difference <= (this.frameDistance*35))){
+                    console.log("20-35")
+                    //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+                    if (this.startPt[0]-this.endPt[0] < .0464*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*30)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                     }   
+                } 
 
                 else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
                     console.log("35-45")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+                    //if x/winWidth < .685*winWidth: 
+                    if (this.startPt[0]-this.endPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
 
+                    else if(this.endPt[0]/window.innerWidth >= .67){
+                        //skip vertical and build stop path
+                    } 
+
+                }
+    
                 else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
                     console.log("45-55")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*36)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*65))){
-                    console.log("55-65")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*42)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*65)) && (difference <= (this.frameDistance*75))){
-                    console.log("65-75")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*85))){
-                    console.log("75-85")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*58)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*85)) && (difference <= (this.frameDistance*95))){
-                    console.log("85-95")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*105))){
-                    console.log("95-105")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*74)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*105)) && (difference <= (this.frameDistance*115))){
-                    console.log("95-105")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
+                    if (this.startPt[0]-this.endPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*45)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .04*window.innerWidth && this.startPt[0]-this.endPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*47)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
                 } 
 
+                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*75))){
+                    console.log("55-75")
+                    if (this.startPt[0]-this.endPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .04*window.innerWidth && this.startPt[0]-this.endPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*53)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .067*window.innerWidth && this.startPt[0]-this.endPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*55)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                 
+                } 
+    
+                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*95))){
+                    console.log("75-95")
+                    if (this.startPt[0]-this.endPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*63)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                    else if(this.startPt[0]-this.endPt[0]  > .04*window.innerWidth && this.startPt[0]-this.endPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    } 
+                    else if(this.startPt[0]-this.endPt[0]  > .067*window.innerWidth && this.startPt[0]-this.endPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*70)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .095*window.innerWidth && this.startPt[0]-this.endPt[0] < .125*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*76)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    
+                }
+
+                
+    
+                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*120))){
+                    console.log("95-120")
+                    if (this.startPt[0]-this.endPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*75)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .04*window.innerWidth && this.startPt[0]-this.endPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*78)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    } 
+                    else if(this.startPt[0]-this.endPt[0]  > .067*window.innerWidth && this.startPt[0]-this.endPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .095*window.innerWidth && this.startPt[0]-this.endPt[0] < .125*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*85)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .125*window.innerWidth && this.startPt[0]-this.endPt[0] < .152*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*90)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.startPt[0]-this.endPt[0]  > .152*window.innerWidth && this.endPt[0]-this.startPt[0] < .174*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*95)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+
+
+                }  
+    
                 let j = 0;
                 let k = 2;
                 
@@ -640,9 +952,10 @@ export class characterObject {
                     this.yDist -= this.frameDistance*1.2; //Previously -=6
                     this.startPt[0] = this.xDist;
                     this.startPt[1] = this.yDist;
+                    
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
-
+    
                 //Reset start Points
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
@@ -650,39 +963,39 @@ export class characterObject {
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
                 }
-
+    
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
                 else {  
-                     this.rotateCharacter().then(()=>{   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
             } 
-
+    
         }
-
+    
         //QUAD 4
         else if (this.endPt[1]>this.startPt[1]&&this.endPt[0]>=this.startPt[0]){ 
-
+    
             console.log("quad 4");  
             this.quadAngle = 38.5;
             this.currQuad = 4;
             this.pivot = 0; 
-
+    
             this.quadOpp = Math.round(this.frameDistance*Math.sin(this.quadAngle/(180/Math.PI)));//10px opp distance - 1 frame
             this.quadAdj = Math.round(this.frameDistance*Math.cos(this.quadAngle/(180/Math.PI)));//10px
-
+    
             //this.quadAdj = quadAdj
             //this.quadOpp = quadOpp
-
+    
             //if end point is between 180 and 141.5 degrees
             if ((this.angle > 38.5) && (this.angle < 90)){
                 //pivot
                 console.log("Pivot 4");  
-
+    
                 this.endPt[0] = this.endPt[0] - (window.innerWidth*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-
+    
                 this.divisor = Math.abs(this.returnDivisor(this.startPt[1]-this.endPt[1],((this.startPt[1]-this.endPt[1])%this.quadOpp),this.quadOpp)); // divided
                 
                 this.xDist = this.startPt[0];
@@ -701,37 +1014,36 @@ export class characterObject {
                 while (this.xDist < this.endPt[0]){
                     this.count++;
                     this.xDist += this.frameDistance*2; // Multiply char.xDist x2 if horizontal
-                    this.yDist -= 4.5 //Previously -=6
-                    //document.getElementById('bgMain').innerHTML += '<div id="' +  this.count + '" class="pathPoint" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>';
-                    $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    this.yDist -= .005039193729003*window.innerHeight//Previously -=6 
+                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
-
+    
                 let j = 0;
                 let k = 2; 
-              
+            
                 //stop path cycle 
                 while (j<12){
                     j++;
                     this.count++;
                     this.xDist += this.frameDistance*k; // Multiply this.xDist x2 if horizontal
                     k = (k*.8);
-                    this.yDist -= 4.5//Previously -=6
+                    this.yDist -= .005039193729003*window.innerHeight//Previously -=6 
                     this.startPt[0] = this.xDist;
                     this.startPt[1] = this.yDist;
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
                 } 
-
+    
                 //Reset start Points change to .style.left = 
-                document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
+                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px'
- 
+    
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount) 
                 }
-
+    
                 //if this.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                 else if (this.pathInterrupted == true){ 
-
+    
                     if (this.endAngle == 292){ 
                         this.animateCharacterWalk(this.pathCount )
                     }
@@ -752,12 +1064,10 @@ export class characterObject {
                     
                 }
             }   
-
+         
             else if ((this.angle < 38.5) && (this.angle > 0)){ 
-                console.log("diagonal then down --")  
-
-                //this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
-    
+                console.log("diagonal then down --")   
+                
                 this.xDist = this.startPt[0]  
                 this.yDist = this.startPt[1] - this.calibration    
     
@@ -769,116 +1079,170 @@ export class characterObject {
                     this.pivot++  
                     $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                 } 
-
+    
                 let difference = this.endPt[1]-this.startPt[1] 
+                this.endPt[1] = this.endPt[1] + (window.innerHeight*.0277777777777)//subtract calibration July 3, 2023 This worked!!!!!
 
-                if (difference > 0 && difference < (this.frameDistance*10)){ 
-                    console.log("0-10")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
+                if ((difference > (this.frameDistance*0)) && (difference <= (this.frameDistance*20))){
+                    console.log("0-20") 
+                    while(this.yDist < this.endPt[1]-(this.frameDistance*20)){ 
                         this.count++   
-                        this.yDist += this.quadOpp   
+                        this.yDist += window.innerHeight*.0067415
                         $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
                     } 
+                }
+    
+                else if ((difference > (this.frameDistance*20)) && (difference <= (this.frameDistance*35))){
+                    console.log("20-35")
+                    //if (this.endPt[0]-this.startPt[0] < 82) { *** CHANGE TO THIS JULY 11
+                    if (this.endPt[0]-this.startPt[0] < .0464*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*30)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                     }   
                 } 
-
-                else if ((difference > (this.frameDistance*10)) && (difference <= (this.frameDistance*25))){
-                    console.log("10-25") 
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*10)){
-                        this.count++   
-                        this.yDist += this.quadOpp  
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>')
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*25)) && (difference <= (this.frameDistance*30))){
-                    console.log("25-30")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*22)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*30)) && (difference <= (this.frameDistance*35))){ 
-                    console.log("30-35")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*25)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
+    
                 else if ((difference > (this.frameDistance*35)) && (difference <= (this.frameDistance*45))){
                     console.log("35-45")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+                    //if x/winWidth < .685*winWidth: 
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*34)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
 
+                    else if(this.endPt[0]/window.innerWidth >= .67){
+                        //skip vertical and build stop path
+                    } 
+
+                }
+    
                 else if ((difference > (this.frameDistance*45)) && (difference <= (this.frameDistance*55))){
                     console.log("45-55")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*36)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*45)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*47)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                } 
 
-                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*65))){
-                    console.log("55-65")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*42)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                else if ((difference > (this.frameDistance*55)) && (difference <= (this.frameDistance*75))){
+                    console.log("55-75")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*53)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*55)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                 
+                } 
+    
+                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*95))){
+                    console.log("75-95")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*63)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
-                }
-
-                else if ((difference > (this.frameDistance*65)) && (difference <= (this.frameDistance*75))){
-                    console.log("65-75")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*50)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*70)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .095*window.innerWidth && this.endPt[0]-this.startPt[0] < .125*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*76)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    
+                }  
+    
+                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*120))){
+                    console.log("95-120")
+                    if (this.endPt[0]-this.startPt[0] < .04*window.innerWidth){ 
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*75)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .04*window.innerWidth && this.endPt[0]-this.startPt[0] < .067*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*78)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
                     } 
-                }
-
-                else if ((difference > (this.frameDistance*75)) && (difference <= (this.frameDistance*85))){
-                    console.log("75-85")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*58)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*85)) && (difference <= (this.frameDistance*95))){
-                    console.log("85-95")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*66)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*95)) && (difference <= (this.frameDistance*105))){
-                    console.log("95-105")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*74)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
-
-                else if ((difference > (this.frameDistance*105)) && (difference <= (this.frameDistance*115))){
-                    console.log("95-105")
-                    while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
-                        this.count++; 
-                        this.yDist += this.quadOpp;
-                        $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
-                    } 
-                }
+                    else if(this.endPt[0]-this.startPt[0]  > .067*window.innerWidth && this.endPt[0]-this.startPt[0] < .095*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*82)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .095*window.innerWidth && this.endPt[0]-this.startPt[0] < .125*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*85)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .125*window.innerWidth && this.endPt[0]-this.startPt[0] < .152*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*90)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }
+                    else if(this.endPt[0]-this.startPt[0]  > .152*window.innerWidth && this.endPt[0]-this.startPt[0] < .174*window.innerWidth){
+                        while(this.yDist < this.endPt[1]-(this.frameDistance*95)){
+                            this.count++; 
+                            this.yDist += this.quadOpp;
+                            $('#bgMain').append('<div id="' + this.count + '" class="' + this.classLabel + '" style="left:' + this.xDist + 'px; top:' + this.yDist + 'px;"></div>');
+                        } 
+                    }  
+                } 
     
                 let j = 0;
                 let k = 2;
@@ -898,7 +1262,7 @@ export class characterObject {
                 //Reset start Points
                 document.getElementById('startPoint').style.left = this.endPt[0] + 'px' 
                 document.getElementById('startPoint').style.top = this.endPt[1] + 'px' 
-                 
+                
                 
                 if (this.endAngle == undefined){
                     this.animateCharacterWalk(this.pathCount)
@@ -907,16 +1271,18 @@ export class characterObject {
                 //if char.endAngle is defined, rotate, then animate : if quad 1, then cabbit-rotate-0-quad1-1 to 4
                     
                 else {  
-                     this.rotateCharacter().then(()=>{   
+                    this.rotateCharacter().then(()=>{   
                         this.animateCharacterWalk(this.pathCount); 
                     }); 
                 }
             } 
         }  
-    }
+    
 
+    }
+    //call preDisplay -> displayChar -> stopDisplay promise sequence
     animateCharacterWalk(pathCount){   
-        
+        //add scaling
         this.inMotion = true   
         for(let i=1; i<=this.count; i++){ 
             this.preDisplay(i, this.currQuad, this.angle, this.pivot, (this.count - 6)) 
@@ -934,6 +1300,7 @@ export class characterObject {
 
     } 
  
+    //Rotate
     rotateCharacter(){  
 
         let thisEl
@@ -947,8 +1314,11 @@ export class characterObject {
 
         else {
             //hack job  
-            thisEl = $('.pathPoint')  
-            thisEl[0].classList.add('tempPoint')
+            thisEl = $('.pathPoint')     
+
+            thisEl[0].classList.add('tempPoint') 
+            $('.tempPoint').css("top", this.stopPt[1])
+
             thisEl[0].classList.remove('pathPoint') 
             //rotate gifs are attached to tempPoint
         }  
@@ -1354,7 +1724,8 @@ export class characterObject {
             } 
 
             else if(this.endAngle == 270 && this.currQuad == 1){
-                thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-1.gif';
+                 
+                thisEl[0].firstChild.src = './cabbit-rotate-270-quad1-1.gif'; 
     
                 //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
     
@@ -1394,37 +1765,37 @@ export class characterObject {
             }
 
             else if(this.endAngle == 270 && this.currQuad == 2){
-                thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-1.gif';
+                
+                thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-1.gif'
     
                 //$('.pathPoint').eq(0).html('<img id="tempPt" src=' + gifSrc + 1 + '.gif' + ' style="position : relative; height : 400px; width : 300px; left : -150px; top : -200px;">');
     
                 setTimeout(()=>{ 
-                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-2.gif';
-   
+                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-1.gif'
                 },76); 
     
                 setTimeout(()=>{ 
-                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-3.gif';
+                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-2.gif'
       
                 },76*2); 
     
                 setTimeout(()=>{ 
-                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-4.gif';
+                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-3.gif'
            
                 },76*3); 
     
                 setTimeout(()=>{ 
-                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-5.gif';
+                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-4.gif'
                 
                 },76*4); 
     
                 setTimeout(()=>{ 
-                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-6.gif';
+                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-5.gif'
              
                 },76*5); 
 
                 setTimeout(()=>{ 
-                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-7.gif'; 
+                    thisEl[0].firstChild.src = './cabbit-rotate-270-quad2-6.gif'
                 },76*6); 
 
                 setTimeout(()=>{ 
@@ -1472,9 +1843,7 @@ export class characterObject {
         }) 
     
         return p  
-    }
-
-    
+    } 
 
     //initiate state object that contains data for each frame 
     //Pause before frame is displayed then return a promise that resolves with the state object 
@@ -1564,13 +1933,14 @@ export class characterObject {
         }
         
         //QUAD 4
+         
         if ((quad == 4 && angle > 38.5) && (index <= pivot)){  
             
             state.index = index 
             state.angle = 292 
         }
         
-        else if ((quad == 4 && angle > 25) && (index > pivot)){  
+        else if ((quad == 4 && angle > 38.5) && (index > pivot)){  
             state.index = index 
             state.angle = 0  
         }  
@@ -1600,6 +1970,7 @@ export class characterObject {
         let p = new Promise((resolve, reject) => {
             setTimeout(() => {
                 resolve(state) 
+                console.log("index: " + state.index)//July 18, 2023
             }, index*66.667)//  1/15 of a second = 66.667
         })
    
@@ -1668,8 +2039,7 @@ export class characterObject {
                         srcGif = 'w0x12'
                         break 
                 }
-            }
- 
+            } 
             
             let walk0 = [this.gif.w0x1, this.gif.w0x2, this.gif.w0x3, this.gif.w0x4, this.gif.w0x5, this.gif.w0x6, this.gif.w0x7, this.gif.w0x8, this.gif.w0x9, this.gif.w0x10, this.gif.w0x11, this.gif.w0x12]
             let walk45 = [this.gif.w45x1, this.gif.w45x2, this.gif.w45x3, this.gif.w45x4, this.gif.w45x5,  this.gif.w45x6, this.gif.w45x7, this.gif.w45x8, this.gif.w45x9, this.gif.w45x10, this.gif.w45x11, this.gif.w45x12] 
@@ -1678,8 +2048,7 @@ export class characterObject {
             let walk180 = [this.gif.w180x1, this.gif.w180x2, this.gif.w180x3, this.gif.w180x4, this.gif.w180x5, this.gif.w180x6, this.gif.w180x7, this.gif.w180x8, this.gif.w180x9, this.gif.w180x10, this.gif.w180x11, this.gif.w180x12]
             let walk225 = [this.gif.w225x1, this.gif.w225x2, this.gif.w225x3, this.gif.w225x4, this.gif.w225x5,  this.gif.w225x6, this.gif.w225x7, this.gif.w225x8, this.gif.w225x9, this.gif.w225x10, this.gif.w225x11, this.gif.w225x12] 
             let walk270 = [this.gif.w270x1, this.gif.w270x2, this.gif.w270x3, this.gif.w270x4, this.gif.w270x5,  this.gif.w270x6, this.gif.w270x7, this.gif.w270x8, this.gif.w270x9, this.gif.w270x10, this.gif.w270x11, this.gif.w270x12] 
-            let walk292 = [this.gif.w292x1,  this.gif.w292x2,  this.gif.w292x3,  this.gif.w292x4,  this.gif.w292x5,   this.gif.w292x6,  this.gif.w292x7,  this.gif.w292x8,  this.gif.w292x9,  this.gif.w292x10,  this.gif.w292x11,  this.gif.w292x12] 
-            
+            let walk292 = [this.gif.w292x1,  this.gif.w292x2, this.gif.w292x3,  this.gif.w292x4,  this.gif.w292x5,   this.gif.w292x6,  this.gif.w292x7,  this.gif.w292x8,  this.gif.w292x9,  this.gif.w292x10,  this.gif.w292x11,  this.gif.w292x12] 
             
             if (state.angle == 0) {
  
@@ -1909,8 +2278,7 @@ export class characterObject {
 
                 if(pathCount >= 1) {
                     pathPt = '.' + 'pathPoint' + pathCount 
-                }  
-               
+                }   
 
                 this.currIndex = state.index 
                 this.frameIndex = state.frameIndex  
@@ -1919,8 +2287,8 @@ export class characterObject {
 
                     if(state.index == 1){
                         $('.tempPoint').remove() 
-                    } 
-                    
+                    }  
+
                     $(pathPt).eq(state.index).append(srcGif) //select the path point of the current state index
                     
                     setTimeout(() => { 
@@ -1931,15 +2299,100 @@ export class characterObject {
 
                 else {     
                     //June 20, 2023 : console.log the  X location of walking character 
-                    document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft //prints to x pos on screen
-                    document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop //prints y pos to screen
-                    //console.log("SRCGIF : " )
-                    //console.log( srcGif)
 
-                    $('.tempPoint').remove()//this removes the temp point being used as the rotation axis
+                    //change size of img depending on location
+
+                    this.stopPt = [$(pathPt).eq(state.index)[0].offsetLeft , $(pathPt).eq(state.index)[0].offsetTop] 
+
+                    let yMin = 500
+                    let yMax = 700
+                    let ySizeMin = 80 //percent
+                    let ySizeMax = 100 //percent
+                    let yDifference = ySizeMax-ySizeMin
+                    
+
+                    let xDist  
+                    let zDist  
+                    let xPercent  
+
+                    let temp = this.stopPt[1]
+
+                    if (this.stopPt[1] > yMin && this.stopPt[1] < yMax) {
+                        xDist = temp - yMin
+                        zDist =  yMax - yMin
+                        xPercent = xDist/zDist 
+
+                        console.log("xPErcent : " + xPercent)
+                        console.log("yDifference : " + yDifference)
+                        console.log("this width : " + this.width)
+                        console.log("Multiplier : " + (ySizeMin+(xPercent*yDifference)))
+                        /*
+                        console.log("xDist : ")
+                        console.log(xDist)
+                        console.log("zDist : ")
+                        console.log(zDist)
+                        console.log("xPercent :")
+                        console.log(xPercent)
+
+                        console.log("Percent Increase : ")
+                        console.log(ySizePercent + (xPercent*zDist))*/
+
+                        
+
+                        //srcGif.width =  this.width * (ySizePercent/100)
+                                                    //90/100
+
+                        let tempW = this.width * (ySizeMin+(xPercent*yDifference))
+                        let tempH = this.height * (ySizeMin+(xPercent*yDifference))
+
+                        srcGif.width = tempW/100
+                        srcGif.height = tempH/100
+
+                      
+                       
+                    }
+
+                    else {
+                        srcGif.width =  this.width   
+                        srcGif.height =  this.height 
+ 
+                    }
+
+                    /*
+                    let yDiff = (yMax - yMin) //--> 20
+                    let maxSize = 100
+                    let minSize = 60
+                    let diffPercent = 100-60 //-> 40%
+                    //frameDist = 5 
+                    let diffPoints = yDiff/this.frameDistance  //-> 4
+                    let diffMulti = diffPercent/diffPoints //= 10 
+                    let currDifference = Math.abs(this.stopPt[1] - yMin)*/
+
+                        //60 + i*diffMulti = 0; i = 0
+                        //60 + i*diffMulti = 70; i = 1
+                        //60 + i*diffMulti = 80; i = 2
+                        //60 + i*diffMulti = 90; i = 3
+                        //60 + i*diffMulti = 100; i = 4 
+
+                    //from yMin to yMax, divide into segments
+                    //let multiplier = currDifference/diffPoints // = 3.6 -> roundup -> 4
+                    
+                    
+
+                    $('.tempPoint').remove()//this removes the temp point being used as the rotation axis 
+
+                    console.log(srcGif)
+        
 
                     $(pathPt).eq(state.index).append(srcGif) //append gif to path point of current frame index number
-                        setTimeout(() => { 
+                     
+                    document.getElementById('cabbitPositionX').innerText = $(pathPt).eq(state.index)[0].offsetLeft //prints to x pos on screen
+                    document.getElementById('cabbitPositionY').innerText = $(pathPt).eq(state.index)[0].offsetTop //prints y pos to screen
+                    
+                    //Ju;y 22, 2023 - set top points
+                    
+
+                    setTimeout(() => { 
                             $(pathPt).eq(state.index).empty()   //then reset the frame after 1/15 of a second
                     }, 70 )   
                 }
@@ -1952,6 +2405,8 @@ export class characterObject {
     
            if (state.index == state.pathEndFrame){
                 state.stopFrameIndex = state.frameIndex 
+                //this.currIndex = 0 //changed July 22, 2023
+                console.log("pathend : " + state.pathEndFrame)//July 18, 2023
            }
     
            if (state.pathEnd == true){
@@ -2573,6 +3028,7 @@ export class characterObject {
             if (stopFrameIndex == 12 && difference == 5){
                 thisIndex = difference-1;
             }  
+               
  
             $(pathPt).eq(state.index).append(gifSrc[thisIndex]) 
               
